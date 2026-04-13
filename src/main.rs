@@ -18,6 +18,8 @@ fn main() {
 
     let mut test_entity = Entity::new(1);
 
+    println!("{:?}", test_entity);
+
     let mut test_component = Component { data: vec![] };
 
     let prop1 = (String::from("Prop1"), PropertyData::Integer(50));
@@ -32,6 +34,11 @@ fn main() {
     test_component.add_property(prop1);
     test_component.add_property(prop2);
     test_component.add_property(prop3);
+    
+    println!("{:?}", test_component);
 
     test_entity.add_component(test_component);
+
+    
+
 }

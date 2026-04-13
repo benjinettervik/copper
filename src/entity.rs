@@ -1,6 +1,7 @@
 
 use crate::Component;
 
+#[derive(Debug)]
 pub struct Entity {
     
     id: i32,

@@ -1,9 +1,12 @@
+
+#[derive(Debug)]
 pub enum PropertyData {
     Integer(i32),
     Text(String),
     Flag(bool),
 }
 
+#[derive(Debug)]
 pub struct Component {
     pub data: Vec<(String, PropertyData)>, // maybe change to private?
 }
