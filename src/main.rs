@@ -1,4 +1,4 @@
-use std::vec;
+use std::{fmt::Debug, vec};
 
 mod component;
 use component::*;
@@ -20,7 +20,7 @@ fn main() {
 
     println!("{:?}", test_entity);
 
-    let mut test_component = Component { data: vec![] };
+    let mut test_component = Component::new();
 
     let prop1 = (String::from("Prop1"), PropertyData::Integer(50));
 
@@ -36,9 +36,7 @@ fn main() {
     test_component.add_property(prop3);
     
     println!("{:?}", test_component);
+    println!("{:?}", test_component.get_id());
 
     test_entity.add_component(test_component);
-
-    
-
 }

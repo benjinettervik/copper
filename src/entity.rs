@@ -4,12 +4,12 @@ use crate::Component;
 #[derive(Debug)]
 pub struct Entity {
     
-    id: i32,
+    id: u32,
     components: Vec<Component>,
 }
 
 impl Entity {
-    pub fn new(id: i32) -> Self {
+    pub fn new(id: u32) -> Self {
         Self {
             id,
             components: Vec::new(),
