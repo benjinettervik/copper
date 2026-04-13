@@ -1,11 +1,11 @@
-enum PropertyData {
+pub enum PropertyData {
     Integer(i32),
     Text(String),
     Flag(bool),
 }
 
 pub struct Component {
-    data: Vec<(String, PropertyData)>,
+    pub data: Vec<(String, PropertyData)>, // maybe change to private?
 }
 
 impl Default for Component {
@@ -15,7 +15,7 @@ impl Default for Component {
 }
 
 impl Component {
-    fn add_property(&mut self, prop: (String, PropertyData)) {
+    pub fn add_property(&mut self, prop: (String, PropertyData)) {
         self.data.push(prop);
     }
 }

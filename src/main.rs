@@ -1,14 +1,21 @@
 use std::vec;
 
 mod component;
+use component::*;
+
 mod entity;
+use entity::*;
+
 mod system;
+use system::*;
+
 
 struct System {
     component_read: String,
 }
 
 fn main() {
+
     let mut test_entity = Entity::new(1);
 
     let mut test_component = Component { data: vec![] };

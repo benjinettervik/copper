@@ -1,4 +1,8 @@
+
+use crate::Component;
+
 pub struct Entity {
+    
     id: i32,
     components: Vec<Component>,
 }
