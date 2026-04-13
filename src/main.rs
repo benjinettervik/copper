@@ -1,0 +1,30 @@
+use std::vec;
+
+mod component;
+mod entity;
+mod system;
+
+struct System {
+    component_read: String,
+}
+
+fn main() {
+    let mut test_entity = Entity::new(1);
+
+    let mut test_component = Component { data: vec![] };
+
+    let prop1 = (String::from("Prop1"), PropertyData::Integer(50));
+
+    let prop2 = (
+        String::from("Prop2"),
+        PropertyData::Text(String::from("Hejsan")),
+    );
+
+    let prop3 = (String::from("Prop3"), PropertyData::Flag(true));
+
+    test_component.add_property(prop1);
+    test_component.add_property(prop2);
+    test_component.add_property(prop3);
+
+    test_entity.add_component(test_component);
+}
