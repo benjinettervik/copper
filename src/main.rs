@@ -1,14 +1,8 @@
-use std::{fmt::Debug, vec};
-
-mod component;
-use component::*;
-
-mod entity;
-use entity::*;
-
-mod system;
-use system::*;
-
+mod ecs;
+use ecs::entity::*;
+use ecs::component::*;
+use ecs::system::*;
+use ecs::world::*;
 
 struct System {
     component_read: String,
@@ -39,4 +33,6 @@ fn main() {
     println!("{:?}", test_component.get_id());
 
     test_entity.add_component(test_component);
+
+
 }

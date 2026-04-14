@@ -1,5 +1,5 @@
 
-use crate::Component;
+use super::component::Component;
 
 #[derive(Debug)]
 pub struct Entity {
