@@ -1,7 +1,6 @@
-
 /*
 
-struct world: 
+struct world:
 * id (incrementing)
 * Vec<Entities>
 
@@ -44,12 +43,14 @@ impl World {
         entity.add_component(component);
     }
 
-    pub fn query(&mut self, components: &Vec<TypeId>) -> Vec<&Entity> {
+    pub fn query(&mut self, components: &Vec<TypeId>) {
+        //Vec<&Entity> {
         let result: Vec<&Entity> = vec![];
 
         // Improve following code pelase
         for entity in &self.entities {
-            for 
+            let components = entity.get_components();
         }
     }
 }
+
