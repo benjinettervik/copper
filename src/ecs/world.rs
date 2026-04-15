@@ -12,11 +12,9 @@ impl:
 * add_component
 * query
 */
-
+use std::any::Any;
 use std::any::TypeId;
-
 use crate::ecs::component::Component;
-
 use super::entity::*;
 
 pub struct World {
@@ -45,11 +43,22 @@ impl World {
 
     pub fn query(&mut self, components: &Vec<TypeId>) {
         //Vec<&Entity> {
-        let result: Vec<&Entity> = vec![];
+        let mut result: Vec<&Entity> = vec![];
 
         // Improve following code pelase
         for entity in &self.entities {
-            let components = entity.get_components();
+            let mut count = 0;
+
+            for component in entity.get_components() {
+                if components.contains(&component.type_id()) {
+                    count += 1;
+                    
+                    if count == components.len() {
+                        result.push(entity);
+                        break;
+                    }
+                }
+            }
         }
     }
 }

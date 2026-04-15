@@ -20,7 +20,7 @@ impl Entity {
         self.components.push(component);
     }
 
-    pub fn get_components(&mut self) -> &Vec<Component> {
+    pub fn get_components(&self) -> &Vec<Component> {
         &self.components
     }
 }
