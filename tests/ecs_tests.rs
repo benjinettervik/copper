@@ -13,22 +13,22 @@ mod world_tests {
     fn test_query() {
         let mut world = World::new();
 
-        struct S1 {}
-        struct S2 {}
-        struct S3 {}
+        struct S1;
+        struct S2;
+        struct S3;
         
         let components = vec![
             TypeId::of::<S1>(), 
             TypeId::of::<S2>(),];
 
-        let entity_ref1= world.spawn();
-        //world.add_component(entity_ref1, );
+        let entity_id1 = world.spawn();
+        world.add_component(entity_id1, S1);
 
         let entity_ref2: &Entity = world.spawn();
 
         let result = world.query(&components);
 
-        assert!
+        //assert!
     }
 }
 

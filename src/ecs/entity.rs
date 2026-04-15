@@ -1,30 +1,31 @@
 // Private file.
 
-use super::component::Component;
+//use super::component::Component;
+use std::any::Any;
 
 #[derive(Debug)]
 pub struct Entity {
-    id: u32,
-    components: Vec<Component>,
+    id: usize,
+    components: Vec<Box<dyn Any>>,
 }
 
 impl Entity {
-    pub fn new(id: &u32) -> Self {
+    pub fn new(id: usize) -> Self {
         Self {
-            id: id.clone(),
+            id: id,
             components: Vec::new(),
         }
     }
 
-    pub fn add_component(&mut self, component: Component) {
-        self.components.push(component);
+    pub fn add_component<T: 'static>(&mut self, component: T) {
+        self.components.push(Box::new(component));
     }
 
-    pub fn get_components(&self) -> &Vec<Component> {
+    pub fn get_components(&self) -> &Vec<Box<dyn Any>> {
         &self.components
     }
 
-    pub fn get_id(&self) -> &u32 {
-        &self.id
+    pub fn get_id(&self) -> usize {
+        self.id
     }
 }
