@@ -23,4 +23,8 @@ impl Entity {
     pub fn get_components(&self) -> &Vec<Component> {
         &self.components
     }
+
+    pub fn get_id(&self) -> &u32 {
+        &self.id
+    }
 }

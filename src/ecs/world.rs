@@ -30,29 +30,28 @@ impl World {
         }
     }
 
-    pub fn spawn(&mut self) -> &Entity {
-        let result = Entity::new(&self.next_entity_id);
+    pub fn spawn(&mut self) -> &mut Entity {
+        let mut new_entity = Entity::new(&self.next_entity_id);
         self.next_entity_id += 1;
-        self.entities.push(result);
-        self.entities.last().unwrap() // may need to fix, error check for 'none' value
+        self.entities.push(new_entity);
+        self.entities.last_mut().expect("WTF WHERE IS THE ENTITY?!?!") // FIXME: Fix message haha
     }
 
     pub fn add_component(&mut self, entity: &mut Entity, component: Component) {
         entity.add_component(component);
     }
 
-    pub fn query(&mut self, components: &Vec<TypeId>) {
-        //Vec<&Entity> {
+    pub fn query(&mut self, components: &Vec<TypeId>) -> Vec<&Entity> {
         let mut result: Vec<&Entity> = vec![];
 
         // Improve following code pelase
         for entity in &self.entities {
-            let mut count = 0;
+            let mut count: usize = 0;
 
             for component in entity.get_components() {
                 if components.contains(&component.type_id()) {
                     count += 1;
-                    
+
                     if count == components.len() {
                         result.push(entity);
                         break;
@@ -60,6 +59,8 @@ impl World {
                 }
             }
         }
+
+        result
     }
 }
 
