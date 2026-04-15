@@ -34,9 +34,7 @@ fn main() {
 
     test_entity.add_component(test_component);
 
-
-
-    
-
+    let health_system = HealthSystem;
+    println!("{:#?}", health_system.get_component_types());
 
 }

@@ -10,19 +10,20 @@ struct Random {
     rand: i32,
 }
 
-struct Health_system;
-impl System for Health_system {
+pub struct HealthSystem;
+impl System for HealthSystem {
+    
     query_for_components!(Health, Random);
     
-    fn _on_ready() {
+    fn _on_ready(&self) {
         
     }
 
-    fn _process() {
+    fn _process(&self) {
 
     }
 
-    fn _delta_process() {
+    fn _delta_process(&self) {
 
     }
 }
