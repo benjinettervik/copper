@@ -1,7 +1,5 @@
 use std::any::TypeId;
-
-mod ecs;
-use ecs::system::*;
+use crate::{ecs::system::*, query_for_components};
 
 struct Health {
     current: i32,
@@ -14,13 +12,18 @@ struct Random {
 
 struct Health_system;
 impl System for Health_system {
-     fn get_component_types() -> Vec<TypeId> {
-        vec![
-            TypeId::of::<Health>(), 
-            TypeId::of::<Random>()]
-     }
+    query_for_components!(Health, Random);
     
     fn _on_ready() {
         
     }
+
+    fn _process() {
+
+    }
+
+    fn _delta_process() {
+
+    }
 }
+

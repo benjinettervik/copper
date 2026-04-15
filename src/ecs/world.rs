@@ -12,7 +12,12 @@ impl:
 * despawn
 * add_component
 * query
-
-
-
 */
+
+struct World {
+
+}
+
+impl World {
+    
+}

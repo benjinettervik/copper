@@ -7,9 +7,6 @@ use ecs::world::*;
 mod health_system;
 use health_system::*;
 
-struct System {
-    component_read: String,
-}
 
 fn main() {
 
@@ -17,7 +14,7 @@ fn main() {
 
     println!("{:?}", test_entity);
 
-    let mut test_component = Component::new();
+    let mut test_component = Component::new("awd");
 
     let prop1 = (String::from("Prop1"), PropertyData::Integer(50));
 
