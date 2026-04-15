@@ -37,4 +37,6 @@ fn main() {
     let health_system = HealthSystem;
     println!("{:#?}", health_system.get_component_types());
 
+    let mut world = World::new();
+
 }

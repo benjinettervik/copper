@@ -10,9 +10,9 @@ pub struct Entity {
 }
 
 impl Entity {
-    pub fn new(id: u32) -> Self {
+    pub fn new(id: &u32) -> Self {
         Self {
-            id,
+            id: id.clone(),
             components: Vec::new(),
         }
     }

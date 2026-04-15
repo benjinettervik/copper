@@ -12,7 +12,6 @@ struct Random {
 
 pub struct HealthSystem;
 impl System for HealthSystem {
-    
     query_for_components!(Health, Random);
     
     fn _on_ready(&self) {
