@@ -1,3 +1,4 @@
+// depicated lol
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -9,22 +10,18 @@ pub enum PropertyData {
 
 #[derive(Debug)]
 pub struct Component {
+    name: String,
     identifier: u32,
     data: Vec<(String, PropertyData)>,
 }
 
-impl Default for Component {
-    fn default() -> Self {
-        Self {
-            identifier: 1, // FIXME: add UNIQUE id!!!! 
-            data: Vec::new() 
-        }
-    }
-}
-
 impl Component {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            identifier: 0,
+            data: Vec::new(),
+        }
     }
 
     pub fn add_property(&mut self, prop: (String, PropertyData)) {

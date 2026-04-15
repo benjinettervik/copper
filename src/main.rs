@@ -4,6 +4,9 @@ use ecs::component::*;
 use ecs::system::*;
 use ecs::world::*;
 
+mod health_system;
+use health_system::*;
+
 struct System {
     component_read: String,
 }
@@ -33,6 +36,10 @@ fn main() {
     println!("{:?}", test_component.get_id());
 
     test_entity.add_component(test_component);
+
+
+
+    
 
 
 }

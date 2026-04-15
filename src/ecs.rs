@@ -7,3 +7,12 @@ use entity::*;
 use component::*;
 use system::*;
 use world::*;
+
+
+struct ECS {
+
+}
+
+impl ECS {
+
+}
