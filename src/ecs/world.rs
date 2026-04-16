@@ -40,6 +40,7 @@ impl World {
         return_id
     }
 
+    /// Adds a component onto an entity. Adds any new components into the world's storage. 
     pub fn add_component<T: 'static>(&mut self, entity_id: usize, component: T) {
         // Generates a unique ID based on a 'static component struct type. 
         // Example: every unique component of type 'struct Player' will generate the same component_id!
@@ -63,28 +64,41 @@ impl World {
         component_storage.insert(entity_id, component);
     }
 
-    pub fn get_components()
 
-    pub fn query(&mut self, components: &Vec<TypeId>) -> Vec<&Entity> {
-        let mut result: Vec<&Entity> = vec![];
-
-        // Improve following code pelase
-        for entity in &self.entities {
-            let mut count: usize = 0;
-
-            for component in entity.get_components() {
-                if components.contains(&component.type_id()) {
-                    count += 1;
-
-                    if count == components.len() {
-                        result.push(entity);
-                        break;
-                    }
-                }
-            }
-        }
-
-        result
+    /// Gets a reference to a component that is assigned to entity_id
+    pub fn get_component<T: 'static>(&self, entity_id: usize) -> Option<&T>{
+        self.component_storages.get(&TypeId::of::<T>())?
+        .downcast_ref::<HashMap<usize, T>>()?
+        .get(&entity_id)
     }
+
+    /// Gets a mutable reference to a component that is assigned to entity_id
+    pub fn get_component_mut<T: 'static>(&mut self, entity_id: usize) -> Option<&mut T> {
+        self.component_storages.get_mut(&TypeId::of::<T>())?
+        .downcast_mut::<HashMap<usize, T>>()?
+        .get_mut(&entity_id)
+    }
+ 
+    // pub fn query(&mut self, components: &Vec<TypeId>) -> Vec<&Entity> {
+    //     let mut result: Vec<&Entity> = vec![];
+
+    //     // Improve following code pelase
+    //     for entity in &self.entities {
+    //         let mut count: usize = 0;
+
+    //         for component in entity.get_components() {
+    //             if components.contains(&component.type_id()) {
+    //                 count += 1;
+
+    //                 if count == components.len() {
+    //                     result.push(entity);
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     result
+    // }
 }
 

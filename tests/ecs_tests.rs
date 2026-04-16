@@ -7,10 +7,11 @@ use copper::*;
 mod world_tests {
     use copper::ecs::world::*;
     use copper::ecs::entity::*;
+    use std::any::Any;
     use std::any::TypeId;
 
     #[test]
-    fn test_query() {
+    fn test_1_component() {
         let mut world = World::new();
 
         struct S1;
@@ -21,14 +22,18 @@ mod world_tests {
             TypeId::of::<S1>(), 
             TypeId::of::<S2>(),];
 
-        let entity_id1 = world.spawn();
+        let entity_id1: usize = world.spawn();
+
         world.add_component(entity_id1, S1);
 
-        let entity_ref2: &Entity = world.spawn();
+        if let Some::<&S1>(comp_ref1) = world.get_component::<S1>(entity_id1) {
+            assert_eq!(comp_ref1.type_id(), TypeId::of::<S1>());
+        }
+        else {
+            assert!(false);
+        }
 
-        let result = world.query(&components);
-
-        //assert!
+        // CONTINUE!!!!!!
     }
 }
 
