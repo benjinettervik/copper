@@ -12,10 +12,10 @@ impl:
 * add_component
 * query
 */
+
 use std::any::Any;
 use std::any::TypeId;
 use std::collections::HashMap;
-use super::entity::*;
 
 
 pub struct World {
@@ -26,8 +26,8 @@ pub struct World {
 impl World {
     pub fn new() -> Self {
         World {
-            next_entity_id: 0,
-            component_storages: HashMap::<TypeId, Box<dyn Any>>::new(),
+            next_entity_id: 0, 
+            component_storages: HashMap::<TypeId, Box<dyn Any>>::new(), 
         }
     }
 
@@ -40,7 +40,7 @@ impl World {
         return_id
     }
 
-    /// Adds a component onto an entity. Adds any new components into the world's storage. 
+    /// Adds a component onto an entity. Adds any new components into the world's storage if it does not already exist. 
     pub fn add_component<T: 'static>(&mut self, entity_id: usize, component: T) {
         // Generates a unique ID based on a 'static component struct type. 
         // Example: every unique component of type 'struct Player' will generate the same component_id!
@@ -78,27 +78,5 @@ impl World {
         .downcast_mut::<HashMap<usize, T>>()?
         .get_mut(&entity_id)
     }
- 
-    // pub fn query(&mut self, components: &Vec<TypeId>) -> Vec<&Entity> {
-    //     let mut result: Vec<&Entity> = vec![];
-
-    //     // Improve following code pelase
-    //     for entity in &self.entities {
-    //         let mut count: usize = 0;
-
-    //         for component in entity.get_components() {
-    //             if components.contains(&component.type_id()) {
-    //                 count += 1;
-
-    //                 if count == components.len() {
-    //                     result.push(entity);
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     result
-    // }
 }
 
