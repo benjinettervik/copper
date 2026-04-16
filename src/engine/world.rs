@@ -80,6 +80,4 @@ impl World {
             .downcast_mut::<HashMap<usize, T>>()?
             .get_mut(&entity_id)
     }
-
-    pub fn query_entites
 }

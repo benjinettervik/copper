@@ -23,7 +23,7 @@ impl Engine {
 
     pub fn run(&self, cycles: usize) {
         for system in &self.systems {
-            system._on_ready();
+            system._on_ready(self.world, //);
         }
 
         for _ in 0..cycles {
