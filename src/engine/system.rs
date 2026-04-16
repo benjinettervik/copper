@@ -1,3 +1,4 @@
+use crate::engine::world::*;
 use std::any::TypeId;
 
 #[macro_export]
@@ -13,13 +14,12 @@ macro_rules! query_for_components {
     };
 }
 
-
 pub trait System {
     fn get_component_types(&self) -> Vec<TypeId>;
-    
-    fn _on_ready(&self);
 
-    fn _process(&self);
+    fn _on_ready(&self, world: &mut World);
 
-    fn _delta_process(&self);
+    fn _process(&self, world: &mut World);
+
+    fn _delta_process(&self, world: &mut World);
 }
