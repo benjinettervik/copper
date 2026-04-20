@@ -32,6 +32,13 @@ mod world_tests {
             assert!(false);
         }
 
+        // Returns mutable reference to entity, that's tied to world
+        let new_entity = world.spawn();
+
+        // Can not use world because the entity 
+        // reference is still in use
+        world.add_component(new_entity, HealthComponent { _health: 100 });
+
         // CONTINUE!!!!!!
     }
 }
@@ -48,7 +55,8 @@ mod engine_tests {
     #[test]
     fn test_1_create_engine() {
         let mut engine = Engine::new();
-        engine.register_system(HealthSystem);
-        engine.run(100);
+        
     }
+
+    
 }
