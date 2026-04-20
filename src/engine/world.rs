@@ -1,36 +1,26 @@
-/*
-
-struct world:
-* id (incrementing)
-* Vec<Entities>
-
-
-impl:
-* new
-* spawn
-* despawn
-* add_component
-* query
-*/
 
 use std::any::Any;
 use std::any::TypeId;
 use std::collections::HashMap;
 
+type EntityId = usize;
+type ComponentId = TypeId;
+
+
 pub struct World {
     next_entity_id: usize,
-    component_storages: HashMap<TypeId, Box<dyn Any>>,
+    component_storages: HashMap<ComponentId, Box<dyn Any>>,
 }
 
 impl World {
     pub fn new() -> Self {
         World {
             next_entity_id: 0,
-            component_storages: HashMap::<TypeId, Box<dyn Any>>::new(),
+            component_storages: HashMap::<ComponentId, Box<dyn Any>>::new(),
         }
     }
 
-    pub fn spawn(&mut self) -> usize {
+    pub fn spawn(&mut self) -> EntityId {
         let return_id = self.next_entity_id;
         self.next_entity_id += 1;
 
@@ -40,7 +30,7 @@ impl World {
     }
 
     /// Adds a component onto an entity. Adds any new components into the world's storage if it does not already exist.
-    pub fn add_component<T: 'static>(&mut self, entity_id: usize, component: T) {
+    pub fn add_component<T: 'static>(&mut self, entity_id: EntityId, component: T) {
         // Generates a unique ID based on a 'static component struct type.
         // Example: every unique component of type 'struct Player' will generate the same component_id!
         let component_id = TypeId::of::<T>();
@@ -50,7 +40,7 @@ impl World {
         let component_storage_box = self
             .component_storages
             .entry(component_id)
-            .or_insert_with(|| Box::new(HashMap::<usize, T>::new()));
+            .or_insert_with(|| Box::new(HashMap::<EntityId, T>::new()));
 
         // 'component_storage' in this case is a hashmap that stores which entities who has the
         // 'component_storage' specific component assigned to it and:
@@ -59,25 +49,29 @@ impl World {
 
         // Downcast component_storage_box
         let component_storage = component_storage_box
-            .downcast_mut::<HashMap<usize, T>>()
+            .downcast_mut::<HashMap<EntityId, T>>()
             .expect("FATAL ERROR: This should not happen... ");
 
         component_storage.insert(entity_id, component);
     }
 
     /// Gets a reference to a component that is assigned to entity_id
-    pub fn get_component<T: 'static>(&self, entity_id: usize) -> Option<&T> {
+    pub fn get_component<T: 'static>(&self, entity_id: EntityId) -> Option<&T> {
         self.component_storages
             .get(&TypeId::of::<T>())?
-            .downcast_ref::<HashMap<usize, T>>()?
+            .downcast_ref::<HashMap<EntityId, T>>()?
             .get(&entity_id)
     }
 
     /// Gets a mutable reference to a component that is assigned to entity_id
-    pub fn get_component_mut<T: 'static>(&mut self, entity_id: usize) -> Option<&mut T> {
+    pub fn get_component_mut<T: 'static>(&mut self, entity_id: EntityId) -> Option<&mut T> {
         self.component_storages
             .get_mut(&TypeId::of::<T>())?
-            .downcast_mut::<HashMap<usize, T>>()?
+            .downcast_mut::<HashMap<EntityId, T>>()?
             .get_mut(&entity_id)
+    }
+
+    pub fn query<T: 'static>(&self, entity_id: EntityId) -> Vec<EntityId> {
+
     }
 }
