@@ -1,4 +1,5 @@
-use copper::health_system::*;
+mod health_system;
+use health_system::*;
 use copper::engine::*;
 
 fn main() {

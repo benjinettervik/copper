@@ -23,7 +23,6 @@ impl Scheduler {
     }
 
     pub fn run_startup(&mut self, world: &mut World) {
-        
         for system in &mut self.startup {
             system.run(world);
         }

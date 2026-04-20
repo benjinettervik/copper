@@ -1,5 +1,6 @@
-use crate::engine::world::*;
-use crate::engine::system::*;
+
+use copper::engine::world::*;
+use copper::engine::system::*;
 
 pub struct HealthSystem;
 impl System for HealthSystem {
