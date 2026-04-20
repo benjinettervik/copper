@@ -1,4 +1,3 @@
-
 use copper::engine::world::*;
 use copper::engine::system::*;
 

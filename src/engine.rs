@@ -8,7 +8,7 @@ use scheduler::*;
 
 pub struct Engine {
     world: World,
-    pub scheduler: Scheduler,
+    scheduler: Scheduler,
 }
 
 impl Engine {
@@ -19,6 +19,13 @@ impl Engine {
         }
     }
 
+    pub fn add_system<T1, T2>(&mut self, system_routine: T1, system: T2) 
+        where T1: SystemRoutine + 'static, 
+        T2: System + 'static,
+    {
+        self.scheduler.add_system(system_routine, system);
+    }
+
     pub fn run_cycles(&mut self, cycles: usize) {
         self.scheduler.run_startup(&mut self.world);
 
@@ -27,3 +34,12 @@ impl Engine {
         }
     }
 }
+
+
+pub trait SystemRoutine {}
+
+pub struct Startup;
+impl SystemRoutine for Startup {}
+
+pub struct Update;
+impl SystemRoutine for Update {}

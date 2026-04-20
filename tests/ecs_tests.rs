@@ -5,9 +5,10 @@ use copper::*;
 
 #[cfg(test)]
 mod world_tests {
+    // mod health_system;
+    // use health_system::HealthSystem;
+
     use copper::engine::world::*;
-    use copper::health_system::HealthSystem;
-    // use copper::ecs::entity::*;
     use std::any::Any;
     use std::any::TypeId;
 
@@ -47,7 +48,7 @@ mod world_tests {
 mod engine_tests {
     use copper::engine::world::*;
     use copper::engine::*;
-    use copper::health_system::HealthSystem;
+    // use copper::health_system::HealthSystem;
     // use copper::ecs::entity::*;
     use std::any::Any;
     use std::any::TypeId;
