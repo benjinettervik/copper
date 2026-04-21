@@ -40,7 +40,6 @@ impl Engine {
         
     }
 
-
     pub fn register_system<T: System + 'static>(&mut self, system: T) {
         // temporary 
         self.scheduler.add_update_system(system);
