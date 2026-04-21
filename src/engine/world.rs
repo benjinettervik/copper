@@ -2,14 +2,24 @@
 use std::any::Any;
 use std::any::TypeId;
 use std::collections::HashMap;
+use std::cell::RefCell;
 
 type EntityId = usize;
 type ComponentId = TypeId;
 
+#[macro_export]
+macro_rules! query {
+    ($($arg:expr), *) => {
+        $(
+            println!("{}", $arg);
+        )*
+    };
+}
+
 
 pub struct World {
     next_entity_id: usize,
-    component_storages: HashMap<ComponentId, Box<dyn Any>>,
+    component_storages: HashMap<ComponentId, RefCell<Box<dyn Any>>>,
 }
 
 impl World {
@@ -71,7 +81,44 @@ impl World {
             .get_mut(&entity_id)
     }
 
-    pub fn query<T: 'static>(&self, entity_id: EntityId) -> Vec<EntityId> {
 
+    pub fn query<T: 'static>(&self) -> Vec<(EntityId, &T)> {
+    let mut result = Vec::new();
+
+    if let Some(storage_box) = self.component_storages.get(&TypeId::of::<T>()) {
+        let storage = storage_box
+            .downcast_ref::<HashMap<usize, T>>()
+            .expect("Storage type mismatch");
+
+        for (entity, comp) in storage.iter() {
+            result.push((*entity, comp));
+        }
+    }
+        result
+    }
+
+    pub fn query_mut(&mut self, components: Vec<ComponentId>) -> Vec<EntityId> {
+
+        let mut result: Vec<EntityId> = vec![];
+
+        for component_id in components {
+
+            let entities_box = self.component_storages.get_mut(&component_id).expect("ERROR");
+            let entities = entities_box.downcast_mut::<HashMap<EntityId, Box<dyn Any>>>().expect("ERROR");
+
+            for (entity, _) in entities.iter_mut() {
+                result.push(entity.clone());
+            }
+
+        }
+
+        // för varje komponent:
+        // hämta alla entities
+        // spara de i nån lista
+        
+        // 
+
+
+        vec![]
     }
 }
