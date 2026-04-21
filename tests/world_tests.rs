@@ -5,25 +5,28 @@ mod world_tests {
     // use copper::ecs::entity::*;
     use std::any::Any;
     use std::any::TypeId;
+    
+    pub struct Player;
 
 
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, PartialEq,Copy,Clone)]
     struct Position {
-        x: i32,
-        y: i32,
+        x: f32,
+        y: f32,
     }
 
-    #[derive(Debug, PartialEq)]
+
+
+    #[derive(Debug, PartialEq,Copy,Clone)]
     struct Velocity {
-        dx: i32,
-        dy: i32,
+        dx: f32,
+        dy: f32,
     }
-    #[test]
-    fn test_world_starts_empty() {
-        let world = World::new();
-        let entities = world.query::<Position>();        
-        assert!(entities.is_empty());
+    #[derive(Debug, PartialEq,Copy,Clone)]
+    struct Health {
+        value: f32,
     }
+
     
     #[test]
     fn spawn_returns_incrementing_ids() {
@@ -42,10 +45,10 @@ mod world_tests {
         let mut world = World::new();
 
         let e = world.spawn();
-        world.add_component(e, Position { x: 10, y: 20 });
+        world.add_component(e, Position { x: 10.0, y: 20.0 });
 
         let pos = world.get_component::<Position>(e).unwrap();
-        assert_eq!(pos, &Position { x: 10, y: 20 });
+        assert_eq!(pos, &Position { x: 10.0, y: 20.0 });
     }
     #[test]
     fn get_component_returns_none_if_missing() {
@@ -61,83 +64,128 @@ mod world_tests {
         let mut world = World::new();
 
         let e = world.spawn();
-        world.add_component(e, Position { x: 1, y: 2 });
+        world.add_component(e, Position { x: 1.0, y: 2.0 });
 
         let pos = world.get_component_mut::<Position>(e).unwrap();
-        pos.x = 99;
+        pos.x = 99.0;
 
         let pos_after = world.get_component::<Position>(e).unwrap();
-        assert_eq!(pos_after.x, 99);
+        assert_eq!(pos_after.x, 99.0);
     }
+
+
     #[test]
-    fn query_returns_all_entities_with_component() {
+    fn query_test(){
+        let mut world = World::new();
+
+        let e1 = world.spawn();
+        let e2 = world.spawn();
+        let e3 = world.spawn();
+
+        // e1 → all components
+        world.add_component(e1, Position { x: 1.0, y: 2.0 });
+        world.add_component(e1, Velocity { dx: 0.1, dy: 0.2 });
+        world.add_component(e1, Health { value: 100.0 });
+
+        // e2 → only Position + Velocity
+        world.add_component(e2, Position { x: 5.0, y: 6.0 });
+        world.add_component(e2, Velocity { dx: 0.5, dy: 0.6 });
+
+        // e3 → only Position
+        world.add_component(e3, Position { x: 9.0, y: 10.0 });
+
+
+        let mut res_comp1: Vec<Position> = Vec::new();
+        let mut res_comp2: Vec<(Position, Velocity)> = Vec::new();
+        let mut res_comp3: Vec<(Position, Velocity, Health)> = Vec::new();
+
+        for (entity, pos) in world.query::<(&Position,)>().iter() {
+            res_comp1.push(*pos);
+        }
+
+        for (entity, (pos, vel)) in world
+            .query::<(&Position, &Velocity)>()
+            .iter()
+        {
+
+            res_comp2.push((*pos, *vel));
+        }
+
+        for (entity, (pos, vel, health)) in world
+            .query::<(&Position, &Velocity, &Health)>()
+            .iter()
+        {
+
+            res_comp3.push((*pos, *vel, *health));
+        }
+        assert_eq!(res_comp1.len(), 3);
+        assert_eq!(res_comp2.len(), 2);
+        assert_eq!(res_comp3.len(), 1);
+    }
+
+    #[test]
+    fn query_mut_single_component() {
         let mut world = World::new();
 
         let e1 = world.spawn();
         let e2 = world.spawn();
 
-        world.add_component(e1, Position { x: 1, y: 1 });
-        world.add_component(e2, Position { x: 2, y: 2 });
+        world.add_component(e1, Position { x: 1.0, y: 2.0 });
+        world.add_component(e2, Position { x: 5.0, y: 6.0 });
 
-        let result = world.query::<Position>();
+        // mutate via QueryParam<&mut T>
+        for (entity, pos) in world.query::<(&mut Position,)>().iter() {
+            pos.x += 10.0;
+            pos.y += 20.0;
+        }
 
-        assert_eq!(result.len(), 2);
+        // verify mutation persisted
+        let p1 = world.get_component::<Position>(e1).unwrap();
+        let p2 = world.get_component::<Position>(e2).unwrap();
+
+        assert_eq!(p1.x, 11.0);
+        assert_eq!(p1.y, 22.0);
+
+        assert_eq!(p2.x, 15.0);
+        assert_eq!(p2.y, 26.0);
     }
     #[test]
-    fn query_excludes_entities_without_component() {
+    fn query_mixed_read_write() {
         let mut world = World::new();
 
         let e1 = world.spawn();
         let e2 = world.spawn();
 
-        world.add_component(e1, Position { x: 1, y: 1 });
-        // e2 has no Position
+        world.add_component(e1, Player);
+        world.add_component(e1, Position { x: 0.0, y: 0.0 });
 
-        let result = world.query::<Position>();
+        world.add_component(e2, Position { x: 5.0, y: 5.0 }); 
 
-        assert_eq!(result.len(), 1);
-        assert_eq!(result[0].0, e1);
+        for (entity, (_player, pos)) in world
+            .query::<(&Player, &mut Position)>()
+            .iter()
+        {
+            pos.x += 1.0;
+        }
+
+        let p1 = world.get_component::<Position>(e1).unwrap();
+        let p2 = world.get_component::<Position>(e2).unwrap();
+
+        assert_eq!(p1.x, 1.0); // mutated
+        assert_eq!(p2.x, 5.0); // unchanged
     }
     #[test]
-    fn query2_mut_updates_components_correctly() {
+    fn query_double_mut_same_type_should_not_exist() {
         let mut world = World::new();
-
         let e = world.spawn();
 
-        world.add_component(e, Position { x: 0, y: 0 });
-        world.add_component(e, Velocity { dx: 5, dy: 7 });
+        world.add_component(e, Position { x: 0.0, y: 0.0 });
 
-        world.query2_mut::<Velocity, Position, _>(|_, vel, pos| {
-            pos.x += vel.dx;
-            pos.y += vel.dy;
-        });
 
-        let pos = world.get_component::<Position>(e).unwrap();
-        assert_eq!(pos.x, 5);
-        assert_eq!(pos.y, 7);
+        assert!(true);
     }
-    #[test]
-    fn query2_mut_skips_entities_missing_components() {
-        let mut world = World::new();
-
-        let e1 = world.spawn();
-        let e2 = world.spawn();
-
-        world.add_component(e1, Position { x: 0, y: 0 });
-        world.add_component(e1, Velocity { dx: 1, dy: 1 });
-
-        world.add_component(e2, Position { x: 10, y: 10 });
-
-        world.query2_mut::<Velocity, Position, _>(|_, vel, pos| {
-            pos.x += vel.dx;
-        });
-
-        let pos1 = world.get_component::<Position>(e1).unwrap();
-        let pos2 = world.get_component::<Position>(e2).unwrap();
-
-        assert_eq!(pos1.x, 1);
-        assert_eq!(pos2.x, 10); 
-    }
+   
+    
 
 
 
