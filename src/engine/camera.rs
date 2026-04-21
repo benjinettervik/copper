@@ -43,21 +43,21 @@ pub struct CameraTarget;
 
 pub struct CameraFollowSystem;
 
-impl System for CameraFollowSystem {
-    fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        let mut target_position = None;
+// impl System for CameraFollowSystem {
+//     fn run(&mut self, world: &mut World, resources: &mut Resources) {
+//         let mut target_position = None;
 
-        for (entity, _target) in world.query::<CameraTarget>() {
-            if let Some(transform) = world.get_component::<Transform>(entity) {
-                target_position = Some((transform.x, transform.y));
-                break;
-            }
-        }
+//         for (entity, _target) in world.query::<CameraTarget>() {
+//             if let Some(transform) = world.get_component::<Transform>(entity) {
+//                 target_position = Some((transform.x, transform.y));
+//                 break;
+//             }
+//         }
 
-        if let Some((x, y)) = target_position {
-            if let Some(camera) = resources.get_mut::<Camera2D>() {
-                camera.set_position(x, y);
-            }
-        }
-    }
-}
+//         if let Some((x, y)) = target_position {
+//             if let Some(camera) = resources.get_mut::<Camera2D>() {
+//                 camera.set_position(x, y);
+//             }
+//         }
+//     }
+// }

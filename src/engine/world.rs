@@ -1,22 +1,182 @@
-/*
 
-struct world:
-* id (incrementing)
-* Vec<Entities>
-
-
-impl:
-* new
-* spawn
-* despawn
-* add_component
-* query
-*/
 use std::any::Any;
 use std::any::TypeId;
 use std::collections::HashMap;
-// use super::entity::*;
 use crate::engine::system::Entity;
+use std::collections::HashSet;
+use crate::engine::meta::SystemMeta;
+
+
+// queryparam implemented, not queryparam MUT
+macro_rules! impl_query_param {
+    ($($name:ident),*) => {
+        impl<$($name: QueryParam),*> QueryParam for ($($name,)*) {
+
+            type Item<'w> = ($($name::Item<'w>,)*);
+
+            fn get<'w>(world: &'w World, entity: Entity)
+                -> Option<Self::Item<'w>>
+            {
+                Some(($($name::get(world, entity)?,)*))
+            }
+
+            fn meta(meta: &mut SystemMeta) {
+                $($name::meta(meta);)*
+            }
+        }
+    };
+}
+
+pub trait QueryParam {
+    type Item<'w>;
+    fn get<'w>(world: &'w World, entity: Entity) -> Option<Self::Item<'w>>;
+    fn meta(meta: &mut SystemMeta);
+}
+
+impl<T: 'static> QueryParam for &T {
+    type Item<'w> = &'w T;
+
+    fn get<'w>(world: &'w World, entity: Entity) -> Option<Self::Item<'w>> {
+        world.component_storages
+            .get(&TypeId::of::<T>())
+            .and_then(|s| s.downcast_ref::<HashMap<Entity, T>>())
+            .and_then(|map| map.get(&entity))
+    }
+    fn meta(meta: &mut SystemMeta) {
+        meta.reads.insert(TypeId::of::<T>());
+    }
+}
+
+// need raw pointers 
+impl<T: 'static> QueryParam for &mut T {
+    type Item<'w> = &'w mut T;
+
+    fn get<'w>(world: &'w World, entity: Entity) -> Option<Self::Item<'w>> {
+ 
+        let storage_ptr = world.component_storages
+            .get(&TypeId::of::<T>())
+            .and_then(|s| s.downcast_ref::<HashMap<Entity, T>>())
+            .map(|s| s as *const HashMap<Entity, T> as *mut HashMap<Entity, T>);
+
+        if let Some(ptr) = storage_ptr {
+            let storage = unsafe { &mut *ptr };
+            storage.get_mut(&entity)
+        } else {
+            None
+        }
+    }
+    fn meta(meta: &mut SystemMeta) {
+        meta.writes.insert(TypeId::of::<T>());
+    }
+}
+
+
+impl_query_param!(A);
+impl_query_param!(A, B);
+impl_query_param!(A, B, C);
+
+
+
+
+
+
+
+use std::marker::PhantomData;
+
+pub struct Query<'w, Q> {
+    world: &'w World,
+    _marker: PhantomData<Q>,
+}
+
+pub struct QueryMut<'w, Q> {
+    world: &'w mut World,
+    _marker: PhantomData<Q>,
+}
+
+impl<'w, Q> Query<'w, Q> {
+    pub fn new(world: &'w World) -> Self {
+        Self {
+            world,
+            _marker: PhantomData,
+        }
+    }
+}
+impl<'w, Q> QueryMut<'w, Q> {
+    pub fn new(world: &'w mut World) -> Self {
+        Self {
+            world,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl<'w, A> Query<'w, (A,)>
+where
+    A: QueryParam,
+{
+    pub fn iter(&self) -> Vec<(Entity, A::Item<'w>)> {
+        let mut result = Vec::new();
+
+        for entity in 0..self.world.next_entity_id {
+            if let Some(item) = A::get(self.world, entity) {
+                result.push((entity, item));
+            }
+        }
+
+        result
+    }
+}
+
+impl<'w, A, B> Query<'w, (A, B)>
+where
+    A: QueryParam,
+    B: QueryParam,
+{
+    pub fn iter(&self) -> Vec<(Entity, (A::Item<'w>, B::Item<'w>))> {
+        let mut result = Vec::new();
+
+        for entity in 0..self.world.next_entity_id {
+            if let Some(a) = A::get(self.world, entity) {
+                if let Some(b) = B::get(self.world, entity) {
+                    result.push((entity, (a, b)));
+                }
+            }
+        }
+
+        result
+    }
+}
+
+impl<'w, A, B, C> Query<'w, (A, B, C)>
+where
+    A: QueryParam,
+    B: QueryParam,
+    C: QueryParam,
+{
+    pub fn iter(&self) -> Vec<(Entity, (A::Item<'w>, B::Item<'w>, C::Item<'w>))> {
+        let mut result = Vec::new();
+
+        for entity in 0..self.world.next_entity_id {
+            if let Some(a) = A::get(self.world, entity) {
+                if let Some(b) = B::get(self.world, entity) {
+                    if let Some(c) = C::get(self.world, entity) {
+                        result.push((entity, (a, b, c)));
+                    }
+                }
+            }
+        }
+
+        result
+    }
+}
+
+
+
+
+
+
+
+
 
 pub struct World {
     next_entity_id: usize,
@@ -79,74 +239,22 @@ impl World {
         .get_mut(&entity_id)
     }
 
-    
 
-    // pub fn query <T: 'static>(&self) -> Vec<(Entity,&T)> 
-    // {        
-    // }
 
-    pub fn query_mut<T: 'static>(&mut self) -> Vec<(Entity, &mut T)> {
-        let mut result = Vec::new();
-
-        if let Some(storage_box) = self.component_storages.get_mut(&TypeId::of::<T>()) {
-            let storage = storage_box
-                .downcast_mut::<HashMap<usize, T>>()
-                .expect("Storage type mismatch");
-
-            for (entity, comp) in storage.iter_mut() {
-                result.push((*entity, comp));
-            }
-        }
-
-        result
+    pub fn query<Q>(&self) -> Query<Q>
+    where
+        Q: QueryParam,
+    {
+        Query::new(self)
     }
-    pub fn query<T: 'static>(&self) -> Vec<(Entity, &T)> {
-    let mut result = Vec::new();
 
-    if let Some(storage_box) = self.component_storages.get(&TypeId::of::<T>()) {
-        let storage = storage_box
-            .downcast_ref::<HashMap<usize, T>>()
-            .expect("Storage type mismatch");
-
-        for (entity, comp) in storage.iter() {
-            result.push((*entity, comp));
-        }
+    pub fn query_mut<Q>(&mut self) -> QueryMut<Q>
+    where
+        Q: QueryParam,
+    {
+        QueryMut::new(self)
     }
-        result
-    }
-    
 
-    
-    pub fn query2_mut<A: 'static, B: 'static, F>(&mut self, mut f: F)
-        where
-            F: FnMut(Entity, &A, &mut B),
-        {
-            let type_a = TypeId::of::<A>();
-            let type_b = TypeId::of::<B>();
-
-
-
-            let storage_a_ptr = self.component_storages
-                .get(&type_a)
-                .and_then(|s| s.downcast_ref::<HashMap<Entity, A>>())
-                .map(|s| s as *const HashMap<Entity, A>);
-
-            let storage_b_ptr = self.component_storages
-                .get_mut(&type_b)
-                .and_then(|s| s.downcast_mut::<HashMap<Entity, B>>())
-                .map(|s| s as *mut HashMap<Entity, B>);
-
-            if let (Some(a_ptr), Some(b_ptr)) = (storage_a_ptr, storage_b_ptr) {
-                let a = unsafe { &*a_ptr };
-                let b = unsafe { &mut *b_ptr };
-
-                for (entity, comp_a) in a.iter() {
-                    if let Some(comp_b) = b.get_mut(entity) {
-                        f(*entity, comp_a, comp_b);
-                    }
-                }
-            }
-        }
 }
 // pub struct Query<A,B> {}
 

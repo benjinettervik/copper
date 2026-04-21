@@ -3,6 +3,7 @@ pub mod system;
 pub mod world;
 pub mod scheduler;
 pub mod camera;
+pub mod meta;
 
 pub use camera::*;
 
