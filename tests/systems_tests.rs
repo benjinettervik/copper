@@ -1,4 +1,5 @@
-mod systems_tests {
+#[cfg(test)]
+mod world_tests {
     use copper::engine::world::*;
     // use copper::health_system::HealthSystem;
     // use copper::ecs::entity::*;

@@ -1,6 +1,7 @@
 use crate::engine::world::World;
 use crate::engine::system::System;
 use crate::resource::resources::Resources;
+use crate::engine::meta::SystemMeta;
 use std::any::{Any, TypeId};
 
 pub struct Scheduler {
@@ -39,11 +40,58 @@ impl Scheduler {
         }
     }
 
+    // pub fn test_sys()
     pub fn has_system<T: System + 'static>(&self) -> bool {
         let target = TypeId::of::<T>();
 
-        self.startup.iter().chain(self.update.iter()).any(|sys| {
+        if self.startup.iter().chain(self.update.iter()).any(|sys| {
             sys.as_ref().type_id() == target
         })
+        {
+            return true
+        }
+        else if self.update.iter().chain(self.update.iter()).any(|sys| {
+            sys.as_ref().type_id() == target
+        })
+        {
+            return true
+        }
+        false
     }
+
+
+    pub fn collect_update_meta(&self) -> Vec<SystemMeta> {
+        let mut metas = Vec::new();
+
+            for system in &self.update {
+                let mut meta = SystemMeta {
+                    reads: Default::default(),
+                    writes: Default::default(),
+                    resource_reads: Default::default(),
+                    resource_writes: Default::default(),
+                };
+
+                system.meta(&mut meta);
+                metas.push(meta);
+            }
+
+            metas
+    }
+    pub fn collect_startup_meta(&self) -> Vec<SystemMeta> {
+        let mut metas = Vec::new();
+
+            for system in &self.startup {
+                let mut meta = SystemMeta {
+                    reads: Default::default(),
+                    writes: Default::default(),
+                    resource_reads: Default::default(),
+                    resource_writes: Default::default(),
+                };
+
+                system.meta(&mut meta);
+                metas.push(meta);
+            }
+
+            metas
+        }
 }
