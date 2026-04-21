@@ -1,0 +1,13 @@
+[package]
+name = "copper"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wgpu = "0.19"
+winit = "0.29"
+image = "0.24"
+pollster = "0.3"
+bytemuck = { version = "1.25.0", features = ["derive"] }
+rayon = "1.12.0"
+
