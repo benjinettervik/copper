@@ -7,3 +7,27 @@ pub struct SystemMeta {
     pub resource_reads: HashSet<TypeId>,
     pub resource_writes: HashSet<TypeId>,
 }
+
+impl SystemMeta {
+    pub fn print_it(&self) {
+        println!("Reads:");
+        for item in &self.reads {
+            println!("{:?}", item);
+        }
+
+        println!("\nWrites:");
+        for item in &self.writes {
+            println!("{:?}", item);
+        }
+
+        println!("\nResource Reads:");
+        for item in &self.resource_reads {
+            println!("{:?}", item);
+        }
+
+        println!("\nResource Writes:");
+        for item in &self.resource_writes {
+            println!("{:?}", item);
+        }
+    }
+}

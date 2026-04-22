@@ -19,6 +19,11 @@ pub trait System: Any {
 
 
 
+
+
+
+
+
 #[derive(Debug)]
 pub struct DrawCommand {
     pub texture: TextureHandle,
@@ -45,6 +50,9 @@ impl GridRenderData {
         }
     }
 }
+
+
+
 
 
 

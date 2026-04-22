@@ -26,7 +26,6 @@ mod world_tests {
     struct Health {
         value: f32,
     }
-
     
     #[test]
     fn spawn_returns_incrementing_ids() {
@@ -87,11 +86,11 @@ mod world_tests {
         world.add_component(e1, Velocity { dx: 0.1, dy: 0.2 });
         world.add_component(e1, Health { value: 100.0 });
 
-        // e2 → only Position + Velocity
+
         world.add_component(e2, Position { x: 5.0, y: 6.0 });
         world.add_component(e2, Velocity { dx: 0.5, dy: 0.6 });
 
-        // e3 → only Position
+
         world.add_component(e3, Position { x: 9.0, y: 10.0 });
 
 

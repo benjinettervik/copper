@@ -7,7 +7,7 @@ use std::collections::HashSet;
 use crate::engine::meta::SystemMeta;
 
 
-// queryparam implemented, not queryparam MUT
+// macro for query param
 macro_rules! impl_query_param {
     ($($name:ident),*) => {
         impl<$($name: QueryParam),*> QueryParam for ($($name,)*) {
@@ -27,12 +27,15 @@ macro_rules! impl_query_param {
     };
 }
 
+// implmenets the query traits
 pub trait QueryParam {
     type Item<'w>;
     fn get<'w>(world: &'w World, entity: Entity) -> Option<Self::Item<'w>>;
     fn meta(meta: &mut SystemMeta);
 }
 
+
+// implmenet queryparam for &t non mutable
 impl<T: 'static> QueryParam for &T {
     type Item<'w> = &'w T;
 
@@ -47,6 +50,7 @@ impl<T: 'static> QueryParam for &T {
     }
 }
 
+// implement querypraam for & mutable T
 // need raw pointers 
 impl<T: 'static> QueryParam for &mut T {
     type Item<'w> = &'w mut T;
@@ -83,6 +87,8 @@ impl_query_param!(A, B, C);
 
 use std::marker::PhantomData;
 
+
+// implements query struct
 pub struct Query<'w, Q> {
     world: &'w World,
     _marker: PhantomData<Q>,
@@ -93,6 +99,9 @@ pub struct QueryMut<'w, Q> {
     _marker: PhantomData<Q>,
 }
 
+
+
+// implements query new()
 impl<'w, Q> Query<'w, Q> {
     pub fn new(world: &'w World) -> Self {
         Self {
@@ -110,6 +119,10 @@ impl<'w, Q> QueryMut<'w, Q> {
     }
 }
 
+
+
+
+// implment QUERY ITER
 impl<'w, A> Query<'w, (A,)>
 where
     A: QueryParam,
@@ -169,11 +182,6 @@ where
         result
     }
 }
-
-
-
-
-
 
 
 
