@@ -57,16 +57,16 @@ fn main() {
     // e1 has both components
     world.add_component(e1, Position { x: 1.0, y: 2.0 });
     world.add_component(e1, Velocity { dx: 0.1, dy: 0.2 });
-
+    
     // e2 only has Position
     world.add_component(e2, Position { x: 5.0, y: 6.0 });
 
-//    for (entity, pos, vel) in world
-  //      .query::<(&Position, &Velocity)>()
-   //     .iter()
-   // {
-   //     println!("Entity {}: {:?} {:?}", entity, pos, vel);
-   // }
+    //    for (entity, pos, vel) in world
+    //      .query::<(&Position, &Velocity)>()
+    //     .iter()
+    // {
+    //     println!("Entity {}: {:?} {:?}", entity, pos, vel);
+    // }
     
   
     let mut engine = Engine::new();
@@ -90,4 +90,5 @@ fn main() {
 
     engine.register_system(RenderSystem);
     engine.run();
+
 }

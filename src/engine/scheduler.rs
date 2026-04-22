@@ -10,7 +10,6 @@ pub struct Scheduler {
     update: Vec<Box<dyn System>>,
 }
 
-
 impl Scheduler {
     pub fn new() -> Self {
         Self {
@@ -114,5 +113,5 @@ impl Scheduler {
             }
 
             metas
-        }
+    }
 }

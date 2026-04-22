@@ -121,7 +121,7 @@ mod world_tests {
         assert_eq!(res_comp2.len(), 2);
         assert_eq!(res_comp3.len(), 1);
     }
-
+    
     #[test]
     fn query_mut_single_component() {
         let mut world = World::new();

@@ -28,8 +28,10 @@ mod scheduler_tests{
         assert!(scheduler.has_system::<DamageSystem>());
         assert!(scheduler.has_system::<MovementSystem>());
         assert!(scheduler.has_system::<SpawnSystem>());
+    
     }
     
+
     #[test]
     fn scheduler_can_access_metadata() {
         
@@ -58,7 +60,9 @@ mod scheduler_tests{
     fn scheduler_can_thread_depending(){
 
         // this will test the scheduler logic
-        // actually making some sort of call depending on the system data that is provided. 
+        // actually making some sort of call depending on the system data that is provided
+        
+
     }
     
 }

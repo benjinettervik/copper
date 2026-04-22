@@ -24,7 +24,7 @@ macro_rules! impl_query_param {
                 $($name::meta(meta);)*
             }
         }
-    };
+    };    
 }
 
 // implmenets the query traits

@@ -22,7 +22,6 @@ use std::any::TypeId;
 
 pub struct Engine {
     pub world: World,
-    // systems: Vec<Box<dyn System>>,
     pub scheduler: Scheduler,
     pub resources: Resources,
 }
