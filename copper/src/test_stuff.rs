@@ -2,12 +2,17 @@ use copper::engine::system::*;
 use copper::engine::world::*;
 use copper::*;
 use std::any::TypeId;
+use component_macro_derive::Component;
 
+
+#[derive(Component)]
 pub struct HealthComponent {
     curr_hp: i32,
     max_hp: usize,
 }
 
+
+#[derive(Component)]
 pub struct DeathComponent;
 
 pub struct SpawnEntitiesSystem;
@@ -24,6 +29,8 @@ impl System for SpawnEntitiesSystem {
             curr_hp: 4,
             max_hp: 100,
         };
+
+        // println!("AAAAAAAAAAAAAAAAAAAAA {}", health_component1.name());
 
         let health_component2 = HealthComponent {
             curr_hp: 20,

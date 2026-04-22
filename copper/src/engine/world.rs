@@ -7,6 +7,8 @@ use std::collections::HashMap;
 type EntityId = usize;
 type ComponentId = TypeId;
 
+use crate::Component;
+
 #[macro_export]
 macro_rules! query {
     ($($arg:expr), *) => {
@@ -39,7 +41,7 @@ impl World {
     }
 
     /// Adds a component onto an entity. Adds any new components into the world's storage if it does not already exist.
-    pub fn add_component<T: 'static>(&mut self, entity_id: EntityId, component: T) {
+    pub fn add_component<T: Component + 'static>(&mut self, entity_id: EntityId, component: T) {
         // Generates a unique ID based on a 'static component struct type.
         // Example: every unique component of type 'struct Player' will generate the same component_id!
         let component_id = TypeId::of::<T>();
@@ -67,7 +69,7 @@ impl World {
     }
 
     /// Gets a reference to a component that is assigned to entity_id
-    pub fn get_component<T: 'static>(&self, entity_id: EntityId) -> Option<Ref<T>> {
+    pub fn get_component<T: Component + 'static>(&self, entity_id: EntityId) -> Option<Ref<T>> {
         let borrowed = self.component_storages.get(&TypeId::of::<T>())?.borrow();
 
         let map_ref = Ref::map(borrowed, |any| {
@@ -84,7 +86,7 @@ impl World {
     }
 
     /// Gets a mutable reference to a component that is assigned to entity_id
-    pub fn get_component_mut<T: 'static>(&mut self, entity_id: EntityId) -> Option<RefMut<T>> {
+    pub fn get_component_mut<T: Component + 'static>(&mut self, entity_id: EntityId) -> Option<RefMut<T>> {
         let borrowed = self
             .component_storages
             .get(&TypeId::of::<T>())?
@@ -103,7 +105,7 @@ impl World {
         return Some(component);
     }
 
-    pub fn query<T: 'static>(&self) -> Vec<EntityId> {
+    pub fn query<T: Component + 'static>(&self) -> Vec<EntityId> {
         let mut result = Vec::new();
 
         let Some(component_storage) = self.component_storages.get(&TypeId::of::<T>()) else {
@@ -121,5 +123,10 @@ impl World {
         }
 
         return result;
+    }
+
+
+    pub fn query2<T: Any + 'static>() {
+        
     }
 }
