@@ -40,7 +40,25 @@ mod scheduler_tests{
         
         assert!(!scheduler.collect_startup_meta().is_empty());
         assert!(!scheduler.collect_update_meta().is_empty());
+        
+        let check = scheduler.collect_startup_meta();
+        let check2 = scheduler.collect_update_meta();
+
+        for meta in check{
+            meta.print_it();
+        }
+        for meta in check2{
+            meta.print_it();
+        }
+
     }
 
+
+    #[test]
+    fn scheduler_can_thread_depending(){
+
+        // this will test the scheduler logic
+        // actually making some sort of call depending on the system data that is provided. 
+    }
     
 }

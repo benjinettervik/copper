@@ -3,11 +3,13 @@ use crate::engine::system::System;
 use crate::resource::resources::Resources;
 use crate::engine::meta::SystemMeta;
 use std::any::{Any, TypeId};
+use std::thread;
 
 pub struct Scheduler {
     startup: Vec<Box<dyn System>>,
     update: Vec<Box<dyn System>>,
 }
+
 
 impl Scheduler {
     pub fn new() -> Self {
@@ -59,6 +61,25 @@ impl Scheduler {
         false
     }
 
+    // example of threading
+    // pub fn run_thread() -> i32 {
+    //     let t1 = thread::spawn(|| {
+    //         println!("Hello from thread 1!");
+    //         1
+    //     });
+
+    //     let t2 = thread::spawn(|| {
+    //         println!("Hello from thread 2!");
+    //         1
+    //     });
+
+    //     let r1 = t1.join().unwrap();
+    //     let r2 = t2.join().unwrap();
+
+    //     println!("Main thread done!");
+
+    //     r1 + r2
+    // }
 
     pub fn collect_update_meta(&self) -> Vec<SystemMeta> {
         let mut metas = Vec::new();
@@ -70,7 +91,7 @@ impl Scheduler {
                     resource_reads: Default::default(),
                     resource_writes: Default::default(),
                 };
-
+                
                 system.meta(&mut meta);
                 metas.push(meta);
             }

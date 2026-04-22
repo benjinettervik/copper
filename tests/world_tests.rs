@@ -26,7 +26,6 @@ mod world_tests {
     struct Health {
         value: f32,
     }
-
     
     #[test]
     fn spawn_returns_incrementing_ids() {
