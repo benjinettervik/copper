@@ -1,13 +1,13 @@
+pub mod scheduler;
 pub mod system;
 pub mod world;
-pub mod scheduler;
 
+use scheduler::*;
 use system::*;
 use world::*;
-use scheduler::*;
 
 pub struct Engine {
-    world: World,
+    pub world: World,
     scheduler: Scheduler,
 }
 
@@ -19,8 +19,9 @@ impl Engine {
         }
     }
 
-    pub fn add_system<T1, T2>(&mut self, system_routine: T1, system: T2) 
-        where T1: SystemRoutine + 'static, 
+    pub fn add_system<T1, T2>(&mut self, system_routine: T1, system: T2)
+    where
+        T1: SystemRoutine + 'static,
         T2: System + 'static,
     {
         self.scheduler.add_system(system_routine, system);
@@ -34,7 +35,6 @@ impl Engine {
         }
     }
 }
-
 
 pub trait SystemRoutine {}
 

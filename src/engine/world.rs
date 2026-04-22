@@ -1,8 +1,8 @@
-
+use core::borrow;
 use std::any::Any;
 use std::any::TypeId;
+use std::cell::*;
 use std::collections::HashMap;
-use std::cell::RefCell;
 
 type EntityId = usize;
 type ComponentId = TypeId;
@@ -16,7 +16,6 @@ macro_rules! query {
     };
 }
 
-
 pub struct World {
     next_entity_id: usize,
     component_storages: HashMap<ComponentId, RefCell<Box<dyn Any>>>,
@@ -26,7 +25,7 @@ impl World {
     pub fn new() -> Self {
         World {
             next_entity_id: 0,
-            component_storages: HashMap::<ComponentId, Box<dyn Any>>::new(),
+            component_storages: HashMap::new(),
         }
     }
 
@@ -50,15 +49,17 @@ impl World {
         let component_storage_box = self
             .component_storages
             .entry(component_id)
-            .or_insert_with(|| Box::new(HashMap::<EntityId, T>::new()));
+            .or_insert_with(|| RefCell::new(Box::new(HashMap::<EntityId, T>::new())));
 
         // 'component_storage' in this case is a hashmap that stores which entities who has the
         // 'component_storage' specific component assigned to it and:
         // - KEY is the unique ID of an entity.
         // - VALUE is the unique component data storage for that entity
 
+        let mut borrow = component_storage_box.borrow_mut();
+
         // Downcast component_storage_box
-        let component_storage = component_storage_box
+        let component_storage = borrow
             .downcast_mut::<HashMap<EntityId, T>>()
             .expect("FATAL ERROR: This should not happen... ");
 
@@ -66,59 +67,59 @@ impl World {
     }
 
     /// Gets a reference to a component that is assigned to entity_id
-    pub fn get_component<T: 'static>(&self, entity_id: EntityId) -> Option<&T> {
-        self.component_storages
-            .get(&TypeId::of::<T>())?
-            .downcast_ref::<HashMap<EntityId, T>>()?
-            .get(&entity_id)
+    pub fn get_component<T: 'static>(&self, entity_id: EntityId) -> Option<Ref<T>> {
+        let borrowed = self.component_storages.get(&TypeId::of::<T>())?.borrow();
+
+        let map_ref = Ref::map(borrowed, |any| {
+            any.downcast_ref::<HashMap<EntityId, T>>().unwrap()
+        });
+
+        if !map_ref.contains_key(&entity_id) {
+            return None;
+        }
+
+        let component = Ref::map(map_ref, |map| map.get(&entity_id).unwrap());
+
+        return Some(component);
     }
 
     /// Gets a mutable reference to a component that is assigned to entity_id
-    pub fn get_component_mut<T: 'static>(&mut self, entity_id: EntityId) -> Option<&mut T> {
-        self.component_storages
-            .get_mut(&TypeId::of::<T>())?
-            .downcast_mut::<HashMap<EntityId, T>>()?
-            .get_mut(&entity_id)
-    }
+    pub fn get_component_mut<T: 'static>(&mut self, entity_id: EntityId) -> Option<RefMut<T>> {
+        let borrowed = self
+            .component_storages
+            .get(&TypeId::of::<T>())?
+            .borrow_mut();
 
+        let map = RefMut::map(borrowed, |any| {
+            any.downcast_mut::<HashMap<EntityId, T>>().unwrap()
+        });
 
-    pub fn query<T: 'static>(&self) -> Vec<(EntityId, &T)> {
-    let mut result = Vec::new();
-
-    if let Some(storage_box) = self.component_storages.get(&TypeId::of::<T>()) {
-        let storage = storage_box
-            .downcast_ref::<HashMap<usize, T>>()
-            .expect("Storage type mismatch");
-
-        for (entity, comp) in storage.iter() {
-            result.push((*entity, comp));
-        }
-    }
-        result
-    }
-
-    pub fn query_mut(&mut self, components: Vec<ComponentId>) -> Vec<EntityId> {
-
-        let mut result: Vec<EntityId> = vec![];
-
-        for component_id in components {
-
-            let entities_box = self.component_storages.get_mut(&component_id).expect("ERROR");
-            let entities = entities_box.downcast_mut::<HashMap<EntityId, Box<dyn Any>>>().expect("ERROR");
-
-            for (entity, _) in entities.iter_mut() {
-                result.push(entity.clone());
-            }
-
+        if !map.contains_key(&entity_id) {
+            return None;
         }
 
-        // för varje komponent:
-        // hämta alla entities
-        // spara de i nån lista
-        
-        // 
+        let component = RefMut::map(map, |map| map.get_mut(&entity_id).unwrap());
 
+        return Some(component);
+    }
 
-        vec![]
+    pub fn query<T: 'static>(&self) -> Vec<EntityId> {
+        let mut result = Vec::new();
+
+        let Some(component_storage) = self.component_storages.get(&TypeId::of::<T>()) else {
+            return result;
+        };
+
+        let borrowed = component_storage.borrow();
+
+        let entities = Ref::map(borrowed, |any| {
+            any.downcast_ref::<HashMap<usize, T>>().unwrap()
+        });
+
+        for (entity, _) in entities.iter() {
+            result.push(*entity);
+        }
+
+        return result;
     }
 }
