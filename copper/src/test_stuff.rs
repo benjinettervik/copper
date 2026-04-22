@@ -30,7 +30,7 @@ impl System for SpawnEntitiesSystem {
             max_hp: 100,
         };
 
-        // println!("AAAAAAAAAAAAAAAAAAAAA {}", health_component1.name());
+        println!("Derive macro test: {}", health_component1.name());
 
         let health_component2 = HealthComponent {
             curr_hp: 20,
