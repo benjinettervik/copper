@@ -19,12 +19,13 @@ impl Engine {
         }
     }
 
-    pub fn add_system<T1, T2>(&mut self, system_routine: T1, system: T2)
+    pub fn add_system<T1, T2>(&mut self, system_routine: T1, system: T2) -> &mut Self
     where
         T1: SystemRoutine + 'static,
         T2: System + 'static,
     {
         self.scheduler.add_system(system_routine, system);
+        self
     }
 
     pub fn run_cycles(&mut self, cycles: usize) {
