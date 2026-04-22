@@ -32,16 +32,17 @@ impl System for SpawnEntitiesSystem {
 
         world.add_component(entity1, health_component1);
         world.add_component(entity2, health_component2);
+        world.add_component(entity2, DeathComponent {});
 
         println!("Spawned two entities with Health component");
     }
 }
 
 impl System for HealthSystem {
-    get_component_types!(HealthComponent);
+    get_component_types!(HealthComponent, DeathComponent);
 
     fn run(&mut self, world: &mut World) {
-        let entities = world.query::<HealthComponent>();
+        let entities = world.query(self.get_component_types());
 
         for entity in entities {
             let mut health_component = world.get_component_mut::<HealthComponent>(entity).unwrap();
