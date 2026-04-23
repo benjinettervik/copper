@@ -7,6 +7,15 @@ use scheduler::*;
 use system::*;
 use world::*;
 
+use std::sync::Arc;
+use winit::window::Window;
+use winit::event::{Event, WindowEvent};
+use winit::event_loop::EventLoop;
+use pixels::{Pixels, SurfaceTexture};
+use crate::renderer::test_components_renderer::*;
+use crate::renderer::render_sys::*;
+use crate::renderer::render_sys::RenderSys;
+
 pub struct Engine {
     pub world: World,
     scheduler: Scheduler,
@@ -37,10 +46,7 @@ impl Engine {
         }
     }
 
-    pub fn test_run(&mut self)
-    {
 
-    }
 
 }
 

@@ -71,16 +71,3 @@ pub struct TextureHandle(pub i32);
         }
     }
 
-// later import 
-
-//     use copper::engine::world::World;
-//     use std::collections::HashMap;
-//     use std::sync::Arc;
-
-//     use winit::{
-//     event::{Event, WindowEvent},
-//     event_loop::EventLoop,
-//     window::WindowBuilder,
-// };
-//     use pixels::{Pixels, SurfaceTexture};
-//     use std::ops::ControlFlow;
