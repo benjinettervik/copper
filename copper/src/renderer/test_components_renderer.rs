@@ -1,6 +1,8 @@
 // pub mod test_components_renderer;
 use std::collections::HashMap;
 use crate::Component;
+
+// just a macro to quickly provide rgba pixel data 
 #[macro_export]
 macro_rules! rgba {
     ($r:expr, $g:expr, $b:expr, $a:expr, $h:expr, $w:expr) => {{
@@ -20,54 +22,54 @@ macro_rules! rgba {
     }};
 }
 
+
 #[derive(Copy, Clone,Debug,Eq,Hash,PartialEq)]
 pub struct TextureHandle(pub i32);
 
 
-    pub struct TextureAsset {
-        pub textures: HashMap<TextureHandle, Texture>,
-    }
+pub struct TextureAsset {
+    pub textures: HashMap<TextureHandle, Texture>,
+}
 
-    #[derive(Copy, Clone,Debug)]
+#[derive(Copy, Clone,Debug)]
     
-    pub struct MockSprite{
-        pub texture: TextureHandle,
-    }
+pub struct MockSprite{
+    pub texture: TextureHandle,
+}
     
-    #[derive(Copy, Clone,Debug)]
+#[derive(Copy, Clone,Debug)]
 
-    pub struct Transform{
-        pub x: f32,
-        pub y: f32,
-    }
+pub struct Transform{
+    pub x: f32,
+    pub y: f32,
+}
 
-        pub struct Texture{
-        pub width: u32,
-        pub height: u32,
-        pub pixel_data: Vec<u8>, //rgba 0-255 
-    }
-    pub struct RenderSystem2D{
-    }
+pub struct Texture{
+    pub width: u32,
+    pub height: u32,
+    pub pixel_data: Vec<u8>, //rgba 0-255 
+}
 
-        impl Component for Texture {
-        fn name(&self) -> &str {
+impl Component for Texture {
+    fn name(&self) -> &str {
             "Texture"
-        }
     }
-    impl Component for TextureHandle {
-        fn name(&self) -> &str {
-            "TextureHandle"
-        }
+}
+impl Component for TextureHandle {
+    fn name(&self) -> &str {
+        "TextureHandle"
     }
+}
 
-    impl Component for MockSprite {
-        fn name(&self) -> &str {
-            "MockSprite"
-        }
+impl Component for MockSprite {
+    fn name(&self) -> &str {
+        "MockSprite"
     }
-    impl Component for Transform {
-        fn name(&self) -> &str {
-            "Transform"
-        }
+}
+
+impl Component for Transform {
+    fn name(&self) -> &str {
+        "Transform"
     }
+}
 

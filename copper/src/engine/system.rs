@@ -1,4 +1,5 @@
 use crate::engine::world::*;
+use crate::resource::Resources;
 use std::any::TypeId;
 // type Entity = usize;
 
@@ -18,7 +19,7 @@ macro_rules! get_component_types {
 pub trait System {
     fn get_component_types(&self) -> Vec<TypeId>;
 
-    fn run(&mut self, world: &mut World);
+    fn run(&mut self, world: &mut World, resources: &mut Resources);
 
     // fn get_component_types(&self) -> Vec<TypeId>;
 

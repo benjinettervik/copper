@@ -3,6 +3,7 @@ use super::World;
 use std::any::Any;
 use std::any::TypeId;
 use crate::engine::{Startup, Update, SystemRoutine};
+use crate::resource::Resources;
 
 pub struct Scheduler {
     startup: Vec<Box<dyn System>>,
@@ -42,15 +43,15 @@ impl Scheduler {
         self.update.push(Box::new(system));
     }
 
-    pub fn run_startup(&mut self, world: &mut World) {
+    pub fn run_startup(&mut self, world: &mut World, resources: &mut Resources) {
         for system in &mut self.startup {
-            system.run(world);
+            system.run(world,resources);
         }
     }
 
-    pub fn run_update(&mut self, world: &mut World) {
+    pub fn run_update(&mut self, world: &mut World,resources: &mut Resources) {
         for system in &mut self.update {
-            system.run(world);
+            system.run(world,resources);
         }
     }
 }
