@@ -46,10 +46,22 @@ fn main(){
         world.add_component(entity,sprite);
         world.add_component(entity,transform);
 
+    // Ensure
+        // println!("{:?}",world.get_component::<MockSprite>(entity));
+        // println!("{:?}",world.get_component::<Transform>(entity));
 
-    // ensure
-    println!("{:?}",world.get_component::<MockSprite>(entity));
-    println!("{:?}",world.get_component::<Transform>(entity));
+
+
+
+    // engine time
+    let mut engine = Engine::new();
+    engine.world = world;
+    engine.resources.texture_hash = text_hash;
+    // engine.add_system(RenderSys);
+    engine.add_system(Update, RenderSys);
+    engine.test_run();
+
+
     
 
 }
