@@ -20,15 +20,21 @@ macro_rules! rgba {
     }};
 }
 
-#[derive(Eq, Hash, PartialEq, Copy, Clone)]
+#[derive(Copy, Clone,Debug,Eq,Hash,PartialEq)]
 pub struct TextureHandle(pub i32);
+
+
     pub struct TextureAsset {
         pub textures: HashMap<TextureHandle, Texture>,
     }
 
+    #[derive(Copy, Clone,Debug)]
+    
     pub struct MockSprite{
         pub texture: TextureHandle,
     }
+    
+    #[derive(Copy, Clone,Debug)]
 
     pub struct Transform{
         pub x: f32,

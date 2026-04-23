@@ -5,6 +5,7 @@ use test_stuff::*;
 
 // rend
 use copper::renderer::test_components_renderer::*;
+use copper::renderer::render_sys::*;
 use copper::engine::world::World;
 use std::collections::HashMap;
 use copper::rgba;
@@ -44,7 +45,14 @@ fn main(){
     let entity = world.spawn();
         world.add_component(entity,sprite);
         world.add_component(entity,transform);
+
+
+    // ensure
+    println!("{:?}",world.get_component::<MockSprite>(entity));
+    println!("{:?}",world.get_component::<Transform>(entity));
     
-    // remains: sys, eventloop in run(), write to shit and generic
+
 }
+
+
 
