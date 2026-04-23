@@ -1,61 +1,67 @@
 /* INTEGRATION TESTS OF ECS */
 // Enter 'cargo test' to run tests
 
-use copper::*;
-
 #[cfg(test)]
 mod world_tests {
     // mod health_system;
     // use health_system::HealthSystem;
 
+    use::copper::*;
+    use component_macro_derive::Component;
     use copper::engine::world::*;
-    use std::any::Any;
-    use std::any::TypeId;
 
     #[test]
     fn test_1_component() {
+        #[derive(Component)]
         struct HealthComponent {
-            _health: i32,
+            health: i32,
         }
 
         let mut world = World::new();
 
-        let entity_id1: usize = world.spawn();
+        let entity_id1 = world.spawn();
 
-        world.add_component(entity_id1, HealthComponent { _health: 100 });
+        world.add_component(entity_id1, HealthComponent { health: 100 });
 
-        if let Some::<&HealthComponent>(comp_ref1) =
-            world.get_component::<HealthComponent>(entity_id1)
-        {
-            assert_eq!(comp_ref1.type_id(), TypeId::of::<HealthComponent>());
-            assert_eq!(comp_ref1._health, 100);
-        } else {
-            assert!(false);
+        
+        { // Necessary scope to kill 'health_comp' early
+            let health_comp = world.get_component::<HealthComponent>(entity_id1).unwrap();
+            assert_eq!(entity_id1, 0);
+            assert_eq!(health_comp.health, 100);
         }
 
-        // Returns mutable reference to entity, that's tied to world
-        let new_entity = world.spawn();
+        {
+            let mut health_comp1_mut= world.get_component_mut::<HealthComponent>(entity_id1).unwrap();
+            health_comp1_mut.health = 69;
+            assert_eq!(health_comp1_mut.health, 69);
 
-        // Can not use world because the entity 
-        // reference is still in use
-        world.add_component(new_entity, HealthComponent { _health: 100 });
+        }
 
-        // CONTINUE!!!!!!
+        let entity_id2 = world.spawn();
+
+        world.add_component(entity_id2, HealthComponent { health: 50 });
+
+        { // Necessary scope to kill 'health_comp' early
+            let health_comp2 = world.get_component::<HealthComponent>(entity_id2).unwrap();
+            assert_eq!(entity_id2, 1);
+            assert_eq!(health_comp2.health, 50);
+        }
+
+        {
+            let health_comp1= world.get_component::<HealthComponent>(entity_id1).unwrap();
+            assert_eq!(health_comp1.health, 69);
+        }
+
     }
 }
 
 #[cfg(test)]
 mod engine_tests {
-    use copper::engine::world::*;
     use copper::engine::*;
-    // use copper::health_system::HealthSystem;
-    // use copper::ecs::entity::*;
-    use std::any::Any;
-    use std::any::TypeId;
 
     #[test]
     fn test_1_create_engine() {
-        let mut engine = Engine::new();
+        let mut _engine = Engine::new();
         
     }
 

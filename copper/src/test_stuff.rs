@@ -5,6 +5,7 @@ use std::any::TypeId;
 use component_macro_derive::Component;
 
 
+#[allow(unused)]
 #[derive(Component)]
 pub struct HealthComponent {
     curr_hp: i32,

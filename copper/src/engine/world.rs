@@ -1,4 +1,3 @@
-use core::borrow;
 use std::any::Any;
 use std::any::TypeId;
 use std::cell::*;
@@ -10,14 +9,14 @@ type ComponentId = TypeId;
 
 use crate::Component;
 
-#[macro_export]
-macro_rules! query {
-    ($($arg:expr), *) => {
-        $(
-            println!("{}", $arg);
-        )*
-    };
-}
+// #[macro_export]
+// macro_rules! query {
+//     ($($arg:expr), *) => {
+//         $(
+//             println!("{}", $arg);
+//         )*
+//     };
+// }
 
 pub struct World {
     next_entity_id: usize,
@@ -42,7 +41,7 @@ impl World {
     }
 
     /// Adds a component onto an entity. Adds any new components into the world's storage if it does not already exist.
-    pub fn add_component<T: Component + 'static>(&mut self, entity_id: EntityId, component: T) {
+    pub fn add_component<T: Component>(&mut self, entity_id: EntityId, component: T) {
         // Generates a unique ID based on a 'static component struct type.
         // Example: every unique component of type 'struct Player' will generate the same component_id!
         let component_id = TypeId::of::<T>();
@@ -65,39 +64,63 @@ impl World {
     }
 
     /// Gets a reference to a component that is assigned to entity_id
-    pub fn get_component<T: Component + 'static>(&self, entity_id: EntityId) -> Option<Ref<T>> {
-        let borrowed = self.component_storages.get(&TypeId::of::<T>())?.borrow();
+    pub fn get_component<'a, T: Component>(&'a self, entity_id: EntityId) -> Option<Ref<'a, T>> {
+        let component_type_id = TypeId::of::<T>();
 
-        if !borrowed.contains_key(&entity_id) {
-            return None;
-        }
+        let storage_cell = self.component_storages.get(&component_type_id)?;
 
-        let component = Ref::map(borrowed, |map| {
-            map.get(&entity_id).unwrap().downcast_ref::<T>().unwrap()
-        });
+        let result = Ref::filter_map(storage_cell.borrow(), |entities_map| {
+            let component_box = entities_map.get(&entity_id)?;
+            component_box.downcast_ref::<T>()
+        }).ok();
 
-        return Some(component);
+        result
+
+
+        // let borrowed = self.component_storages.get(&component_type_id)?.borrow();
+        
+        // if !borrowed.contains_key(&entity_id) {
+        //     return None;
+        // }
+
+        // let component = Ref::map(borrowed, |map| {
+        //     map.get(&entity_id).unwrap().downcast_ref::<T>().unwrap()
+        // });
+
+        // Some(component)
     }
 
     /// Gets a mutable reference to a component that is assigned to entity_id
-    pub fn get_component_mut<T: Component + 'static>(&mut self, entity_id: EntityId) -> Option<RefMut<T>> {
-        let borrowed = self
-            .component_storages
-            .get(&TypeId::of::<T>())?
-            .borrow_mut();
+    pub fn get_component_mut<T: Component>(&mut self, entity_id: EntityId) -> Option<RefMut<'_, T>> {
+        let component_type_id = TypeId::of::<T>();
 
-        if !borrowed.contains_key(&entity_id) {
-            return None;
-        }
+        let storage_cell = self.component_storages.get(&component_type_id)?;
 
-        let component = RefMut::map(borrowed, |map| {
-            map.get_mut(&entity_id)
-                .unwrap()
-                .downcast_mut::<T>()
-                .unwrap()
-        });
+        let result = RefMut::filter_map(storage_cell.borrow_mut(), |entities_map| {
+            let component_box = entities_map.get_mut(&entity_id)?;
+            component_box.downcast_mut::<T>()
+        }).ok();
 
-        return Some(component);
+        result
+        
+        
+        // let borrowed = self
+        //     .component_storages
+        //     .get(&component_type_id)?
+        //     .borrow_mut();
+
+        // if !borrowed.contains_key(&entity_id) {
+        //     return None;
+        // }
+
+        // let component = RefMut::map(borrowed, |map| {
+        //     map.get_mut(&entity_id)
+        //         .unwrap()
+        //         .downcast_mut::<T>()
+        //         .unwrap()
+        // });
+
+        // Some(component)
     }
 
     pub fn query(&self, type_ids: Vec<TypeId>) -> Vec<EntityId> {

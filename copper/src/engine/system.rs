@@ -1,6 +1,6 @@
 use crate::engine::world::*;
 use std::any::TypeId;
-type Entity = usize;
+// type Entity = usize;
 
 #[macro_export]
 macro_rules! get_component_types {
