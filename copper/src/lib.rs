@@ -1,6 +1,7 @@
 use std::any::TypeId;
 
 pub mod engine;
+pub mod renderer;
 
 #[allow(unused)]
 type ComponentId = TypeId; 

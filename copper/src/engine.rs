@@ -2,6 +2,7 @@ pub mod scheduler;
 pub mod system;
 pub mod world;
 
+
 use scheduler::*;
 use system::*;
 use world::*;
@@ -35,6 +36,12 @@ impl Engine {
             self.scheduler.run_update(&mut self.world);
         }
     }
+
+    pub fn test_run(&mut self)
+    {
+
+    }
+
 }
 
 pub trait SystemRoutine {}
