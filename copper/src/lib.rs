@@ -8,3 +8,4 @@ type ComponentId = TypeId;
 pub trait Component: 'static {
     fn name(&self) -> &str;
 }
+
