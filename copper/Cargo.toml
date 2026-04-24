@@ -9,5 +9,6 @@ name="copper"
 
 [dependencies]
 component_macro_derive = { path = "../component_macro_derive" }
+image = "0.25.10"
 pixels = "0.17.0"
 winit = "0.30.13"
