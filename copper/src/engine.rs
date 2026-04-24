@@ -3,22 +3,25 @@ pub mod scheduler;
 pub mod system;
 pub mod world;
 
-
 use scheduler::*;
 use system::*;
 use world::*;
 
+use crate::renderer::render_sys::*;
+use crate::renderer::test_components_renderer::*;
+use pixels::{Pixels, SurfaceTexture};
+use std::any::TypeId;
+use std::cell::*;
 use std::sync::Arc;
-use winit::window::Window;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
-use pixels::{Pixels, SurfaceTexture};
-use crate::renderer::test_components_renderer::*;
-use crate::renderer::render_sys::*;
+use winit::window::Window;
 // use crate::renderer::render_sys::*;
-use crate::resource::Resources;
-use crate::renderer::render_sys::RenderSys;
+use crate::Component;
 use crate::renderer::Renderer;
+use crate::renderer::render_sys::RenderSys;
+use crate::resource::Resources;
+type EntityId = usize;
 
 pub struct Engine {
     pub world: World,
@@ -49,29 +52,54 @@ impl Engine {
         self
     }
 
-    pub fn run_cycles(&mut self, cycles: usize) {
-        self.scheduler.run_startup(&mut self.world,&mut self.resources);
+    pub fn run(&mut self) {
+        self.scheduler
+            .run_startup(&mut self.world, &mut self.resources);
 
-        for _ in 0..cycles {
-            self.scheduler.run_update(&mut self.world,&mut self.resources);
+        loop {
+            self.scheduler
+                .run_update(&mut self.world, &mut self.resources);
         }
     }
 
+    pub fn query(
+        &self,
+        components_read: &Vec<TypeId>,
+        components_write: &Vec<TypeId>,
+        components_with: &Vec<TypeId>,
+        components_without: &Vec<TypeId>,
+    ) -> Vec<EntityId> {
+        self.world.query(
+            components_read,
+            components_write,
+            components_with,
+            components_without,
+        )
+    }
 
-    // 
+    pub fn run_cycles(&mut self, cycles: usize) {
+        self.scheduler
+            .run_startup(&mut self.world, &mut self.resources);
+
+        for _ in 0..cycles {
+            self.scheduler
+                .run_update(&mut self.world, &mut self.resources);
+        }
+    }
+
+    //
     // ###
-    // ### Fixed a test run for being able to see the window -- now run update systems in scheduler  
+    // ### Fixed a test run for being able to see the window -- now run update systems in scheduler
     // ### the rendering requires RenderSys to be added as update
     // ###
-    // 
+    //
 
     pub fn test_run(&mut self) {
         println!("In test run!");
 
         // run startup sys
-        self.scheduler.run_startup(&mut self.world, &mut self.resources);
-
-
+        self.scheduler
+            .run_startup(&mut self.world, &mut self.resources);
 
         // winit eventloop time
         let event_loop: EventLoop<()> = EventLoop::new().unwrap();
@@ -80,16 +108,13 @@ impl Engine {
             .run(move |event, elwt| {
                 match event {
                     Event::Resumed => {
-                        let window = elwt
-                            .create_window(Window::default_attributes())
-                            .unwrap();
+                        let window = elwt.create_window(Window::default_attributes()).unwrap();
 
-                        // renderer owns window 
+                        // renderer owns window
                         self.renderer = Some(Renderer::new(window));
                     }
 
-
-                    // Update sys 
+                    // Update sys
                     Event::AboutToWait => {
                         // Update ECS
                         self.scheduler
@@ -101,12 +126,10 @@ impl Engine {
                         }
                     }
 
-
-                    // Window event -> renderer 
+                    // Window event -> renderer
                     Event::WindowEvent { event, .. } => match event {
                         WindowEvent::RedrawRequested => {
-                            if let Some(renderer) = &mut self.renderer 
-                            {
+                            if let Some(renderer) = &mut self.renderer {
                                 // render draw
                                 renderer.draw(&mut self.resources);
                             }
@@ -126,7 +149,6 @@ impl Engine {
     }
 }
 
-
 pub trait SystemRoutine {}
 
 pub struct Startup;
@@ -134,4 +156,3 @@ impl SystemRoutine for Startup {}
 
 pub struct Update;
 impl SystemRoutine for Update {}
-

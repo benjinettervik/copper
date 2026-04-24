@@ -3,6 +3,10 @@ name = "copper"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name="copper"
+
+
 [dependencies]
 component_macro_derive = { path = "../component_macro_derive" }
 image = "0.25.10"
