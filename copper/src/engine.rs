@@ -3,13 +3,29 @@ pub mod scheduler;
 pub mod system;
 pub mod world;
 
+
 use scheduler::*;
 use system::*;
 use world::*;
 
+use std::sync::Arc;
+use winit::window::Window;
+use winit::event::{Event, WindowEvent};
+use winit::event_loop::EventLoop;
+use pixels::{Pixels, SurfaceTexture};
+use crate::renderer::test_components_renderer::*;
+use crate::renderer::render_sys::*;
+// use crate::renderer::render_sys::*;
+use crate::resource::Resources;
+use crate::renderer::render_sys::RenderSys;
+use crate::renderer::Renderer;
+
 pub struct Engine {
     pub world: World,
     scheduler: Scheduler,
+    // added more to engine
+    pub resources: Resources,
+    pub renderer: Option<Renderer>,
 }
 
 impl Engine {
@@ -17,6 +33,10 @@ impl Engine {
         Self {
             world: World::new(),
             scheduler: Scheduler::new(),
+
+            // resources + renderer added
+            resources: Resources::new(),
+            renderer: None,
         }
     }
 
@@ -30,13 +50,82 @@ impl Engine {
     }
 
     pub fn run_cycles(&mut self, cycles: usize) {
-        self.scheduler.run_startup(&mut self.world);
+        self.scheduler.run_startup(&mut self.world,&mut self.resources);
 
         for _ in 0..cycles {
-            self.scheduler.run_update(&mut self.world);
+            self.scheduler.run_update(&mut self.world,&mut self.resources);
         }
     }
+
+
+    // 
+    // ###
+    // ### Fixed a test run for being able to see the window -- now run update systems in scheduler  
+    // ### the rendering requires RenderSys to be added as update
+    // ###
+    // 
+
+    pub fn test_run(&mut self) {
+        println!("In test run!");
+
+        // run startup sys
+        self.scheduler.run_startup(&mut self.world, &mut self.resources);
+
+
+
+        // winit eventloop time
+        let event_loop: EventLoop<()> = EventLoop::new().unwrap();
+
+        event_loop
+            .run(move |event, elwt| {
+                match event {
+                    Event::Resumed => {
+                        let window = elwt
+                            .create_window(Window::default_attributes())
+                            .unwrap();
+
+                        // renderer owns window 
+                        self.renderer = Some(Renderer::new(window));
+                    }
+
+
+                    // Update sys 
+                    Event::AboutToWait => {
+                        // Update ECS
+                        self.scheduler
+                            .run_update(&mut self.world, &mut self.resources);
+
+                        // Queue redraw event since renderer own window
+                        if let Some(renderer) = &self.renderer {
+                            renderer.request_redraw();
+                        }
+                    }
+
+
+                    // Window event -> renderer 
+                    Event::WindowEvent { event, .. } => match event {
+                        WindowEvent::RedrawRequested => {
+                            if let Some(renderer) = &mut self.renderer 
+                            {
+                                // render draw
+                                renderer.draw(&mut self.resources);
+                            }
+                        }
+
+                        WindowEvent::CloseRequested => {
+                            elwt.exit();
+                        }
+
+                        _ => {}
+                    },
+
+                    _ => {}
+                }
+            })
+            .unwrap();
+    }
 }
+
 
 pub trait SystemRoutine {}
 
@@ -45,3 +134,4 @@ impl SystemRoutine for Startup {}
 
 pub struct Update;
 impl SystemRoutine for Update {}
+

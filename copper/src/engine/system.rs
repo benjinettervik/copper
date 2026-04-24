@@ -1,4 +1,5 @@
 use crate::engine::world::*;
+use crate::resource::Resources;
 use std::any::TypeId;
 // type Entity = usize;
 
@@ -63,5 +64,5 @@ pub trait System {
     fn components_with(&self) -> Vec<TypeId>;
     fn components_without(&self) -> Vec<TypeId>;
 
-    fn run(&mut self, world: &mut World);
+    fn run(&mut self, world: &mut World, resources: &mut Resources);
 }

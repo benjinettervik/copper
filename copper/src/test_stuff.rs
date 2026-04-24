@@ -3,6 +3,9 @@ use copper::engine::system::*;
 use copper::engine::world::*;
 use copper::*;
 use std::any::TypeId;
+use component_macro_derive::Component;
+use copper::resource::Resources;
+
 
 #[allow(unused)]
 #[derive(Component)]
@@ -29,7 +32,7 @@ impl System for SpawnEntitiesSystem {
     components_with!();
     components_without!();
 
-    fn run(&mut self, world: &mut World) {
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
         let entity1 = world.spawn();
         let entity2 = world.spawn();
 
@@ -60,7 +63,7 @@ impl System for HealthSystem {
     components_with!();
     components_without!(DeathComponent);
 
-    fn run(&mut self, world: &mut World) {
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
         let entities = world.query(
             &self.components_read(),
             &self.components_write(),
