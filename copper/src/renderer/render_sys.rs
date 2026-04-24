@@ -3,6 +3,8 @@ use crate::engine::world::World;
 use crate::engine::{Startup, Update, SystemRoutine};
 use std::any::TypeId;
 use crate::engine::system::System;
+// use crate::engine::system::{components_read,components_with,components_without,components_write};
+use crate::{components_read, components_with, components_without, components_write};
 use crate::resource::{Resources,RenderCommand};
 
 
@@ -13,15 +15,18 @@ use crate::resource::{Resources,RenderCommand};
 // render sys like system trait demands
 pub struct RenderSys;
 impl System for RenderSys {
-    fn get_component_types(&self) -> Vec<TypeId> {
-        vec![
-            TypeId::of::<MockSprite>(),
-            TypeId::of::<Transform>(),
-        ]
-    }
+    components_write!();
+    components_read!(MockSprite, Transform);
+    components_with!();
+    components_without!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        let entities = world.query(self.get_component_types());
+        let entities = world.query(
+            &self.components_read(),
+            &self.components_write(),
+            &self.components_with(),
+            &self.components_without(),
+        );
 
         for entity in entities {
             let sprite = world.get_component::<MockSprite>(entity).unwrap();

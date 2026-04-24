@@ -3,7 +3,6 @@ use copper::engine::system::*;
 use copper::engine::world::*;
 use copper::*;
 use std::any::TypeId;
-use component_macro_derive::Component;
 use copper::resource::Resources;
 
 
