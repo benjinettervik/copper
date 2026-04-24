@@ -4,7 +4,9 @@ use copper::engine::*;
 use copper::resource::Resources;
 use copper::*;
 use std::any::TypeId;
+use component_macro_derive::*;
 
+#[derive(Component)]
 enum Orientation {
     Left,
     Up,
@@ -12,11 +14,14 @@ enum Orientation {
     Down,
 }
 
+#[derive(Component)]
 struct TransformComponent {
     pos_x: i32,
     pos_y: i32,
 }
 
+
+#[derive(Component)]
 struct SnakeComponent {
     length: usize,
     orientation: Orientation,
