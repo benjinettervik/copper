@@ -8,6 +8,7 @@ use test_stuff::*;
 use copper::renderer::test_components_renderer::*;
 use copper::renderer::render_sys::*;
 use copper::resource::camera::*;
+use copper::resource::{convert_texture};
 use copper::engine::world::World;
 use std::collections::HashMap;
 use copper::rgba;
@@ -28,8 +29,9 @@ fn main(){
     // using macro for some pixel-data, just white square
     let texture = Texture {width:10, height:10, pixel_data: rgba!(255,255,255,255,10,10),};
     let texture2 = Texture {width: 10, height: 10, pixel_data: rgba!(155,155,155,255,10,10),};
-    
+    let texture3 = convert_texture("./copper/src/sprite_assets/test.png").unwrap();
 
+    println!("{:?}",texture3);
     let entity2 = world.spawn();
     let sprite2 = MockSprite { texture: TextureHandle(2) };
     let transform2 = Transform { x: 100.0, y: 50.0 }; // different position
@@ -43,7 +45,7 @@ fn main(){
     // text_hash
     let mut text_hash = TextureAsset{textures: HashMap::new()};
     text_hash.textures.insert(TextureHandle(1),texture);
-    text_hash.textures.insert(TextureHandle(2), texture2);
+    text_hash.textures.insert(TextureHandle(2), texture3);
     
     // sprite
     let sprite = MockSprite {texture: TextureHandle(1)};

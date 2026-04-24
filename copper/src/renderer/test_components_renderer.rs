@@ -43,7 +43,7 @@ pub struct Transform{
     pub x: f32,
     pub y: f32,
 }
-
+#[derive(Debug, Hash)]
 pub struct Texture{
     pub width: u32,
     pub height: u32,

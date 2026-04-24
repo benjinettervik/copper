@@ -32,13 +32,21 @@ pub struct RenderQueue {
 }
 
 
-// 
-// 
-pub fn texture_loading_png(){
 
-}
+pub fn convert_texture(path: &str) -> Result<Texture,String> {
+        
 
-// 
-// 
+        let img = image::open(path)
+            .map_err(|e| format!("Failed to load image: {}", e))?
+            .to_rgba8();
+        
+        let (width, height) = img.dimensions();
+        let pixel_data = img.into_raw();
+        Ok(Texture {
+            width,
+            height,
+            pixel_data,
+        })
+    }
 // camera sys
 
