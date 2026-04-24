@@ -1,10 +1,9 @@
 use component_macro_derive::Component;
 use copper::engine::system::*;
 use copper::engine::world::*;
+use copper::resource::Resources;
 use copper::*;
 use std::any::TypeId;
-use copper::resource::Resources;
-
 
 #[allow(unused)]
 #[derive(Component)]
