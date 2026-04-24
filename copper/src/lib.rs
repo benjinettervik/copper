@@ -1,4 +1,3 @@
-extern crate copper;
 
 use std::any::TypeId;
 
