@@ -83,14 +83,25 @@ impl Renderer {
             let tex_width = texture.width as usize;
             let tex_height = texture.height as usize;
 
-            let base_x = render_command.x as usize;
-            let base_y = render_command.y as usize;
+            let camera_x = resources.Camera2D.x as isize;
+            let camera_y = resources.Camera2D.y as isize;
+
+            let screen_center_x = (width as isize) / 2;
+            let screen_center_y = (height as isize) / 2;
+            
+            let base_x = render_command.x as isize - camera_x + screen_center_x;
+            let base_y = render_command.y as isize - camera_y + screen_center_y;
 
             for y in 0..tex_height {
                 for x in 0..tex_width {
-                    let screen_x = base_x + x;
-                    let screen_y = base_y + y;
-
+                    let screen_x = base_x + x as isize;
+                    let screen_y = base_y + y as isize;
+                    
+                    if screen_x < 0 || screen_y < 0 {
+                       continue;
+                    }
+                    let screen_x = screen_x as usize;
+                    let screen_y = screen_y as usize;
                     // skip pixels outside screen
                     if screen_x >= width || screen_y >= height {
                         continue;
