@@ -28,7 +28,7 @@ fn main() {
     // using macro for some pixel-data, just white square
     let texture = Texture {width:10, height:10, pixel_data: rgba!(255,255,255,255,10,10),};
     let texture2 = Texture {width: 10, height: 10, pixel_data: rgba!(155,155,155,255,10,10),};
-    let texture3 = convert_texture("./copper/src/sprite_assets/test.png").unwrap();
+    let texture3 = convert_texture("./src/sprite_assets/test.png").unwrap();
 
     println!("{:?}",texture3);
     let entity2 = world.spawn();
