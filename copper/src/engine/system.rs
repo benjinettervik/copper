@@ -3,10 +3,50 @@ use crate::resource::Resources;
 use std::any::TypeId;
 // type Entity = usize;
 
+// This can probably be done without boilerplate : )
 #[macro_export]
-macro_rules! get_component_types {
+macro_rules! components_read {
     ($( $t:ty ), *) => {
-        fn get_component_types(&self) -> Vec<TypeId> {
+        fn components_read(&self) -> Vec<TypeId> {
+            vec![
+                $(
+                    TypeId::of::<$t>(),
+                )*
+            ]
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! components_write {
+    ($( $t:ty ), *) => {
+        fn components_write(&self) -> Vec<TypeId> {
+            vec![
+                $(
+                    TypeId::of::<$t>(),
+                )*
+            ]
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! components_with {
+    ($( $t:ty ), *) => {
+        fn components_with(&self) -> Vec<TypeId> {
+            vec![
+                $(
+                    TypeId::of::<$t>(),
+                )*
+            ]
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! components_without {
+    ($( $t:ty ), *) => {
+        fn components_without(&self) -> Vec<TypeId> {
             vec![
                 $(
                     TypeId::of::<$t>(),
@@ -17,13 +57,12 @@ macro_rules! get_component_types {
 }
 
 pub trait System {
-    fn get_component_types(&self) -> Vec<TypeId>;
+    // with this implementation we will have to trust the user doesn't fetch other components
+    // than what's specified
+    fn components_read(&self) -> Vec<TypeId>;
+    fn components_write(&self) -> Vec<TypeId>;
+    fn components_with(&self) -> Vec<TypeId>;
+    fn components_without(&self) -> Vec<TypeId>;
 
     fn run(&mut self, world: &mut World, resources: &mut Resources);
-
-    // fn get_component_types(&self) -> Vec<TypeId>;
-
-    // fn _on_ready(&self, world: &mut World, entites: Vec<Entity>);
-
-    // fn _process(&self, world: &mut World, entites: Vec<Entity>);
 }

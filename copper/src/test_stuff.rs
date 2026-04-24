@@ -1,3 +1,4 @@
+use component_macro_derive::Component;
 use copper::engine::system::*;
 use copper::engine::world::*;
 use copper::*;
@@ -13,6 +14,11 @@ pub struct HealthComponent {
     max_hp: usize,
 }
 
+#[allow(unused)]
+#[derive(Component)]
+pub struct SomeRandomComponent {
+    test: bool,
+}
 
 #[derive(Component)]
 pub struct DeathComponent;
@@ -21,7 +27,10 @@ pub struct SpawnEntitiesSystem;
 pub struct HealthSystem;
 
 impl System for SpawnEntitiesSystem {
-    get_component_types!();
+    components_write!(HealthComponent);
+    components_read!();
+    components_with!();
+    components_without!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
         let entity1 = world.spawn();
@@ -40,6 +49,7 @@ impl System for SpawnEntitiesSystem {
         };
 
         world.add_component(entity1, health_component1);
+        world.add_component(entity1, SomeRandomComponent { test: true });
         world.add_component(entity2, health_component2);
         world.add_component(entity2, DeathComponent {});
 
@@ -48,31 +58,49 @@ impl System for SpawnEntitiesSystem {
 }
 
 impl System for HealthSystem {
-    get_component_types!(HealthComponent, DeathComponent);
+    components_write!(HealthComponent);
+    components_read!(SomeRandomComponent);
+    components_with!();
+    components_without!(DeathComponent);
 
-    fn run(&mut self, world: &mut World,resources: &mut Resources) {
-        let entities = world.query(self.get_component_types());
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+        let entities = world.query(
+            &self.components_read(),
+            &self.components_write(),
+            &self.components_with(),
+            &self.components_without(),
+        );
 
         for entity in entities {
-            let mut health_component = world.get_component_mut::<HealthComponent>(entity).unwrap();
+            let curr_hp = {
+                let mut health_component =
+                    world.get_component_mut::<HealthComponent>(entity).unwrap();
 
-            println!(
-                "Current HP for Entity {} is {}",
-                entity, health_component.curr_hp
-            );
+                println!("Reducing HP by 1...");
 
-            if health_component.curr_hp > 0 {
-                health_component.curr_hp -= 1;
-            }
+                if health_component.curr_hp > 0 {
+                    health_component.curr_hp -= 1;
+                }
 
-            if health_component.curr_hp <= 0 {
-                drop(health_component); // reference to World, hence the drop
-                world.add_component(entity, DeathComponent {}); //will add multiple DeathComponent.
-                //We probably need some kind of
-                //filter to query where component
-                //does NOT exist on entity
+                health_component.curr_hp
+            };
+
+            if curr_hp <= 0 {
+                world.add_component(entity, DeathComponent {}); // This is a bit of a question
+                // mark. How do you deal with
+                // creating new components? We
+                // clearly cannot specify them in
+                // the the "write" array since the
+                // entity wont be returned
                 println!("HP is 0! Adding death component to Entity {}", entity)
             }
+
+            let some_random_component = world.get_component::<SomeRandomComponent>(entity).unwrap();
+
+            println!(
+                "HP is: {} and value of SomeRandomComponent: {}",
+                curr_hp, some_random_component.test
+            );
         }
     }
 }

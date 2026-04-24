@@ -72,13 +72,13 @@ impl World {
         let result = Ref::filter_map(storage_cell.borrow(), |entities_map| {
             let component_box = entities_map.get(&entity_id)?;
             component_box.downcast_ref::<T>()
-        }).ok();
+        })
+        .ok();
 
         result
 
-
         // let borrowed = self.component_storages.get(&component_type_id)?.borrow();
-        
+
         // if !borrowed.contains_key(&entity_id) {
         //     return None;
         // }
@@ -91,7 +91,10 @@ impl World {
     }
 
     /// Gets a mutable reference to a component that is assigned to entity_id
-    pub fn get_component_mut<T: Component>(&mut self, entity_id: EntityId) -> Option<RefMut<'_, T>> {
+    pub fn get_component_mut<T: Component>(
+        &mut self,
+        entity_id: EntityId,
+    ) -> Option<RefMut<'_, T>> {
         let component_type_id = TypeId::of::<T>();
 
         let storage_cell = self.component_storages.get(&component_type_id)?;
@@ -99,34 +102,28 @@ impl World {
         let result = RefMut::filter_map(storage_cell.borrow_mut(), |entities_map| {
             let component_box = entities_map.get_mut(&entity_id)?;
             component_box.downcast_mut::<T>()
-        }).ok();
+        })
+        .ok();
 
         result
-        
-        
-        // let borrowed = self
-        //     .component_storages
-        //     .get(&component_type_id)?
-        //     .borrow_mut();
-
-        // if !borrowed.contains_key(&entity_id) {
-        //     return None;
-        // }
-
-        // let component = RefMut::map(borrowed, |map| {
-        //     map.get_mut(&entity_id)
-        //         .unwrap()
-        //         .downcast_mut::<T>()
-        //         .unwrap()
-        // });
-
-        // Some(component)
     }
 
-    pub fn query(&self, type_ids: Vec<TypeId>) -> Vec<EntityId> {
+    // This is wildly inefficient, should make a proper Query system if times allows later on
+    pub fn query(
+        &self,
+        components_read: &Vec<TypeId>,
+        components_write: &Vec<TypeId>,
+        components_with: &Vec<TypeId>,
+        components_without: &Vec<TypeId>,
+    ) -> Vec<EntityId> {
         let mut sets: Vec<HashSet<EntityId>> = Vec::new();
 
-        for type_id in type_ids {
+        let should_have_component = components_read
+            .iter()
+            .chain(components_write.iter().chain(components_with.iter()));
+
+        // Get all items that have components specified
+        for type_id in should_have_component {
             let Some(storage) = self.component_storages.get(&type_id) else {
                 return Vec::new();
             };
@@ -137,16 +134,21 @@ impl World {
             sets.push(keys);
         }
 
-        sets.into_iter()
-            .reduce(|a, b| a.intersection(&b).copied().collect())
-            .unwrap_or_default()
+        let mut entities_to_keep = sets
             .into_iter()
-            .collect()
-    }
+            .reduce(|a, b| a.intersection(&b).copied().collect())
+            .unwrap_or_default();
 
+        // Check for "without" filter
 
-    pub fn query2<T: Any + 'static>() {
-        
+        for type_id in components_without {
+            if let Some(storage) = self.component_storages.get(&type_id) {
+                let borrowed = storage.borrow();
+
+                entities_to_keep.retain(|&id| !borrowed.contains_key(&id));
+            }
+        }
+
+        return entities_to_keep.iter().copied().collect();
     }
 }
-
