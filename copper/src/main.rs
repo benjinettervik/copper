@@ -12,6 +12,8 @@ use copper::renderer::render_sys::*;
 use copper::renderer::test_components_renderer::*;
 use copper::rgba;
 use std::collections::HashMap;
+use winit::keyboard::KeyCode;
+use copper::input::Input;
 
 // renderer test
 // needs to be on main threads, thus not in tests.
@@ -62,6 +64,9 @@ fn main() {
     let mut engine = Engine::new();
     engine.world = world;
     engine.resources.texture_hash = text_hash;
+
+     //bind inputs here
+    engine.resources.input.binds.bind_key(KeyCode::KeyW, Action::Up);
 
     // specify RenderSys as an update system
     engine.add_system(Update, RenderSys);
