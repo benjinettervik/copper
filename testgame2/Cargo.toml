@@ -1,0 +1,8 @@
+[package]
+name = "testgame2"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+copper = { path = "../copper" }
+component_macro_derive = { path = "../component_macro_derive/" }
