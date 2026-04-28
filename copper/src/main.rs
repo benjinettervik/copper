@@ -13,6 +13,7 @@ use copper::renderer::test_components_renderer::*;
 use copper::rgba;
 use std::collections::HashMap;
 use winit::keyboard::KeyCode;
+use copper::input::Action;
 use copper::input::Input;
 
 // renderer test
@@ -67,6 +68,9 @@ fn main() {
 
      //bind inputs here
     engine.resources.input.binds.bind_key(KeyCode::KeyW, Action::Up);
+    engine.resources.input.binds.bind_key(KeyCode::KeyS, Action::Down);
+    engine.resources.input.binds.bind_key(KeyCode::KeyA, Action::Left);
+    engine.resources.input.binds.bind_key(KeyCode::KeyD, Action::Right);
 
     // specify RenderSys as an update system
     engine.add_system(Update, RenderSys);
