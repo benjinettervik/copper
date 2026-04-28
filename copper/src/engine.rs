@@ -20,6 +20,7 @@ use winit::window::Window;
 use crate::Component;
 use crate::renderer::Renderer;
 use crate::renderer::render_sys::RenderSys;
+use crate::input::Input;
 use crate::resource::Resources;
 type EntityId = usize;
 
@@ -120,6 +121,9 @@ impl Engine {
                         self.scheduler
                             .run_update(&mut self.world, &mut self.resources);
 
+                        //Då detta är en test run så borde detta flyttas till tick systemet senare
+                        self.resources.input.input_polling();
+                        
                         // Queue redraw event since renderer own window
                         if let Some(renderer) = &self.renderer {
                             renderer.request_redraw();
@@ -128,6 +132,20 @@ impl Engine {
 
                     // Window event -> renderer
                     Event::WindowEvent { event, .. } => match event {
+                        
+                        //cursor, keys, mouse också flyttas till tick systemet senare
+                        WindowEvent::KeyboardInput { event, .. } => {
+                            self.resources.input.handle_keys(event);
+                        }
+
+                        WindowEvent::MouseInput { state, button, .. } => {
+                            self.resources.input.handle_mouse_button(button, state);
+                        }
+
+                        WindowEvent::CursorMoved { position, .. } => {
+                            self.resources.input.handle_mouse_movement(position.x, position.y);
+                        }
+                        
                         WindowEvent::RedrawRequested => {
                             if let Some(renderer) = &mut self.renderer {
                                 // render draw

@@ -3,11 +3,13 @@ pub mod camera;
 use crate::renderer::test_components_renderer::*;
 use crate::resource::camera::*;
 use crate::renderer::render_sys::*;
+use crate::input::Input;
 use std::collections::HashMap;
 pub struct Resources {
     pub texture_hash: TextureAsset,
     pub render_queue: RenderQueue,
     pub Camera2D: Camera2D,
+    pub input: Input,
 }
 
 // basic resources 
@@ -17,6 +19,7 @@ impl Resources{
             texture_hash: TextureAsset{textures: HashMap::new(),},
             render_queue: RenderQueue{commands: Vec::new(),},
             Camera2D: Camera2D::new(),
+            input: Input::new(),
         }
     }
 }
