@@ -240,3 +240,23 @@ mod engine_tests {
 
     
 }
+
+mod input_tests {
+    use copper::input::{Input, Action};
+    use winit::keyboard::KeyCode;
+    use winit::event::MouseButton;
+
+    #[test]
+    fn test_key_active() {
+        let mut input = Input::new();
+        input.binds.bind_key(KeyCode::KeyW, Action::Up);
+
+        input.state.keys_down.insert(KeyCode::KeyW);
+        input.state.keys_pressed.insert(KeyCode::KeyW);
+        input.input_polling();
+
+        assert!(input.actions.is_active(Action::Up));
+        assert!(input.actions.is_just_pressed(Action::Up));
+
+    }
+}
