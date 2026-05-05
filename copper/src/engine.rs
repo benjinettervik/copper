@@ -13,7 +13,6 @@ use winit::event_loop::EventLoop;
 use winit::window::Window;
 use crate::renderer::Renderer;
 use crate::resource::Resources;
-type EntityId = usize;
 
 
 /// The 'Engine' struct represents the engine itself. It contains the necessary functions used to manipulate the game engine. 

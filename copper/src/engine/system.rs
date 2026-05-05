@@ -1,6 +1,6 @@
-//! 
+//! Contains the definition of a system. 
 
-use crate::{ComponentId, EntityId};
+use crate::{ComponentId};
 use crate::engine::world::*;
 use crate::resource::Resources;
 

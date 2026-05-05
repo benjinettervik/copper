@@ -21,12 +21,16 @@ use crate::Component;
 //     };
 // }
 
+
+/// Represents a game world, containing entities and components. 
 pub struct World {
     next_entity_id: usize,
     component_storages: HashMap<ComponentId, RefCell<HashMap<EntityId, Box<dyn Any>>>>,
 }
 
 impl World {
+
+    /// Initializes a new game world.
     pub fn new() -> Self {
         World {
             next_entity_id: 0,
@@ -34,6 +38,7 @@ impl World {
         }
     }
 
+    /// Spawns a new entity. Entities are are only represented by ID:s. 
     pub fn spawn(&mut self) -> EntityId {
         let return_id = self.next_entity_id;
         self.next_entity_id += 1;
@@ -112,6 +117,9 @@ impl World {
     }
 
     // This is wildly inefficient, should make a proper Query system if times allows later on
+    /// Returns a vector of entity ID:s that match the given search query. 
+    /// 'components_read' means searching for an unmutuble reference to entities with a certain set of components, and 'components_write' means searching for a mutuble reference.
+    /// 'components_with' means searching for 
     pub fn query(
         &self,
         components_read: &Vec<TypeId>,
