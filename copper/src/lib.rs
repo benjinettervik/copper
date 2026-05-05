@@ -6,8 +6,9 @@ pub mod renderer;
 pub mod resource;
 pub mod input;
 
-#[allow(unused)]
-type ComponentId = TypeId;
+
+pub type ComponentId = TypeId;
+pub type EntityId = usize;
 
 pub trait Component: 'static {
     fn name(&self) -> &str;

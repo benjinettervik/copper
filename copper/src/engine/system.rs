@@ -1,7 +1,8 @@
+//! 
+
+use crate::{ComponentId, EntityId};
 use crate::engine::world::*;
 use crate::resource::Resources;
-use std::any::TypeId;
-// type Entity = usize;
 
 // This can probably be done without boilerplate : )
 #[macro_export]
@@ -59,10 +60,10 @@ macro_rules! components_without {
 pub trait System {
     // with this implementation we will have to trust the user doesn't fetch other components
     // than what's specified
-    fn components_read(&self) -> Vec<TypeId>;
-    fn components_write(&self) -> Vec<TypeId>;
-    fn components_with(&self) -> Vec<TypeId>;
-    fn components_without(&self) -> Vec<TypeId>;
+    fn components_read(&self) -> Vec<ComponentId>;
+    fn components_write(&self) -> Vec<ComponentId>;
+    fn components_with(&self) -> Vec<ComponentId>;
+    fn components_without(&self) -> Vec<ComponentId>;
 
     fn run(&mut self, world: &mut World, resources: &mut Resources);
 }

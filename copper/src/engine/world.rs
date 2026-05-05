@@ -1,11 +1,14 @@
+//! Contains functions for manipulating the game world. 
+
+use crate::{ComponentId, EntityId};
 use std::any::Any;
 use std::any::TypeId;
 use std::cell::*;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-type EntityId = usize;
-type ComponentId = TypeId;
+// type EntityId = usize;
+// type ComponentId = TypeId;
 
 use crate::Component;
 

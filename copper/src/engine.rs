@@ -1,4 +1,5 @@
-// pub mod query;
+//! This module is the main module to use when developing in Copper! It contains all necessary functions to create a simple game. 
+
 pub mod scheduler;
 pub mod system;
 pub mod world;
@@ -7,7 +8,6 @@ use scheduler::*;
 use system::*;
 use world::*;
 
-use std::any::TypeId;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::window::Window;
@@ -31,8 +31,6 @@ pub struct Engine {
     pub renderer: Option<Renderer>,
 }
 
-
-/// Contains all 
 impl Engine {
 
     /// Initializes the engine and returns a new 'Engine' struct.
@@ -47,6 +45,7 @@ impl Engine {
         }
     }
 
+    /// Adds a system into the engine. Set a system routine (for example Startup or Update) to when it will run. 
     pub fn add_system<T1, T2>(&mut self, system_routine: T1, system: T2) -> &mut Self
     where
         T1: SystemRoutine + 'static,
@@ -56,6 +55,7 @@ impl Engine {
         self
     }
 
+    /// Runs all systems that have been added to an 'Engine'. Does not terminate naturally. 
     pub fn run(&mut self) -> &mut Self {
         self.scheduler
             .run_startup(&mut self.world, &mut self.resources);
@@ -66,7 +66,7 @@ impl Engine {
         }
     }
 
-
+    /// Runs all systems that have been added to an 'Engine' a set number of times. Terminates after all cycles have run. 
     pub fn run_cycles(&mut self, cycles: usize) -> &mut Self {
         self.scheduler
             .run_startup(&mut self.world, &mut self.resources);
@@ -160,8 +160,10 @@ impl Engine {
 
 pub trait SystemRoutine {}
 
+/// A system routine for systems which only run at startup.
 pub struct Startup;
 impl SystemRoutine for Startup {}
 
+/// A system routine for systems which run every engine tick. 
 pub struct Update;
 impl SystemRoutine for Update {}
