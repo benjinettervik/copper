@@ -55,16 +55,12 @@ impl System for MoveSnakeSystem {
     components_without!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        let snake = world
-            .query(
-                &self.components_read(),
-                &self.components_write(),
-                &self.components_with(),
-                &self.components_without(),
-            )
+        let snake = query!(self, world)
             .first()
             .unwrap()
             .clone();
+
+        println!("{}", snake);
 
         let mut transform = world.get_component_mut::<TransformComponent>(snake);
 
@@ -79,4 +75,5 @@ fn main() {
 
     engine.add_system(Startup, SpawnSnakeSystem);
     engine.add_system(Update, MoveSnakeSystem);
+    engine.run_cycles(1);
 }

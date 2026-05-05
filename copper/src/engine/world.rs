@@ -21,6 +21,18 @@ use crate::Component;
 //     };
 // }
 
+#[macro_export]
+macro_rules! query {
+    ($self:ident, $world:expr) => {
+        $world.query(
+                &$self.components_read(),
+                &$self.components_write(),
+                &$self.components_with(),
+                &$self.components_without(),
+            )
+    };
+}
+
 
 /// Represents a game world, containing entities and components. 
 pub struct World {
