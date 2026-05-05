@@ -62,21 +62,6 @@ impl Engine {
         }
     }
 
-    pub fn query(
-        &self,
-        components_read: &Vec<TypeId>,
-        components_write: &Vec<TypeId>,
-        components_with: &Vec<TypeId>,
-        components_without: &Vec<TypeId>,
-    ) -> Vec<EntityId> {
-        self.world.query(
-            components_read,
-            components_write,
-            components_with,
-            components_without,
-        )
-    }
-
     pub fn run_cycles(&mut self, cycles: usize) {
         self.scheduler
             .run_startup(&mut self.world, &mut self.resources);
