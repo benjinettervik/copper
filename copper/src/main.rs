@@ -23,7 +23,7 @@ fn main() {
     let a = 255;
     
     let mut world= World::new(); 
-    let entity = world.spawn();
+    let entity = world.spawn(); 
     // texture
     // using macro for some pixel-data, just white square
     let texture = Texture {width:10, height:10, pixel_data: rgba!(255,255,255,255,10,10),};

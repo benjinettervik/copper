@@ -7,31 +7,35 @@ use scheduler::*;
 use system::*;
 use world::*;
 
-use crate::renderer::render_sys::*;
-use crate::renderer::test_components_renderer::*;
-use pixels::{Pixels, SurfaceTexture};
 use std::any::TypeId;
-use std::cell::*;
-use std::sync::Arc;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::window::Window;
-// use crate::renderer::render_sys::*;
-use crate::Component;
 use crate::renderer::Renderer;
-use crate::renderer::render_sys::RenderSys;
 use crate::resource::Resources;
 type EntityId = usize;
 
+
+/// The 'Engine' struct represents the engine itself. It contains the necessary functions used to manipulate the game engine. 
+/// 
+/// Example of use: 
+/// ```
+/// let mut engine = Engine::new().
+/// add_system(Startup, ExampleSystem).
+/// run();
+/// ```
 pub struct Engine {
     pub world: World,
     scheduler: Scheduler,
-    // added more to engine
     pub resources: Resources,
     pub renderer: Option<Renderer>,
 }
 
+
+/// Contains all 
 impl Engine {
+
+    /// Initializes the engine and returns a new 'Engine' struct.
     pub fn new() -> Self {
         Self {
             world: World::new(),
@@ -52,7 +56,7 @@ impl Engine {
         self
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&mut self) -> &mut Self {
         self.scheduler
             .run_startup(&mut self.world, &mut self.resources);
 
@@ -77,7 +81,7 @@ impl Engine {
         )
     }
 
-    pub fn run_cycles(&mut self, cycles: usize) {
+    pub fn run_cycles(&mut self, cycles: usize) -> &mut Self {
         self.scheduler
             .run_startup(&mut self.world, &mut self.resources);
 
@@ -85,6 +89,8 @@ impl Engine {
             self.scheduler
                 .run_update(&mut self.world, &mut self.resources);
         }
+
+        self
     }
 
     //
