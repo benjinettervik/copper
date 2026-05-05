@@ -130,8 +130,6 @@ impl World {
 
     // This is wildly inefficient, should make a proper Query system if times allows later on
     /// Returns a vector of entity ID:s that match the given search query. 
-    /// 'components_read' means searching for an unmutuble reference to entities with a certain set of components, and 'components_write' means searching for a mutuble reference.
-    /// 'components_with' means searching for 
     pub fn query(
         &self,
         components_read: &Vec<TypeId>,
