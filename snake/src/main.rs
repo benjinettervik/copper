@@ -73,7 +73,16 @@ impl System for MoveSnakeSystem {
             .clone();
 
         if resources.input.state.is_key_pressed(KeyW) {
-            println!("TRYCK!!!!");
+            println!("W");
+        }
+        if resources.input.state.is_key_pressed(KeyA) {
+            println!("A");
+        }
+        if resources.input.state.is_key_pressed(KeyD) {
+            println!("D");
+        }
+        if resources.input.state.is_key_pressed(KeyS) {
+            println!("S");
         }
     }
 }
