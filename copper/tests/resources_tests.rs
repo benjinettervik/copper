@@ -66,8 +66,23 @@ mod resources_tests{
 
     pub struct ResourcesMock{
         resources: HashMap<TypeId, Box<dyn Any>>,
-        // key becomes the type of the resource that has been saved , and the box contains on 
-        // heap the accessible data associated.
+    }
+    impl ResourcesMock{
+        pub fn new() -> Self {
+
+            Self{
+                resources: HashMap::new(),
+            }
+
+        }
+
+
+        pub fn insert(){}
+
+        pub fn remove(){}
+
+        pub fn get(){}
+        
     }
     pub struct TestRenderer;
 
