@@ -1,8 +1,17 @@
+// use crate::engine::*;
 pub struct Grid{
     cells:Vec<Vec<Vec<usize>>>, // [Rows][Cols][obj]
     width:usize,
     height:usize,
     cell_size:f32,
+}
+
+pub struct GridPosition{
+    // can accomodate rendersys so it knows what to query 
+    // it wants Sprite with GridPosition
+    pub x:f32,
+    pub y:f32,
+    // could do changes like insert(entity_id:EntityID, grid_pos:GridPosition)
 }
 
 impl Grid{
