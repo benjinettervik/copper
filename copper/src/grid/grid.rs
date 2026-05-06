@@ -1,4 +1,5 @@
-// use crate::engine::*;
+use crate::Component;
+
 pub struct Grid{
     cells:Vec<Vec<Vec<usize>>>, // [Rows][Cols][obj]
     width:usize,
@@ -6,12 +7,22 @@ pub struct Grid{
     cell_size:f32,
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct GridPosition{
-    // can accomodate rendersys so it knows what to query 
-    // it wants Sprite with GridPosition
-    pub x:f32,
-    pub y:f32,
-    // could do changes like insert(entity_id:EntityID, grid_pos:GridPosition)
+    pub x:usize,
+    pub y:usize,
+}
+
+impl GridPosition {
+    pub fn new(x:usize, y:usize) -> Self {
+        Self { x, y }
+    }
+}
+
+impl Component for GridPosition {
+    fn name(&self) -> &str {
+        "GridPosition"
+    }
 }
 
 impl Grid{
@@ -25,6 +36,18 @@ impl Grid{
             height,
             cell_size,
         }
+    }
+
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
+    pub fn cell_size(&self) -> f32 {
+        self.cell_size
     }
 
 
@@ -49,26 +72,54 @@ impl Grid{
         }
     }
 
-    //mutation
-    pub fn insert(&mut self, entity_id:usize, x:f32, y:f32) -> bool{
-        if let Some((gx,gy)) = self.world_to_grid(x,y) {
-            self.cells[gy][gx].push(entity_id);
+    pub fn grid_to_world(&self, gx:usize, gy:usize) -> Option<(f32,f32)> {
+        if gx < self.width && gy < self.height {
+            Some((gx as f32 * self.cell_size, gy as f32 * self.cell_size))
+        } else {
+            None
+        }
+    }
+
+    pub fn contains_position(&self, position: GridPosition) -> bool {
+        position.x < self.width && position.y < self.height
+    }
+
+    pub fn insert_grid(&mut self, entity_id:usize, position: GridPosition) -> bool {
+        if self.contains_position(position) {
+            self.cells[position.y][position.x].push(entity_id);
             true
         } else {
             false
         }
     }
 
-    pub fn query(&mut self, x:f32, y:f32) -> &[usize]{
+    pub fn query_grid(&self, position: GridPosition) -> &[usize] {
+        if self.contains_position(position) {
+            &self.cells[position.y][position.x]
+        } else {
+            &[]
+        }
+    }
+
+    //mutation
+    pub fn insert(&mut self, entity_id:usize, x:f32, y:f32) -> bool{
         if let Some((gx,gy)) = self.world_to_grid(x,y) {
-            &self.cells[gy][gx]
+            self.insert_grid(entity_id, GridPosition::new(gx, gy))
+        } else {
+            false
+        }
+    }
+
+    pub fn query(&self, x:f32, y:f32) -> &[usize]{
+        if let Some((gx,gy)) = self.world_to_grid(x,y) {
+            self.query_grid(GridPosition::new(gx, gy))
         } else {
             &[]
         }
     }
 
     //just an eg of what you might want to implement
-    pub fn query_adjecant(&mut self, x:f32, y:f32, radius: usize) -> Vec<usize>{
+    pub fn query_adjacent(&self, x:f32, y:f32, radius: usize) -> Vec<usize>{
         if let Some((gx,gy)) = self.world_to_grid(x, y){
         let x_min = gx.saturating_sub(radius);
         let y_min = gy.saturating_sub(radius);
