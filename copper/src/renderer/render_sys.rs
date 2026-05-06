@@ -1,6 +1,6 @@
 use crate::renderer::test_components_renderer::{Transform, MockSprite, TextureAsset};
 use crate::engine::world::World;
-use crate::engine::{Startup, Update, SystemRoutine};
+use crate::engine::{Startup, Update};
 use std::any::TypeId;
 use crate::engine::system::System;
 // use crate::engine::system::{components_read,components_with,components_without,components_write};

@@ -46,10 +46,10 @@ impl System for SpawnEntitiesSystem {
             max_hp: 100,
         };
 
-        world.add_component(entity1, health_component1);
-        world.add_component(entity1, SomeRandomComponent { test: true });
-        world.add_component(entity2, health_component2);
-        world.add_component(entity2, DeathComponent {});
+        world.add_component(entity1, health_component1)
+        .add_component(entity1, SomeRandomComponent { test: true })
+        .add_component(entity2, health_component2)
+        .add_component(entity2, DeathComponent {});
 
         println!("Spawned two entities with Health component");
     }
