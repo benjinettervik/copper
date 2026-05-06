@@ -1,2 +1,3 @@
 pub mod input;
-pub use input::{Input, InputState, InputBindings, ActionState, Action};
+pub mod action;
+pub use input::{Input, InputState, InputBindings};

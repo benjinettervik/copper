@@ -5,13 +5,14 @@ use winit::event::KeyEvent;
 use winit::event::MouseButton;
 use winit::keyboard::KeyCode;
 use winit::keyboard::PhysicalKey;
+
 //Component for saving all inputs
 pub struct InputState {
     pub keys_down: HashSet<KeyCode>,
     pub keys_pressed: HashSet<KeyCode>,
     pub keys_released: HashSet<KeyCode>, //may remove
-
     pub mouse_pos: (f64 , f64),
+    pub mouse_pos_if_holding: (f64, f64),
     pub mouse_buttons_down: HashSet<MouseButton>,
     pub mouse_buttons_pressed: HashSet<MouseButton>,
     pub mouse_buttons_released: HashSet<MouseButton>, //may remove
@@ -25,6 +26,7 @@ impl InputState {
             keys_pressed: HashSet::new(),
             keys_released: HashSet::new(), //may remove
             mouse_pos: (0.0, 0.0),
+            mouse_pos_if_holding: (0.0, 0.0),
             mouse_buttons_down: HashSet::new(),
             mouse_buttons_pressed: HashSet::new(),
             mouse_buttons_released: HashSet::new(), //may remove
@@ -98,20 +100,10 @@ impl InputState {
     
 }
 
-#[derive(Eq, Hash, PartialEq, Clone, Copy)]
-//more actions can be added here, unclear future for this guy
-pub enum Action {
-Select,
-Up,
-Down,
-Left,
-Right,
-}
-
 //Component for saving all input binds
 pub struct InputBindings {
-    key_map: HashMap<KeyCode, Action>,
-    mouse_map: HashMap<MouseButton, Action>,
+    pub key_map: HashMap<KeyCode, Box<dyn Fn(usize)>>,
+    pub mouse_map: HashMap<MouseButton, Box<dyn Fn(usize)>>,
 }
 
 impl InputBindings {
@@ -123,45 +115,15 @@ impl InputBindings {
     }
     //Binds key to action
     //engine.resources.input.binds.bind_key(KeyCode::KeyW, Action::Up);
-    pub fn bind_key(&mut self, key: KeyCode, action: Action) -> &mut Self {
-        self.key_map.insert(key, action);
+    pub fn bind_key_to_function(&mut self, key: KeyCode, function: Box<dyn Fn(usize)>) -> &mut Self {
+        self.key_map.insert(key, function);
         self
     }
     //Binds mouse button to action
     //engine.resources.input.binds.bind_mouse(MouseButton::Left, Action::Select);
-    pub fn bind_mouse(&mut self, button: MouseButton, action: Action) -> &mut Self {
-        self.mouse_map.insert(button, action);
+    pub fn bind_mouse_to_function(&mut self, button: MouseButton, function: Box<dyn Fn(usize)>) -> &mut Self {
+        self.mouse_map.insert(button, function);
         self
-    }
-}
-
-//Component for saving all active actions, likley used for match_action system
-pub struct ActionState {
-    pub active: HashSet<Action>,
-    pub just_pressed: HashSet<Action>,
-    pub just_released: HashSet<Action>,
-}
-
-impl ActionState {
-    pub fn new() -> Self {
-        Self {
-            active: HashSet::new(),
-            just_pressed: HashSet::new(),
-            just_released: HashSet::new(), //likley not needed
-        }
-    }
-
-    //Helper functions to check if an action is active, just pressed
-    pub fn is_active(&self, action: Action) -> bool {
-        self.active.contains(&action)
-    }
-
-    pub fn is_just_pressed(&self, action: Action) -> bool {
-        self.just_pressed.contains(&action)
-    }
-
-    pub fn is_just_released(&self, action: Action) -> bool {
-        self.just_released.contains(&action)
     }
 }
 
@@ -169,7 +131,6 @@ impl ActionState {
 pub struct Input {
     pub state: InputState,
     pub binds: InputBindings,
-    pub actions: ActionState,
 }
 
 impl Input {
@@ -177,7 +138,6 @@ impl Input {
         Self {
             state: InputState::new(),
             binds: InputBindings::new(),
-            actions: ActionState::new(),
         }
     }
     //Handles all input events and updates the state, updates the active actions based on binds
@@ -193,32 +153,6 @@ impl Input {
 
     //Called once per tick/frame to update actions, (will be changed for our new intended system plan)
     pub fn input_polling(&mut self) {
-        
-        self.actions.active.clear();
-        self.actions.just_pressed.clear();
-        self.actions.just_released.clear();
-
-        for (key, action) in &self.binds.key_map {
-            if self.state.keys_down.contains(key) {
-                self.actions.active.insert(*action);
-            }
-            if self.state.keys_pressed.contains(key) {
-                self.actions.just_pressed.insert(*action);
-            }
-            if self.state.keys_released.contains(key) {
-                self.actions.just_released.insert(*action);
-            }
-        }
-
-        for (button, action) in &self.binds.mouse_map {
-            if self.state.mouse_buttons_down.contains(button) {
-                self.actions.active.insert(*action);
-            }
-            if self.state.mouse_buttons_pressed.contains(button) {
-                self.actions.just_pressed.insert(*action);
-            }
-        }
-
         self.state.clear_inputs();
     }
 }
