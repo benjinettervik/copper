@@ -72,16 +72,16 @@ impl System for MoveSnakeSystem {
             .unwrap()
             .clone();
 
-        if resources.input.state.is_key_pressed(KeyW) {
+        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
             println!("W");
         }
-        if resources.input.state.is_key_pressed(KeyA) {
+        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
             println!("A");
         }
-        if resources.input.state.is_key_pressed(KeyD) {
+        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
             println!("D");
         }
-        if resources.input.state.is_key_pressed(KeyS) {
+        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
             println!("S");
         }
     }
@@ -98,10 +98,11 @@ fn main() {
     engine.add_system(Update, MoveSnakeSystem)
     .add_system(Update, RenderSys);
 
-    engine.resources.input.binds.bind_key(KeyCode::KeyW, Action::Up);
-    engine.resources.input.binds.bind_key(KeyCode::KeyS, Action::Down);
-    engine.resources.input.binds.bind_key(KeyCode::KeyA, Action::Left);
-    engine.resources.input.binds.bind_key(KeyCode::KeyD, Action::Right);
+    engine.resources.get_mut::<Input>().unwrap().binds
+    .bind_key(KeyCode::KeyW, Action::Up)
+    .bind_key(KeyCode::KeyS, Action::Down)
+    .bind_key(KeyCode::KeyA, Action::Left)
+    .bind_key(KeyCode::KeyD, Action::Right);
 
     engine.test_run();
 }

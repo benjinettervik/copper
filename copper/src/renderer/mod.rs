@@ -4,6 +4,9 @@ use std::sync::Arc;
 use winit::window::Window;
 use pixels::{Pixels, SurfaceTexture};
 use crate::resource::{Resources,RenderCommand};
+use crate::resource::RenderQueue;
+use crate::resource::camera::Camera2D;
+use crate::renderer::test_components_renderer::TextureAsset;
 
 
 
@@ -73,18 +76,24 @@ impl Renderer {
         }
 
 
+
         // from the commands that we stored through RenderSys, we go through them
-        for render_command in &resources.render_queue.commands {
+        for render_command in &resources.get::<RenderQueue>().unwrap().commands{
+        // for render_command in &resources.render_queue.commands {
 
             // texture has {height,width and data (pixel data --> rgba)}
-            let texture = resources.texture_hash.textures.get(&render_command.texture).unwrap();
-           
+            // let texture = resources.texture_hash.textures.get(&render_command.texture).unwrap();
+            let texture = &resources.get::<TextureAsset>().unwrap().textures.get(&render_command.texture).unwrap();
            
             let tex_width = texture.width as usize;
             let tex_height = texture.height as usize;
 
-            let camera_x = resources.Camera2D.x as isize;
-            let camera_y = resources.Camera2D.y as isize;
+            let camera = resources.get::<Camera2D>().unwrap();
+
+            // let camera_x = resources.Camera2D.x as isize;
+            // let camera_y = resources.Camera2D.y as isize;
+            let camera_x = camera.x as isize;
+            let camera_y = camera.y as isize;
 
             let screen_center_x = (width as isize) / 2;
             let screen_center_y = (height as isize) / 2;
@@ -121,6 +130,7 @@ impl Renderer {
         }
 
         self.pixels.render().unwrap();
-        resources.render_queue.commands.clear();
+        // resources.render_queue.commands.clear();
+        &resources.get_mut::<RenderQueue>().unwrap().commands.clear();
     }
 }

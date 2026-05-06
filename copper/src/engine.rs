@@ -13,6 +13,7 @@ use winit::event_loop::EventLoop;
 use winit::window::Window;
 use crate::renderer::Renderer;
 use crate::resource::Resources;
+use crate::input::Input;
 
 
 /// The 'Engine' struct represents the engine itself. It contains the necessary functions used to manipulate the game engine. 
@@ -53,6 +54,8 @@ impl Engine {
         self.scheduler.add_system(system_routine, system);
         self
     }
+
+
 
     /// Runs all systems that have been added to an 'Engine'. Does not terminate naturally. 
     pub fn run(&mut self) -> &mut Self {
@@ -112,7 +115,9 @@ impl Engine {
                             .run_update(&mut self.world, &mut self.resources);
 
                         //Då detta är en test run så borde detta flyttas till tick systemet senare
-                        self.resources.input.input_polling();
+                        // self.resources.input.input_polling();
+                        self.resources.get_mut::<Input>().unwrap().input_polling();
+                        
                         
                         // Queue redraw event since renderer own window
                         if let Some(renderer) = &self.renderer {
@@ -125,15 +130,16 @@ impl Engine {
                         
                         //cursor, keys, mouse också flyttas till tick systemet senare
                         WindowEvent::KeyboardInput { event, .. } => {
-                            self.resources.input.handle_keys(event);
+                            // self.resources.input.handle_keys(event);
+                            self.resources.get_mut::<Input>().unwrap().handle_keys(event);
                         }
-
+                        
                         WindowEvent::MouseInput { state, button, .. } => {
-                            self.resources.input.handle_mouse_button(button, state);
+                            self.resources.get_mut::<Input>().unwrap().handle_mouse_button(button,state);
                         }
-
+                        
                         WindowEvent::CursorMoved { position, .. } => {
-                            self.resources.input.handle_mouse_movement(position.x, position.y);
+                            self.resources.get_mut::<Input>().unwrap().handle_mouse_movement(position.x, position.y);
                         }
                         
                         WindowEvent::RedrawRequested => {
