@@ -1,29 +1,61 @@
-#[cfg(test)]
-mod grid_tests{
-    // import test components
-    use::copper::*;
-    use copper::engine::Engine;
-    use copper::engine::world::*;
-    use copper::grid::{Grid,GridPosition};
-    // use crate::copper::engine::*;
-    // use crate::grid::*;    
+use copper::grid::{Grid, GridPosition};
 
-    #[test]
-    pub fn make_a_grid_insert_entity(){
-        // basics for engine
-        let mut engine = Engine::new();
-        let mut world = World::new();
-        let ent_id = world.spawn();
-        // grid 
-        let mut grid = Grid::new(32,32,16.0);
-        // ent id in grid 
-        grid.insert(ent_id, 10.0 ,10.0);
-        // hur skulle man querya detta? 
-        // ett förslag
-        let grid_pos = GridPosition{x:10.0,y:10.0};
-    }
-    #[test]
-    pub fn insert_sprites_with_different_textures_on_grid(){
-        
-    }
+#[test]
+fn grid_position_new() {
+    let position = GridPosition::new(3, 2);
+
+    assert_eq!(position, GridPosition { x: 3, y: 2 });
+}
+
+#[test]
+fn contains_position_inside() {
+    let grid = Grid::new(10, 10, 16.0);
+
+    assert!(grid.contains_position(GridPosition::new(3, 2)));
+}
+
+#[test]
+fn contains_position_outside() {
+    let grid = Grid::new(10, 10, 16.0);
+
+    assert!(!grid.contains_position(GridPosition::new(10, 2)));
+}
+
+#[test]
+fn insert_grid_entity() {
+    let mut grid = Grid::new(10, 10, 16.0);
+
+    let inserted = grid.insert_grid(7, GridPosition::new(3, 2));
+
+    assert!(inserted);
+    assert_eq!(grid.query_grid(GridPosition::new(3, 2)), &[7]);
+}
+
+#[test]
+fn insert_grid_outside() {
+    let mut grid = Grid::new(10, 10, 16.0);
+
+    let inserted = grid.insert_grid(7, GridPosition::new(10, 2));
+
+    assert!(!inserted);
+}
+
+#[test]
+fn world_insert_query() {
+    let mut grid = Grid::new(10, 10, 16.0);
+
+    grid.insert(7, 50.0, 35.0);
+
+    assert_eq!(grid.query_grid(GridPosition::new(3, 2)), &[7]);
+    assert_eq!(grid.query(50.0, 35.0), &[7]);
+}
+
+#[test]
+fn clear_grid() {
+    let mut grid = Grid::new(10, 10, 16.0);
+
+    grid.insert_grid(7, GridPosition::new(3, 2));
+    grid.clear();
+
+    assert!(grid.query_grid(GridPosition::new(3, 2)).is_empty());
 }
