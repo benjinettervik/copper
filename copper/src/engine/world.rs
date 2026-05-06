@@ -61,26 +61,30 @@ impl World {
     }
 
     /// Adds a component onto an entity. Adds any new components into the world's storage if it does not already exist.
-    pub fn add_component<T: Component>(&mut self, entity_id: EntityId, component: T) {
+    pub fn add_component<T: Component>(&mut self, entity_id: EntityId, component: T) -> &mut Self {
         // Generates a unique ID based on a 'static component struct type.
         // Example: every unique component of type 'struct Player' will generate the same component_id!
         let component_id = TypeId::of::<T>();
 
-        // Gets the entry with the right component id.
-        // If an entry does not exist, create one for component_id.
-        let component_storage_box = self
-            .component_storages
-            .entry(component_id)
-            .or_insert_with(|| RefCell::new(HashMap::new()));
+        {
+            // Gets the entry with the right component id.
+            // If an entry does not exist, create one for component_id.
+            let component_storage_box = self
+                .component_storages
+                .entry(component_id)
+                .or_insert_with(|| RefCell::new(HashMap::new()));
 
-        // 'component_storage' in this case is a hashmap that stores which entities who has the
-        // 'component_storage' specific component assigned to it and:
-        // - KEY is the unique ID of an entity.
-        // - VALUE is the unique component data storage for that entity
+            // 'component_storage' in this case is a hashmap that stores which entities who has the
+            // 'component_storage' specific component assigned to it and:
+            // - KEY is the unique ID of an entity.
+            // - VALUE is the unique component data storage for that entity
 
-        let mut borrow = component_storage_box.borrow_mut();
+            let mut borrow = component_storage_box.borrow_mut();
 
-        borrow.insert(entity_id, Box::new(component));
+            borrow.insert(entity_id, Box::new(component));
+        }
+
+        self
     }
 
     /// Gets a reference to a component that is assigned to entity_id

@@ -5,6 +5,7 @@ use copper::resource::Resources;
 use copper::*;
 use std::any::TypeId;
 use component_macro_derive::*;
+use copper::input::input::*;
 
 #[derive(Component)]
 enum Orientation {
@@ -60,11 +61,26 @@ impl System for MoveSnakeSystem {
             .unwrap()
             .clone();
 
-        println!("{}", snake);
+        
 
         let mut transform = world.get_component_mut::<TransformComponent>(snake);
 
         // osv osv
+    }
+}
+
+struct InitInputSystem;
+impl System for InitInputSystem {
+    components_read!();
+    components_write!();
+    components_with!();
+    components_without!();
+
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+        println!("LOL!");
+        let entity = world.spawn();
+
+        world.add_component(entity, InputState::new());
     }
 }
 
@@ -73,7 +89,12 @@ fn main() {
 
     let mut engine = Engine::new();
 
-    engine.add_system(Startup, SpawnSnakeSystem);
+    // Startup
+    engine.add_system(Startup, SpawnSnakeSystem)
+    .add_system(Startup, InitInputSystem);
+
+    // Update
     engine.add_system(Update, MoveSnakeSystem);
-    engine.run_cycles(1);
+
+    engine.run();
 }

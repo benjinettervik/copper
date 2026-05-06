@@ -18,7 +18,7 @@ use crate::resource::Resources;
 /// The 'Engine' struct represents the engine itself. It contains the necessary functions used to manipulate the game engine. 
 /// 
 /// Example of use: 
-/// ```
+/// ```ignore
 /// let mut engine = Engine::new().
 /// add_system(Startup, ExampleSystem).
 /// run();

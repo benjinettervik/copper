@@ -5,7 +5,12 @@ use winit::event::KeyEvent;
 use winit::event::MouseButton;
 use winit::keyboard::KeyCode;
 use winit::keyboard::PhysicalKey;
+
+use component_macro_derive::*;
+use crate::Component;
+
 //Component for saving all inputs
+#[derive(Component)]
 pub struct InputState {
     pub keys_down: HashSet<KeyCode>,
     pub keys_pressed: HashSet<KeyCode>,
@@ -109,6 +114,7 @@ Right,
 }
 
 //Component for saving all input binds
+#[derive(Component)]
 pub struct InputBindings {
     key_map: HashMap<KeyCode, Action>,
     mouse_map: HashMap<MouseButton, Action>,
@@ -136,6 +142,7 @@ impl InputBindings {
 }
 
 //Component for saving all active actions, likley used for match_action system
+#[derive(Component)]
 pub struct ActionState {
     pub active: HashSet<Action>,
     pub just_pressed: HashSet<Action>,
@@ -166,6 +173,7 @@ impl ActionState {
 }
 
 //Main input component that will be added to resources, contains InputState, InputBindings and ActionState
+#[derive(Component)]
 pub struct Input {
     pub state: InputState,
     pub binds: InputBindings,
