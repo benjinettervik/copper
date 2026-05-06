@@ -5,6 +5,7 @@ pub mod engine;
 pub mod renderer;
 pub mod resource;
 pub mod input;
+pub mod grid;
 
 
 pub type ComponentId = TypeId;
