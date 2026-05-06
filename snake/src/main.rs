@@ -1,11 +1,18 @@
 use copper::engine::system::*;
 use copper::engine::world::*;
 use copper::engine::*;
+use copper::renderer::render_sys::RenderSys;
 use copper::resource::Resources;
 use copper::*;
+use winit::event::KeyEvent;
+use winit::window;
 use std::any::TypeId;
 use component_macro_derive::*;
+
 use copper::input::input::*;
+use winit::keyboard::*;
+use winit::keyboard::KeyCode::*;
+
 
 #[derive(Component)]
 enum Orientation {
@@ -37,21 +44,25 @@ impl System for SpawnSnakeSystem {
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
         let snake = world.spawn();
-        world.add_component(snake, TransformComponent { pos_x: 0, pos_y: 0 });
-        world.add_component(
+        world.add_component(snake, TransformComponent { pos_x: 0, pos_y: 0 })
+        .add_component(
             snake,
             SnakeComponent {
                 length: 1,
                 orientation: Orientation::Up,
             },
-        );
+        )
+        .add_component(snake, InputState::new());
+
+
+        println!("Snake initialized.");
     }
 }
 
 struct MoveSnakeSystem;
 impl System for MoveSnakeSystem {
     components_read!(SnakeComponent);
-    components_write!(TransformComponent);
+    components_write!(TransformComponent, InputState);
     components_with!();
     components_without!();
 
@@ -61,40 +72,27 @@ impl System for MoveSnakeSystem {
             .unwrap()
             .clone();
 
-        
-
-        let mut transform = world.get_component_mut::<TransformComponent>(snake);
-
-        // osv osv
+        if resources.input.state.is_key_pressed(KeyW) {
+            println!("TRYCK!!!!");
+        }
     }
 }
 
-struct InitInputSystem;
-impl System for InitInputSystem {
-    components_read!();
-    components_write!();
-    components_with!();
-    components_without!();
-
-    fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        println!("LOL!");
-        let entity = world.spawn();
-
-        world.add_component(entity, InputState::new());
-    }
-}
 
 fn main() {
-    println!("Hello, world!");
-
     let mut engine = Engine::new();
 
     // Startup
-    engine.add_system(Startup, SpawnSnakeSystem)
-    .add_system(Startup, InitInputSystem);
+    engine.add_system(Startup, SpawnSnakeSystem);
 
     // Update
-    engine.add_system(Update, MoveSnakeSystem);
+    engine.add_system(Update, MoveSnakeSystem)
+    .add_system(Update, RenderSys);
 
-    engine.run();
+    engine.resources.input.binds.bind_key(KeyCode::KeyW, Action::Up);
+    engine.resources.input.binds.bind_key(KeyCode::KeyS, Action::Down);
+    engine.resources.input.binds.bind_key(KeyCode::KeyA, Action::Left);
+    engine.resources.input.binds.bind_key(KeyCode::KeyD, Action::Right);
+
+    engine.test_run();
 }
