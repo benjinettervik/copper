@@ -64,7 +64,9 @@ impl System for CameraFollowSystem {
         for entity in entities
         {   
                 let transform = world.get_component::<Transform>(entity).unwrap();
-                resources.Camera2D.set_position(transform.x,transform.y);
+                
+                resources.get_mut::<Camera2D>().unwrap().set_position(transform.x,transform.y);
+                // resources.Camera2D.set_position(transform.x,transform.y);
         }
     }
 }

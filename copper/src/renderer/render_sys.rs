@@ -1,5 +1,6 @@
 use crate::renderer::test_components_renderer::{Transform, MockSprite, TextureAsset};
 use crate::engine::world::World;
+use crate::resource::RenderQueue;
 use crate::engine::{Startup, Update};
 use std::any::TypeId;
 use crate::engine::system::System;
@@ -32,7 +33,8 @@ impl System for RenderSys {
             let sprite = world.get_component::<MockSprite>(entity).unwrap();
             let transform = world.get_component::<Transform>(entity).unwrap();
             println!("Doing the rendering sys call for {:?}  at  {:?}",sprite,transform);
-            resources.render_queue.commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y});
+            // resources.render_queue.commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y});
+            resources.get_mut::<RenderQueue>().unwrap().commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y})
         }
     }
 }

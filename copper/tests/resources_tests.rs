@@ -7,7 +7,7 @@ mod resources_basic_type_tests{
     use std::collections::HashMap;
     use copper::engine::world::*;
 
-    pub struct ResourcesMock{
+    pub struct Resources{
         resources: HashMap<TypeId, Box<dyn Any>>,
         // key becomes the type of the resource that has been saved , and the box contains on 
         // heap the accessible data associated.
@@ -56,22 +56,22 @@ mod resources_basic_type_tests{
 
 
 #[cfg(test)]
-mod resources_refactor_tests{
+mod resources_pre_refactor_tests{
 
     use::copper::*;
     use copper::engine::Engine;
     use std::any::{TypeId,Any};
     use std::collections::HashMap;
     use copper::engine::world::*;
-    use crate::resources_refactor_tests::resource::camera::Camera2D;
-    use crate::resources_refactor_tests::renderer::test_components_renderer::{TextureAsset,TextureHandle};
-    use crate::resources_refactor_tests::resource::{RenderQueue,RenderCommand};
-    use crate::resources_refactor_tests::grid::Grid;
+    use crate::resources_pre_refactor_tests::resource::camera::Camera2D;
+    use crate::resources_pre_refactor_tests::renderer::test_components_renderer::{TextureAsset,TextureHandle};
+    use crate::resources_pre_refactor_tests::resource::{RenderQueue,RenderCommand};
+    use crate::resources_pre_refactor_tests::grid::Grid;
 
-    pub struct ResourcesMock{
+    pub struct NewResource{
         resources: HashMap<TypeId, Box<dyn Any>>,
     }
-    impl ResourcesMock{
+    impl NewResource{
         pub fn new() -> Self {
 
             Self{
@@ -103,7 +103,7 @@ mod resources_refactor_tests{
 
     #[test]
     pub fn resources_refactor_test(){
-        let mut resources = ResourcesMock::new();
+        let mut resources = NewResource::new();
         resources.insert(RenderQueue{commands: Vec::new(),});
         resources.insert(TextureAsset{textures: HashMap::new(),});
         resources.insert(Camera2D::new());

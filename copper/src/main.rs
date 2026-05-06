@@ -64,13 +64,14 @@ fn main() {
     // engine time
     let mut engine = Engine::new();
     engine.world = world;
-    engine.resources.texture_hash = text_hash;
+    *engine.resources.get_mut::<TextureAsset>().unwrap() = text_hash;
+    // .texture_hash = text_hash;
 
      //bind inputs here
-    engine.resources.input.binds.bind_key(KeyCode::KeyW, Action::Up);
-    engine.resources.input.binds.bind_key(KeyCode::KeyS, Action::Down);
-    engine.resources.input.binds.bind_key(KeyCode::KeyA, Action::Left);
-    engine.resources.input.binds.bind_key(KeyCode::KeyD, Action::Right);
+    // engine.resources.input.binds.bind_key(KeyCode::KeyW, Action::Up);
+    // engine.resources.input.binds.bind_key(KeyCode::KeyS, Action::Down);
+    // engine.resources.input.binds.bind_key(KeyCode::KeyA, Action::Left);
+    // engine.resources.input.binds.bind_key(KeyCode::KeyD, Action::Right);
 
     // specify RenderSys as an update system
     engine.add_system(Update, RenderSys);
