@@ -24,6 +24,7 @@ impl Resources{
     }
 }
 
+#[derive(Debug)]
 pub struct RenderCommand {
     pub texture: TextureHandle,
     pub x: f32,
