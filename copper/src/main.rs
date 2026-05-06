@@ -15,7 +15,7 @@ use std::collections::HashMap;
 use winit::keyboard::KeyCode;
 use copper::input::Action;
 use copper::input::Input;
-
+pub struct MySupportResources;
 // renderer test
 // needs to be on main threads, thus not in tests.
 fn main() {
@@ -65,6 +65,8 @@ fn main() {
     let mut engine = Engine::new();
     engine.world = world;
     *engine.resources.get_mut::<TextureAsset>().unwrap() = text_hash;
+    
+    engine.resources.insert(MySupportResources{});    
     // .texture_hash = text_hash;
 
      //bind inputs here

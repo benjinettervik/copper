@@ -47,7 +47,7 @@ impl Resources{
     pub fn get<T: Any>(&self) -> Option<&T>
     {
         self.resources
-            .get(&TypeId::of::<T>()) //Hashmap get the typeid of T -- downcast ref to check if the value inside the dyn Any is actually type T
+            .get(&TypeId::of::<T>()) //Hashmap get with key -> typeid of T -- downcast ref to check if the value inside the dyn Any is actually type T
             .and_then(|v| v.downcast_ref::<T>())
     }
 
