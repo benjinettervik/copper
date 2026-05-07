@@ -1,4 +1,4 @@
-#![doc = include_str!("../README.md")]
+#![doc = include_str!("input.md")]
 
 use std::collections::HashMap;
 use std::collections::HashSet;
