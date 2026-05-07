@@ -1,4 +1,4 @@
-//! Welcome to Copper!
+#![doc = include_str!("../README.md")]
 
 use std::any::TypeId;
 

@@ -15,9 +15,6 @@ use winit::keyboard::KeyCode::*;
 
 
 
-
-
-
 struct SpawnSnakeSystem;
 impl System for SpawnSnakeSystem {
     components_read!();
@@ -39,4 +36,4 @@ fn main() {
     engine.run_cycles(5);
 }
 
-// cargo run --bin snake
+// cargo run --bin your_game
