@@ -1,39 +1,52 @@
+use component_macro_derive::*;
+use copper::Component;
 use copper::engine::system::*;
 use copper::engine::world::*;
 use copper::engine::*;
-use copper::renderer::render_sys::RenderSys;
 use copper::resource::Resources;
 use copper::*;
-use winit::event::KeyEvent;
-use winit::window;
 use std::any::TypeId;
-use component_macro_derive::*;
-
-use copper::input::input::*;
-use winit::keyboard::*;
-use winit::keyboard::KeyCode::*;
 
 
 
-struct SpawnSnakeSystem;
-impl System for SpawnSnakeSystem {
-    components_read!();
-    components_write!();
-    components_with!();
-    components_without!();
+// ==============================================
+// ===== Rör ingenting ovanför denna linje! =====
+// ==============================================
 
-    fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        
-    }
-}
+
+
+// ==============================================
+// Skapa Components här nedanför:
+
+// - Steg 1: Skapa en "Position"-component som innehåller en variabel för X-koordinat samt en för Y-koordinat.
+
+
+
+// ==============================================
+// Skapa Systems här nedanför:
+
+// - Steg 2.1: Definiera ett system som skapar 10 entiteter och lägger på en "Position"-component.
+
+
+
+// - Steg 3.1: Skapa ett nytt system som hämtar alla entities med en PositionComponent och flyttar på varje entity, varje update.
+
 
 
 fn main() {
+    println!("Welcome to Copper! \n");
+
+    // Initierar motorn.
     let mut engine = Engine::new();
 
-    println!("LOL");
+    
+    // - Steg 2.2: Lägg till systemet i motorn.
 
-    engine.run_cycles(5);
+
+    // - Steg 3.2: Lägg till systemet i motorn.
+    
+
+    // - Steg 4: Kör spelet. Förslagsvis lägg till några 'println!()' för att kontrollera vad som händer!
+    // För att köra: § cargo run --bin your_game
+
 }
-
-// cargo run --bin your_game
