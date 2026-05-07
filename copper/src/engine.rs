@@ -157,6 +157,7 @@ impl Engine {
     }
 }
 
+/// Describes when a system should be run by the engine. Default are 'Startup' and 'Update'
 pub trait SystemRoutine {}
 
 /// A system routine for systems which only run at startup.
