@@ -20,4 +20,4 @@ Nu har du dina entities med PositionComponent. För att vidare testa Copper vill
 __Uppgift:__ Skapa ett system som hämtar alla entities med en PositionComponent och flyttar på varje entity, varje update.
 
 ## Step 4
-__Uppgift:__ Kör spelet
+__Uppgift:__ Kör spelet. Förslagsvis lägg till några ```println!()``` för att kontrollera vad som händer!
