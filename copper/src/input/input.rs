@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 use std::collections::HashMap;
 use std::collections::HashSet;
 use winit::event::ElementState;
