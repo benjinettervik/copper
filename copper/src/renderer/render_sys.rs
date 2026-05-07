@@ -32,7 +32,7 @@ impl System for RenderSys {
         for entity in entities {
             let sprite = world.get_component::<MockSprite>(entity).unwrap();
             let transform = world.get_component::<Transform>(entity).unwrap();
-            println!("Doing the rendering sys call for {:?}  at  {:?}",sprite,transform);
+            // println!("Doing the rendering sys call for {:?}  at  {:?}",sprite,transform);
             // resources.render_queue.commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y});
             resources.get_mut::<RenderQueue>().unwrap().commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y})
         }

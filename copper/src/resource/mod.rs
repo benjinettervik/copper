@@ -7,6 +7,9 @@ use crate::input::Input;
 use std::collections::HashMap;
 use std::any::Any;
 use std::any::TypeId;
+// 
+use std::fs;
+use serde_json::Value;
 
 
 // pub struct Resources {
@@ -89,12 +92,13 @@ pub struct RenderCommand {
     pub y: f32,
 }
 
+// rend_command["x"];
 pub struct RenderQueue {
     pub commands: Vec<RenderCommand>,
 }
 
 
-
+///Converting a .png file to a texture struct through img dependency, basically a decoder.
 pub fn convert_texture(path: &str) -> Result<Texture,String> {
         
 
@@ -111,5 +115,91 @@ pub fn convert_texture(path: &str) -> Result<Texture,String> {
             pixel_data,
         })
     }
-// camera sys
 
+pub fn extract_tileset(tile_h: u32, tile_w: u32, texture: &Texture,) -> Vec<Texture> {
+    // rgba size of 4 
+    let byte_per_pixel: usize = 4;
+
+    // width and height of texture in u32
+    let width_u32 = texture.width;
+    let height_u32 = texture.height;
+    let width = width_u32 as usize;
+    let height = height_u32 as usize;
+    // tile width and height as usize
+    let tile_w_usize = tile_w as usize;
+    let tile_h_usize = tile_h as usize;
+
+    // assert its even
+    assert!(width % tile_w_usize == 0);
+    assert!(height % tile_h_usize == 0);
+
+    let tiles_x = width / tile_w_usize;
+    let tiles_y = height / tile_h_usize;
+
+    let row_stride = width * byte_per_pixel;
+    let tile_row_bytes = tile_w_usize * byte_per_pixel;
+
+    let mut tiles = Vec::with_capacity(tiles_x * tiles_y);
+
+    for ty in 0..tiles_y {
+        for tx in 0..tiles_x {
+            let mut tile = vec![0u8; tile_w_usize * tile_h_usize * byte_per_pixel];
+
+            for row in 0..tile_h_usize {
+                let src_y = ty * tile_h_usize + row;
+                let src_x = tx * tile_w_usize;
+                let src_start = src_y * row_stride + src_x * byte_per_pixel
+        ;
+                let dst_start = row * tile_row_bytes;
+                
+                // slice 
+                tile[dst_start..dst_start + tile_row_bytes]
+                    .copy_from_slice(
+                        &texture.pixel_data
+                            [src_start..src_start + tile_row_bytes],
+                    );
+            }
+
+            tiles.push(Texture {
+                height: tile_h, // keep u32
+                width: tile_w,  // keep u32
+                pixel_data: tile,
+            });
+        }
+    }
+
+    tiles
+}
+
+
+///Extracting layer data using serde_json dependency
+///
+pub fn extract_layer_data(path: &str) -> Result<Vec<Vec<u32>>, String> {
+
+    let text = fs::read_to_string(path)
+        .map_err(|e| e.to_string())?;
+
+    let json: Value = serde_json::from_str(&text)
+        .map_err(|e| e.to_string())?;
+
+    let layers = json["layers"]
+        .as_array()
+        .ok_or("Missing layers array")?;
+
+    let mut result = Vec::new();
+    for layer in layers {
+        let data = layer["data"]
+            .as_array()
+            .ok_or("Missing data array")?;
+
+        println!("Found data array with {} entries", data.len());
+        let numbers: Vec<u32> = data
+            .iter()
+            .filter_map(|v| v.as_u64())
+            .map(|n| n as u32)
+            .collect();
+
+        result.push(numbers);
+    }
+    Ok(result)
+}
