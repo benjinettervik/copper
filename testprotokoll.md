@@ -12,9 +12,12 @@ __Uppgift:__ Definiera en "Position" component som innehåller koordinatdata.
 ## Steg 2
 Nu har du en component och vill gå vidare med att ordna så att 10 entiteter (med varsin PositionComponent) skapas vid start av spelet.
 
-__Uppgift:__ Definiera ett system som skapar 10 entiteter och lägger på en PositionComponent. (At detta sker vid start av spelet görs i senare steg.)
+__Uppgift:__ Definiera ett system som skapar 10 entiteter och lägger på en PositionComponent. (Att detta sker vid start av spelet görs i senare steg.)
 
 ## Steg 3
-Nu har du dina entities med PositionComponent. För att vidare testa Copper vill du nu göra ett system som flyttar varje på varje entity vid varje update(frame). Entiteterna kan flyttas på valfritt sätt.
+Nu har du dina entities med PositionComponent. För att vidare testa Copper vill du nu göra ett system som flyttar varje på varje entity vid varje update (frame). Entiteterna kan flyttas på valfritt sätt.
 
 __Uppgift:__ Skapa ett system som hämtar alla entities med en PositionComponent och flyttar på varje entity, varje update.
+
+## Step 4
+__Uppgift:__ Kör spelet
