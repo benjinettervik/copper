@@ -103,6 +103,7 @@ pub fn convert_texture(path: &str) -> Result<Texture,String> {
             .to_rgba8();
         
         let (width, height) = img.dimensions();
+        // println!("{:?}",(width,height));
         let pixel_data = img.into_raw();
         Ok(Texture {
             width,
