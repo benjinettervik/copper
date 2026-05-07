@@ -34,41 +34,35 @@ pub struct MySupportResources;
 // needs to be on main threads, thus not in tests.
 
 struct MoveSpriteSystem;
-impl System for MoveSpriteSystem {
-    components_read!(CameraTarget);
-    components_write!(Transform);
-    components_with!();
-    components_without!();
+// impl System for MoveSpriteSystem {
+//     components_read!(CameraTarget);
+//     components_write!(Transform);
+//     components_with!();
+//     components_without!();
 
-    fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        let sprite = query!(self, world)
-            .first()
-            .unwrap()
-            .clone();
+//     fn run(&mut self, world: &mut World, resources: &mut Resources) {
+//         let sprite = query!(self, world)
+//             .first()
+//             .unwrap()
+//             .clone();
 
-        println!("{}",sprite);
+//         if let Some(mut transform) = world.get_component_mut::<Transform>(sprite) {
 
-        if let Some(mut transform) = world.get_component_mut::<Transform>(sprite) {
-
-            if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
-                // transform.y -= 5.0;
-            }
-
-            if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
-                // transform.y += 5.0;
-            
-            }
-
-            if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
-                // transform.x -= 5.0;
-            }
-
-            if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
-                // transform.x += 5.0;
-            }
-        }
-    }
-}
+//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
+//                 transform.y -= 20.0;
+//             }
+//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
+//                 transform.y += 20.0;
+//             }
+//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
+//                 transform.x -= 20.0;
+//             }
+//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
+//                 transform.x += 20.0;
+//             }
+//         }
+//     }
+// }
 
 fn main() {
     // rgba 0-255val
@@ -118,14 +112,25 @@ fn main() {
 
 
     // här gör man
-    // Step 1: Make Health component
-    // Step 2: Make Health component
-    // 
-    
-    // Step 3: make your own Hashmap resource 
-    // Step 4 Render: Input has been added as a base-kit resource, fill out the system to make the character move. 
-
+    // @@ Step 5: Add your own struct to engine.resources 
+    pub struct MyOwnResources;
+    // @@ Step 6: Make MoveSpriteSystem work 
+    // System is beneath main
 
 }
 
+impl System for MoveSpriteSystem{
+        // What components will the system query? 
+        components_read!();
+        components_write!();
+        components_with!();
+        components_without!();
+
+        fn run(&mut self, world: &mut World, resources: &mut Resources) {
+        
+
+        // What does the system require from resource?
+        }       
+
+}
 
