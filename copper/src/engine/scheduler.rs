@@ -19,6 +19,7 @@ impl Scheduler {
         }
     }
 
+    /// LOL
     pub fn add_system<T1, T2>(&mut self, system_routine: T1, system: T2)
     where
         T1: SystemRoutine + 'static,

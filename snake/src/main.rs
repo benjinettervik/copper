@@ -1,10 +1,18 @@
 use copper::engine::system::*;
 use copper::engine::world::*;
 use copper::engine::*;
+use copper::renderer::render_sys::RenderSys;
 use copper::resource::Resources;
 use copper::*;
+use winit::event::KeyEvent;
+use winit::window;
 use std::any::TypeId;
 use component_macro_derive::*;
+
+use copper::input::input::*;
+use winit::keyboard::*;
+use winit::keyboard::KeyCode::*;
+
 
 #[derive(Component)]
 enum Orientation {
@@ -36,47 +44,65 @@ impl System for SpawnSnakeSystem {
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
         let snake = world.spawn();
-        world.add_component(snake, TransformComponent { pos_x: 0, pos_y: 0 });
-        world.add_component(
+        world.add_component(snake, TransformComponent { pos_x: 0, pos_y: 0 })
+        .add_component(
             snake,
             SnakeComponent {
                 length: 1,
                 orientation: Orientation::Up,
             },
-        );
+        )
+        .add_component(snake, InputState::new());
+
+
+        println!("Snake initialized.");
     }
 }
 
 struct MoveSnakeSystem;
 impl System for MoveSnakeSystem {
     components_read!(SnakeComponent);
-    components_write!(TransformComponent);
+    components_write!(TransformComponent, InputState);
     components_with!();
     components_without!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        let snake = world
-            .query(
-                &self.components_read(),
-                &self.components_write(),
-                &self.components_with(),
-                &self.components_without(),
-            )
+        let snake = query!(self, world)
             .first()
             .unwrap()
             .clone();
 
-        let mut transform = world.get_component_mut::<TransformComponent>(snake);
-
-        // osv osv
+        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
+            println!("W");
+        }
+        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
+            println!("A");
+        }
+        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
+            println!("D");
+        }
+        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
+            println!("S");
+        }
     }
 }
 
-fn main() {
-    println!("Hello, world!");
 
+fn main() {
     let mut engine = Engine::new();
 
+    // Startup
     engine.add_system(Startup, SpawnSnakeSystem);
-    engine.add_system(Update, MoveSnakeSystem);
+
+    // Update
+    engine.add_system(Update, MoveSnakeSystem)
+    .add_system(Update, RenderSys);
+
+    engine.resources.get_mut::<Input>().unwrap().binds
+    .bind_key(KeyCode::KeyW, Action::Up)
+    .bind_key(KeyCode::KeyS, Action::Down)
+    .bind_key(KeyCode::KeyA, Action::Left)
+    .bind_key(KeyCode::KeyD, Action::Right);
+
+    engine.test_run();
 }

@@ -1,11 +1,14 @@
+//! Contains functions for manipulating the game world. 
+
+use crate::{ComponentId, EntityId};
 use std::any::Any;
 use std::any::TypeId;
 use std::cell::*;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-type EntityId = usize;
-type ComponentId = TypeId;
+// type EntityId = usize;
+// type ComponentId = TypeId;
 
 use crate::Component;
 
@@ -18,12 +21,28 @@ use crate::Component;
 //     };
 // }
 
+#[macro_export]
+macro_rules! query {
+    ($self:ident, $world:expr) => {
+        $world.query(
+                &$self.components_read(),
+                &$self.components_write(),
+                &$self.components_with(),
+                &$self.components_without(),
+            )
+    };
+}
+
+
+/// Represents a game world, containing entities and components. 
 pub struct World {
     next_entity_id: usize,
     component_storages: HashMap<ComponentId, RefCell<HashMap<EntityId, Box<dyn Any>>>>,
 }
 
 impl World {
+
+    /// Initializes a new game world.
     pub fn new() -> Self {
         World {
             next_entity_id: 0,
@@ -31,6 +50,7 @@ impl World {
         }
     }
 
+    /// Spawns a new entity. Entities are are only represented by ID:s. 
     pub fn spawn(&mut self) -> EntityId {
         let return_id = self.next_entity_id;
         self.next_entity_id += 1;
@@ -41,26 +61,30 @@ impl World {
     }
 
     /// Adds a component onto an entity. Adds any new components into the world's storage if it does not already exist.
-    pub fn add_component<T: Component>(&mut self, entity_id: EntityId, component: T) {
+    pub fn add_component<T: Component>(&mut self, entity_id: EntityId, component: T) -> &mut Self {
         // Generates a unique ID based on a 'static component struct type.
         // Example: every unique component of type 'struct Player' will generate the same component_id!
         let component_id = TypeId::of::<T>();
 
-        // Gets the entry with the right component id.
-        // If an entry does not exist, create one for component_id.
-        let component_storage_box = self
-            .component_storages
-            .entry(component_id)
-            .or_insert_with(|| RefCell::new(HashMap::new()));
+        {
+            // Gets the entry with the right component id.
+            // If an entry does not exist, create one for component_id.
+            let component_storage_box = self
+                .component_storages
+                .entry(component_id)
+                .or_insert_with(|| RefCell::new(HashMap::new()));
 
-        // 'component_storage' in this case is a hashmap that stores which entities who has the
-        // 'component_storage' specific component assigned to it and:
-        // - KEY is the unique ID of an entity.
-        // - VALUE is the unique component data storage for that entity
+            // 'component_storage' in this case is a hashmap that stores which entities who has the
+            // 'component_storage' specific component assigned to it and:
+            // - KEY is the unique ID of an entity.
+            // - VALUE is the unique component data storage for that entity
 
-        let mut borrow = component_storage_box.borrow_mut();
+            let mut borrow = component_storage_box.borrow_mut();
 
-        borrow.insert(entity_id, Box::new(component));
+            borrow.insert(entity_id, Box::new(component));
+        }
+
+        self
     }
 
     /// Gets a reference to a component that is assigned to entity_id
@@ -109,6 +133,7 @@ impl World {
     }
 
     // This is wildly inefficient, should make a proper Query system if times allows later on
+    /// Returns a vector of entity ID:s that match the given search query. 
     pub fn query(
         &self,
         components_read: &Vec<TypeId>,
