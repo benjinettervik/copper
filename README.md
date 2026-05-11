@@ -58,7 +58,7 @@ Register the system using ```engine.add_system```.
 
 
 # Creating a simple game
-Below we will create a simple game to show how Copper is used. The game will, at startup, spawn 10 entities, each with a health component that keeps track of their current health. Then, at every update, each entities' health will be reduced by 1. When an entity reaches 0 health, a death component will be added to it.
+Below we will create a simple game to show how Copper can be used. The game will, at startup, spawn 10 entities, each with a health component that keeps track of their current health. Then, at every update, each entities' health will be reduced by 1. When an entity reaches 0 health, a death component will be added to it.
 
 ## Initializing the engine
 The engine is used by initializing the base struct "Engine". This is done by running ```Engine::new();```. In our game's main function, lets do:  
