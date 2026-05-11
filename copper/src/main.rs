@@ -34,43 +34,48 @@ pub struct MySupportResources;
 // needs to be on main threads, thus not in tests.
 
 struct MoveSpriteSystem;
-// impl System for MoveSpriteSystem {
-//     components_read!(CameraTarget);
-//     components_write!(Transform);
-//     components_with!();
-//     components_without!();
+impl System for MoveSpriteSystem {
+    components_read!(CameraTarget);
+    components_write!(Transform);
+    components_with!();
+    components_without!();
 
-//     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-//         let sprite = query!(self, world)
-//             .first()
-//             .unwrap()
-//             .clone();
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+        let sprite = query!(self, world)
+            .first()
+            .unwrap()
+            .clone();
 
-//         if let Some(mut transform) = world.get_component_mut::<Transform>(sprite) {
+        if let Some(mut transform) = world.get_component_mut::<Transform>(sprite) {
 
-//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
-//                 transform.y -= 20.0;
-//             }
-//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
-//                 transform.y += 20.0;
-//             }
-//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
-//                 transform.x -= 20.0;
-//             }
-//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
-//                 transform.x += 20.0;
-//             }
-//         }
-//     }
-// }
+            if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
+                transform.y -= 20.0;
+            }
+            if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
+                transform.y += 20.0;
+            }
+            if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
+                transform.x -= 20.0;
+            }
+            if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
+                transform.x += 20.0;
+            }
+        }
+    }
+}
 
+
+/*
+
+
+*/
 fn main() {
     // rgba 0-255val
     let r = 255;
     let g = 255;
     let b = 255;
     let a = 255;
-    
+        
     let mut engine = Engine::new();
     let ent_1 = engine.world.spawn();
     let ent_2 = engine.world.spawn();

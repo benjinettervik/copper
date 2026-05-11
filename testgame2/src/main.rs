@@ -6,6 +6,7 @@ use copper::resource::Resources;
 use copper::renderer::render_sys::{RenderSys,TileMapStorage,GridStorage,TileMap,GridRenderSys,TMapHandle,GridHandle,GridRenderMeta};
 use copper::resource::{convert_texture,extract_tileset,extract_layer_data};
 use copper::resource::camera::*;
+// use copper::input::Input;
 use std::collections::HashMap;
 use copper::renderer::test_components_renderer::*;
 use copper::*;
@@ -13,7 +14,44 @@ use std::any::TypeId;
 use component_macro_derive::*;
 
 
+// use winit::keyboard::KeyCode;
+// use copper::input::Action;
+// use copper::input::Input;
+// use copper::input::input::*;
+// use winit::keyboard::*;
+// use winit::keyboard::KeyCode::*;
 
+
+// struct MoveSpriteSystem;
+// impl System for MoveSpriteSystem {
+//     components_read!(CameraTarget);
+//     components_write!(Transform);
+//     components_with!();
+//     components_without!();
+
+//     fn run(&mut self, world: &mut World, resources: &mut Resources) {
+//         let sprite = query!(self, world)
+//             .first()
+//             .unwrap()
+//             .clone();
+
+//         if let Some(mut transform) = world.get_component_mut::<Transform>(sprite) {
+
+//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
+//                 transform.y -= 20.0;
+//             }
+//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
+//                 transform.y += 20.0;
+//             }
+//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
+//                 transform.x -= 20.0;
+//             }
+//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
+//                 transform.x += 20.0;
+//             }
+//         }
+//     }
+// }
 
 fn main() {
 	let texture = convert_texture("./src/sprite_assets/tiles.png").unwrap();
@@ -53,14 +91,15 @@ fn main() {
     //
     let mut count = 0;
     let layer = &json_read[0];
+    println!("{:?}",layer[0]);
     for y in 0..20 {
         for x in 0..30{
-            grid.insert_grid(layer[count] as usize,GridPosition{x:x,y:y});
+            grid.insert_grid((layer[count]-1) as usize,GridPosition{x:x,y:y});
             count+=1;
         }
     }
-    // grid.insert_grid(255,GridPosition{x:1,y:1,});
-    println!("Now some part of the tile map is inserted into grid.{:?}",grid.query_grid(GridPosition{x:0,y:0,}));
+
+    // println!("Now some part of the tile map is inserted into grid.{:?}",grid.query_grid(GridPosition{x:0,y:0,}));
     
     // grid with associated texture handles
 
@@ -82,11 +121,19 @@ fn main() {
     engine.resources.insert(grid_storage);
     // Where does the tilemap even go? is it a part of grid?
     let x = engine.world.spawn();
-    engine.world.add_component(x, GridRenderMeta{handle:t_handle.clone(), grid:grid_handle.clone()});
+    engine.world.add_component(x, GridRenderMeta{handle:t_handle.clone(), grid:grid_handle.clone(),tile_size:32.0,});
     // engine.add_system(Update, RenderSys);
     engine.add_system(Update, GridRenderSys);
     engine.test_run();
     
+    
+    /*
+    To do:
+    This supports one layer. 
+    1. A camera that can move around
+    
+    
+    */
     
     	
 	

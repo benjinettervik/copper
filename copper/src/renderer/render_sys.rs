@@ -92,6 +92,7 @@ impl GridStorage{
 pub struct GridRenderMeta{
     pub handle: TMapHandle,
     pub grid: GridHandle,
+    pub tile_size: f32,
 }
 
 pub struct GridRenderSys;
@@ -128,8 +129,8 @@ impl System for GridRenderSys {
             )
         };
 
-        let TILE_SIZE: f32 = width as f32;
-
+        let TILE_SIZE: f32 = render_meta.tile_size;
+        println!("Tile size is: {}", TILE_SIZE);
         // render_queue.commands.push(RenderCommand {
         //     texture: TextureHandle(texture_handle[0] as i32),
         //     x: x as f32 * TILE_SIZE,

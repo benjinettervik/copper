@@ -130,8 +130,12 @@ impl Renderer {
 
             // let camera_x = resources.Camera2D.x as isize;
             // let camera_y = resources.Camera2D.y as isize;
-            let camera_x = camera.x as isize;
-            let camera_y = camera.y as isize;
+            // let camera_x = camera.x as isize;
+            // let camera_y = camera.y as isize;
+
+            // test debug
+            let camera_x = (camera.x+450.0) as isize;
+            let camera_y = (camera.y+300.0) as isize;
 
             let screen_center_x = (width as isize) / 2;
             let screen_center_y = (height as isize) / 2;
