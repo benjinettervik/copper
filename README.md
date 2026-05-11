@@ -1,10 +1,63 @@
 # Copper
-Copper is a game engine based on ECS (see ECS.md) written in Rust.
+Copper is a game engine based on ECS (see ECS.md) written in Rust. Copper does not have a GUI, instead it's used programatically in Rust. All methods used by the game developer are exposed under ```engine```. Begin using Copper by importing it: ```use copper::engine::*;```. Following is a documentation for each part of the engine. At the end of this document, we will create the beginning of a game to walk through step-by-step how the engine can be used.  
 
-## How to use Copper
-Copper does not have a GUI, instead it's used programatically in Rust. You can start using Copper by importing the Crate:
-```use copper::engine::*;```
+The rest of this document assumes knowledge of ECS.
 
+## Entities and World
+In Copper all runtime data is encapsulated within a "World". The World contains all entities and their initialized components. It also contains the methods to create entities, assign them components, etc. (See object __link__ for exact methods). The world is available to be interacted with within all systems.
+
+## Components
+Components are represented by a struct with a Component tag. For example:  
+```
+#[derive(Component)]
+struct HealthComponent {
+    current: usize
+}
+```
+
+Initialized components are assigned to entities. Crucially however, entities do not _contain_ components. Due to performance reasons, entities and componenets are mapped through a table. Once you have your component defined, you assign it to an entity through the world with ```add_component```.
+
+## Systems
+Systems are represented by a struct that implements the ```System``` trait. There are two main components of a system:  
+1. The definition of which components (if any) it wants to read or write to, as well as any extra filter for the entity query
+2. The logic it should run
+
+To define components as explained in point 1, there are four macros available:
+```
+components_read!();
+components_write!();
+components_with!();
+components_without!();
+```
+
+The first two are used to describe reading and writing. Writing assumes reading as well, so there is no need to define a component in both of them. This information is used by the engine's scheduler to determine which systems can run concurrently.  
+
+The last two, ```with``` and ```without```, are used for additional filtering. If for example a system wants to query for entities that simply have a component but does not want to read it, the component should be defined in ```with```. ```without``` is used for filtering out entities with specified components.  
+
+It should be noted that any components defined in ```read``` or ```write``` should not be defined in ```with``` or ```without```. ```with``` in this case is redundant, and ```without``` would be contradictory. To query for entities the macro ```query!(self, world)``` is used. This will take all specified components into account and return a list of all entities that match. To get component data you use methods available in ```world```.
+
+Lastly, the run function has the following signature ```fn run(&mut self, world: &mut World, resources: &mut Resources)```. Here the system gets access to the World (link) as well as Resources (link).  
+
+Here is an example of a system definition:
+
+```
+struct SomeSystem
+impl System for SomeSystem {
+    components_read!(SomeComponent);
+    components_write!(SomeOtherComponent);
+    components_with!();
+    components_without!();
+
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+        // perform logic here
+    }
+}
+```
+
+Register the system using ```engine.add_system```.
+
+
+# Creating a simple game
 Below we will create a simple game to show how Copper is used. The game will, at startup, spawn 10 entities, each with a health component that keeps track of their current health. Then, at every update, each entities' health will be reduced by 1. When an entity reaches 0 health, a death component will be added to it.
 
 ## Initializing the engine
