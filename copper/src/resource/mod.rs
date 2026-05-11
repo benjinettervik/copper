@@ -7,6 +7,8 @@ use crate::input::Input;
 use std::collections::HashMap;
 use std::any::Any;
 use std::any::TypeId;
+use crate::input::InputState;
+
 
 
 // pub struct Resources {
@@ -36,6 +38,11 @@ impl Resources{
         // can also become a system
         resources.init_basic_kit();
         resources
+    }
+
+    pub fn input_state(&mut self) -> &InputState{
+        let input = self.get::<Input>().unwrap(); //FIXME remove unwrap
+        &input.state
     }
 
     pub fn insert<T:Any>(&mut self, value: T){

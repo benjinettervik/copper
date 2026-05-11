@@ -12,6 +12,8 @@ use component_macro_derive::*;
 use copper::input::input::*;
 use winit::keyboard::*;
 use winit::keyboard::KeyCode::*;
+use winit::event::MouseButton::*;
+
 
 
 #[derive(Component)]
@@ -72,17 +74,30 @@ impl System for MoveSnakeSystem {
             .unwrap()
             .clone();
 
-        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
+        if resources.input_state().is_key_pressed(KeyW) {
             println!("W");
         }
-        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
+        if resources.input_state().is_key_pressed(KeyA) {
             println!("A");
         }
-        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
+        if resources.input_state().is_key_pressed(KeyD) {
             println!("D");
         }
-        if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
+        if resources.input_state().is_key_pressed(KeyS) {
             println!("S");
+        }
+        if resources.input_state().is_key_pressed(KeyE) {
+            println!("E");
+        }
+        if resources.input_state().is_mouse_pressed(Left) {
+            println!("Left");
+        }
+        if resources.input_state().is_mouse_pressed(Right) {
+            println!("Right");
+        }
+        if resources.input_state().is_mouse_pressed(Left) {
+            print!("{:?}", resources.input_state().mouse_pos)
+            
         }
     }
 }
