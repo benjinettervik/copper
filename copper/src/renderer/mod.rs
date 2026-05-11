@@ -7,7 +7,7 @@ use crate::resource::{Resources,RenderCommand};
 use crate::resource::RenderQueue;
 use crate::resource::camera::Camera2D;
 use crate::renderer::test_components_renderer::TextureAsset;
-
+use crate::renderer::render_sys::TileMapStorage;
 
 
 // window made issues with lifetime complexities, but found a solution
@@ -81,10 +81,48 @@ impl Renderer {
         for render_command in &resources.get::<RenderQueue>().unwrap().commands{
         // for render_command in &resources.render_queue.commands {
 
-            // texture has {height,width and data (pixel data --> rgba)}
-            // let texture = resources.texture_hash.textures.get(&render_command.texture).unwrap();
-            let texture = &resources.get::<TextureAsset>().unwrap().textures.get(&render_command.texture).unwrap();
-           
+                    // texture has {height,width and data (pixel data --> rgba)}
+                    // let texture = resources.texture_hash.textures.get(&render_command.texture).unwrap();
+                    
+                    let texture = if resources.get::<RenderQueue>().unwrap().is_grid != None {
+            println!("This render queue is a grid thingy.");
+
+            let tile_map_storage =
+                resources.get::<TileMapStorage>().unwrap();
+
+            let t_map_key = resources
+                .get::<RenderQueue>()
+                .unwrap()
+                .t_map
+                .clone()
+                .unwrap();
+
+            let tile_map = tile_map_storage
+                .storage
+                .get(&t_map_key)
+                .unwrap();
+
+            let text_assets = &tile_map.texture_asset;
+
+            println!("before texture!");
+
+            let texture = text_assets
+                .textures
+                .get(&render_command.texture)
+                .unwrap();
+
+            println!("WE HAVE texture after texture was gotten from hashmap!");
+
+            texture.clone()
+        } else {
+            resources
+                .get::<TextureAsset>()
+                .unwrap()
+                .textures
+                .get(&render_command.texture)
+                .unwrap()
+                .clone()
+        };
             let tex_width = texture.width as usize;
             let tex_height = texture.height as usize;
 

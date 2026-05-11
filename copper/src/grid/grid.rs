@@ -1,9 +1,10 @@
 use crate::Component;
 
+#[derive(Debug,Clone)]
 pub struct Grid{
-    cells:Vec<Vec<Vec<usize>>>, // [Rows][Cols][obj]
-    width:usize,
-    height:usize,
+    pub cells:Vec<Vec<Vec<usize>>>, // [Rows][Cols][obj]
+    pub width:usize,
+    pub height:usize,
     cell_size:f32,
 }
 

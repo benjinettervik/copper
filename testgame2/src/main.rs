@@ -3,7 +3,7 @@ use copper::engine::world::*;
 use copper::engine::*;
 use copper::grid::*;
 use copper::resource::Resources;
-use copper::renderer::render_sys::RenderSys;
+use copper::renderer::render_sys::{RenderSys,TileMapStorage,GridStorage,TileMap,GridRenderSys,TMapHandle,GridHandle,GridRenderMeta};
 use copper::resource::{convert_texture,extract_tileset,extract_layer_data};
 use copper::resource::camera::*;
 use std::collections::HashMap;
@@ -24,6 +24,8 @@ fn main() {
     for tile_index in 0..tile_set.len(){
         tile_set_hash.textures.insert(TextureHandle(tile_index as i32),tile_set[tile_index].clone());
     }
+
+    
 
     // now run engine 
 
@@ -58,17 +60,31 @@ fn main() {
         }
     }
     // grid.insert_grid(255,GridPosition{x:1,y:1,});
-    println!("{:?}",grid.query_grid(GridPosition{x:0,y:0,}));
+    println!("Now some part of the tile map is inserted into grid.{:?}",grid.query_grid(GridPosition{x:0,y:0,}));
     
     // grid with associated texture handles
-    pub struct TileComponent{
-        text_handle: TextureHandle,
-    }
+
+
+    let mut t_map = TileMap::new(grid.clone(),tile_set_hash.clone());
+    let t_handle = TMapHandle{id:"test".to_string()};
+    let mut tmap_storage = TileMapStorage::new();
+    tmap_storage.storage.insert(t_handle.clone(),t_map);
+    let mut grid_storage = GridStorage::new();
+    
+    let grid_handle= GridHandle{id:"test".to_string()};
+    grid_storage.storage.insert(grid_handle.clone(),grid.clone());
 
 
     let mut engine = Engine::new();
-    engine.resources.insert(tile_set_hash);
-    engine.add_system(Update, RenderSys);
+    // engine.resources.insert(tile_set_hash);
+
+    engine.resources.insert(tmap_storage);
+    engine.resources.insert(grid_storage);
+    // Where does the tilemap even go? is it a part of grid?
+    let x = engine.world.spawn();
+    engine.world.add_component(x, GridRenderMeta{handle:t_handle.clone(), grid:grid_handle.clone()});
+    // engine.add_system(Update, RenderSys);
+    engine.add_system(Update, GridRenderSys);
     engine.test_run();
     
     

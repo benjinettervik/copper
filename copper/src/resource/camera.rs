@@ -14,10 +14,17 @@ pub struct Camera2D {
 }
 
 impl Camera2D {
+    // pub fn new() -> Self {
+    //     Self {
+    //         x: 0.0,
+    //         y: 0.0,
+    //         zoom: 2.0,
+    //     }
+    // }
     pub fn new() -> Self {
         Self {
-            x: 0.0,
-            y: 0.0,
+            x: 15.0,
+            y: -5.0,
             zoom: 2.0,
         }
     }

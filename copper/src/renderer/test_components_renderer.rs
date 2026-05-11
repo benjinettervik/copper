@@ -26,7 +26,7 @@ macro_rules! rgba {
 #[derive(Copy, Clone,Debug,Eq,Hash,PartialEq)]
 pub struct TextureHandle(pub i32);
 
-
+#[derive(Clone)]
 pub struct TextureAsset {
     pub textures: HashMap<TextureHandle, Texture>,
 }

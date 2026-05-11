@@ -63,7 +63,7 @@ impl Resources{
     }
 
     pub fn init_basic_kit(&mut self){
-        self.insert(RenderQueue{commands: Vec::new(),});
+        self.insert(RenderQueue{commands: Vec::new(),is_grid:None,t_map:None});
         self.insert(TextureAsset{textures: HashMap::new(),});
         self.insert(Camera2D::new());
         self.insert(Input::new());
@@ -92,9 +92,15 @@ pub struct RenderCommand {
     pub y: f32,
 }
 
+
+
 // rend_command["x"];
+
+#[derive(Debug)]
 pub struct RenderQueue {
     pub commands: Vec<RenderCommand>,
+    pub is_grid: Option<GridHandle>,
+    pub t_map: Option<TMapHandle>,
 }
 
 
