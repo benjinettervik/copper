@@ -23,7 +23,7 @@ impl Camera2D {
     // }
     pub fn new() -> Self {
         Self {
-            x: 15.0,
+            x: 200.0,
             y: -5.0,
             zoom: 2.0,
         }

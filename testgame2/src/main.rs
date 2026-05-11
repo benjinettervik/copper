@@ -14,43 +14,46 @@ use std::any::TypeId;
 use component_macro_derive::*;
 
 
-// use winit::keyboard::KeyCode;
+use winit::keyboard::KeyCode;
 // use copper::input::Action;
-// use copper::input::Input;
-// use copper::input::input::*;
-// use winit::keyboard::*;
-// use winit::keyboard::KeyCode::*;
+use copper::input::Input;
+use copper::input::input::*;
+use winit::keyboard::*;
+use winit::keyboard::KeyCode::*;
 
 
-// struct MoveSpriteSystem;
-// impl System for MoveSpriteSystem {
-//     components_read!(CameraTarget);
-//     components_write!(Transform);
-//     components_with!();
-//     components_without!();
+struct Observe;
+impl System for Observe {
+    components_read!();
+    components_write!();
+    components_with!();
+    components_without!();
 
-//     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-//         let sprite = query!(self, world)
-//             .first()
-//             .unwrap()
-//             .clone();
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
 
-//         if let Some(mut transform) = world.get_component_mut::<Transform>(sprite) {
+        let input = resources.get::<Input>().unwrap();
 
-//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyW) {
-//                 transform.y -= 20.0;
-//             }
-//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyS) {
-//                 transform.y += 20.0;
-//             }
-//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyA) {
-//                 transform.x -= 20.0;
-//             }
-//             if resources.get::<Input>().unwrap().state.is_key_pressed(KeyD) {
-//                 transform.x += 20.0;
-//             }
-//         }
-//     }
+        let w = input.state.is_key_pressed(KeyW);
+        let s = input.state.is_key_pressed(KeyS);
+        let a = input.state.is_key_pressed(KeyA);
+        let d = input.state.is_key_pressed(KeyD);
+
+        let mut camera = resources.get_mut::<Camera2D>().unwrap();
+
+        if w {
+            camera.y -= 20.0;
+        }
+        if s {
+            camera.y += 20.0;
+        }
+        if a {
+            camera.x -= 20.0;
+        }
+        if d {
+            camera.x += 20.0;
+        }
+    }
+}
 // }
 
 fn main() {
@@ -123,6 +126,7 @@ fn main() {
     let x = engine.world.spawn();
     engine.world.add_component(x, GridRenderMeta{handle:t_handle.clone(), grid:grid_handle.clone(),tile_size:32.0,});
     // engine.add_system(Update, RenderSys);
+    engine.add_system(Update, Observe);
     engine.add_system(Update, GridRenderSys);
     engine.test_run();
     
@@ -130,9 +134,11 @@ fn main() {
     /*
     To do:
     This supports one layer. 
-    1. A camera that can move around
-    
-    
+    DONE 1. A camera that can move around    
+    2. Layering 
+    3. Do a new tilemap, more detailed 
+    4. Be able todo both rendering of grid and Sprite 
+    5. Animation basics 
     */
     
     	

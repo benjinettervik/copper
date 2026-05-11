@@ -27,8 +27,8 @@ use winit::keyboard::KeyCode;
 use copper::input::Action;
 use copper::input::Input;
 use copper::input::input::*;
-use winit::keyboard::*;
-use winit::keyboard::KeyCode::*;
+// use winit::keyboard::*;
+// use winit::keyboard::KeyCode::*;
 pub struct MySupportResources;
 // renderer test
 // needs to be on main threads, thus not in tests.
