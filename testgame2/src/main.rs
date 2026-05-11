@@ -132,10 +132,13 @@ fn main() {
     
     
     /*
+    // layer_test.tmj now exists if we look in the sprite_asset directory 
     To do:
     This supports one layer. 
     DONE 1. A camera that can move around    
     2. Layering 
+        layer_test.tmj added to sprite thingy 
+    What do I need for layering? 
     3. Do a new tilemap, more detailed 
     4. Be able todo both rendering of grid and Sprite 
     5. Animation basics 
