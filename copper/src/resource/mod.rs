@@ -78,14 +78,14 @@ impl Resources{
 
 
 
-// enum RenderLayer {
-//     Background,
-//     Terrain,
-//     Objects,
-//     Sprite,
-//     Effects,
-//     UI,
-// }
+pub enum RenderLayer {
+    Background,
+    Terrain,
+    Objects,
+    Sprite,
+    Effects
+}
+
 
 
 

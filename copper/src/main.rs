@@ -11,7 +11,7 @@ use copper::resource::{convert_texture};
 use copper::engine::world::World;
 use copper::renderer::render_sys::*;
 use copper::engine::system::System;
-use copper::resource::Resources;
+use copper::resource::{Resources,RenderLayer};
 use copper::renderer::test_components_renderer::*;
 use copper::rgba;
 // use copper::engine::system::System;
