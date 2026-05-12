@@ -63,3 +63,6 @@ impl System for CreateEntitiesSystem {
         for
     }
 }
+```
+## Snake demo command
+CARGO_TARGET_DIR=/private/tmp/copper-snake-run cargo run -p snake
