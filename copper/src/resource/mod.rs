@@ -1,12 +1,15 @@
 // use copper::renderer::test_components_renderer::*;
 pub mod camera;
 use crate::renderer::test_components_renderer::*;
+use crate::grid::GridPosition;
 use crate::resource::camera::*;
 use crate::renderer::render_sys::*;
 use crate::input::Input;
 use std::collections::HashMap;
 use std::any::Any;
 use std::any::TypeId;
+use crate::grid::Grid;
+
 // 
 use std::fs;
 use serde_json::Value;
@@ -77,7 +80,7 @@ impl Resources{
 
 
 
-
+#[derive(Debug)]
 pub enum RenderLayer {
     Background,
     Terrain,
@@ -86,22 +89,49 @@ pub enum RenderLayer {
     Effects
 }
 
-
-
-
-
-
-
 #[derive(Debug)]
 pub struct RenderCommand {
     pub texture: TextureHandle,
+    pub layer: RenderLayer,
     pub x: f32,
     pub y: f32,
+    pub texture_map_handle: Option<TM_Handle>, 
+    //what texture, what layer it is in, where to place it, where to get it
+}
+#[derive(PartialEq,Eq,Hash,Clone,Debug)]
+pub struct TM_Handle
+{
+    pub id:String,
 }
 
+pub struct TextureMap{
+    pub textures: HashMap<TM_Handle,TextureAsset>,
+}
+
+impl TextureMap{
+    pub fn new() -> Self{
+        Self{
+            textures:HashMap::new(),
+        }
+    }
+}
+
+pub struct RenderGrid{
+    pub layer: RenderLayer,
+    pub grid: Grid,
+    pub handle: TM_Handle
+}
+
+pub struct RenderMap{
+    pub grids: Vec<RenderGrid>,
+}
+impl RenderMap{
 
 
-// rend_command["x"];
+    pub fn new() -> Self {
+        Self { grids: Vec::new(), }
+    }
+}
 
 #[derive(Debug)]
 pub struct RenderQueue {
@@ -109,6 +139,18 @@ pub struct RenderQueue {
     pub is_grid: Option<GridHandle>,
     pub t_map: Option<TMapHandle>,
 }
+
+
+pub struct RenderData {
+    pub sprites: Option<MockSprite>,
+    pub render_maps: Option<RenderMap>
+}
+
+
+
+
+
+
 
 
 ///Converting a .png file to a texture struct through img dependency, basically a decoder.
@@ -185,8 +227,14 @@ pub fn extract_tileset(tile_h: u32, tile_w: u32, texture: &Texture,) -> Vec<Text
 }
 
 
+pub struct JSON_Meta{
+    pub height:u32,
+    pub width:u32,
+    pub layers: Vec<Vec<u32>>, 
+}
+
 ///Extracting layer data using serde_json dependency
-///
+
 pub fn extract_layer_data(path: &str) -> Result<Vec<Vec<u32>>, String> {
 
     let text = fs::read_to_string(path)
@@ -215,4 +263,146 @@ pub fn extract_layer_data(path: &str) -> Result<Vec<Vec<u32>>, String> {
         result.push(numbers);
     }
     Ok(result)
+}
+pub fn extract_layer_data2(path: &str) -> Result<JSON_Meta, String> {
+
+    let text = fs::read_to_string(path)
+        .map_err(|e| e.to_string())?;
+
+    let json: Value = serde_json::from_str(&text)
+        .map_err(|e| e.to_string())?;
+
+    let layers = json["layers"]
+        .as_array()
+        .ok_or("Missing layers array")?;
+
+    let mut result = Vec::new();
+    let mut width:u32 = 0;
+    let mut height:u32 = 0;
+    // let mut result = JSON_Meta{};
+    for layer in layers {
+        let data = layer["data"]
+            .as_array()
+            .ok_or("Missing data array")?;
+
+        width = layer["width"].as_u64().unwrap() as u32;
+        height = layer["height"].as_u64().unwrap() as u32;
+
+        println!("Found data array with {} entries", data.len());
+        let numbers: Vec<u32> = data
+            .iter()
+            .filter_map(|v| v.as_u64())
+            .map(|n| n as u32)
+            .collect();
+
+        result.push(numbers);
+    }
+    Ok(JSON_Meta{height:height,width:width,layers:result})
+}
+
+pub fn json_to_rendermap(path:&str,pix_dim:f32, handle: TM_Handle) -> Result<RenderMap,String>{
+
+    let json_read = extract_layer_data2(path).unwrap();
+    let layer_amount = json_read.layers.len();
+    // let result = RenderMap::new();
+    
+    // basic implemntation do not allow for more than 3 layers 
+    if layer_amount > 3 {
+        return Err("Too many layers in map".to_string());
+    }
+    let mut render_grids = Vec::<RenderGrid>::new();
+    
+    // 
+    let layers = json_read.layers;
+    let width = json_read.width;
+    let height = json_read.height;
+
+    for i in 0..layer_amount{
+        let layer = &layers[i];
+        let mut grid: Grid = Grid::new(width as usize,height as usize,pix_dim);
+        match i {
+                0 => {
+                    println!("Layer 1");
+                    let mut count = 0;
+                    for y in 0..height{
+                        for x in 0..width{
+                            let tile = layer[count];
+
+                            if tile != 0 {
+                                grid.insert_grid(
+                                    (tile - 1) as usize,
+                                    GridPosition {
+                                        x: x as usize,
+                                        y: y as usize
+                                    }
+                                );
+                            }
+                            count+=1;
+                        }
+                    }
+                    render_grids.push(RenderGrid{
+                        layer: RenderLayer::Background, 
+                        grid: grid,
+                        handle:handle.clone()})
+                }
+
+                1 => {
+                    println!("Layer 2");
+                    let mut count = 0;
+                    for y in 0..height{
+                        for x in 0..width{
+                            let tile = layer[count];
+
+                            if tile != 0 {
+                                grid.insert_grid(
+                                    (tile - 1) as usize,
+                                    GridPosition {
+                                        x: x as usize,
+                                        y: y as usize
+                                    }
+                                );
+                            }
+                            count+=1;
+                        }
+                    }
+                    render_grids.push(RenderGrid{
+                        layer: RenderLayer::Terrain, 
+                        grid: grid,
+                        handle: handle.clone()})
+                }
+
+                2 => {
+                    println!("Layer 2");
+                    let mut count = 0;
+                    for y in 0..height{
+                        for x in 0..width{
+                            let tile = layer[count];
+
+                            if tile != 0 {
+                                grid.insert_grid(
+                                    (tile - 1) as usize,
+                                    GridPosition {
+                                        x: x as usize,
+                                        y: y as usize
+                                    }
+                                );
+                            }
+                            count+=1;
+                        }
+                    }
+                    render_grids.push(RenderGrid{
+                        layer: RenderLayer::Objects, 
+                        grid: grid,
+                        handle: handle.clone()})
+                }
+
+                _ => {}
+        }
+}
+        
+        
+        println!("Making a rendermap");
+        
+    Ok(RenderMap{grids:render_grids})
+
 }

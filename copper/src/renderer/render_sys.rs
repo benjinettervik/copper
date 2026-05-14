@@ -11,6 +11,7 @@ use crate::engine::system::System;
 use crate::{components_read, components_with, components_without, components_write};
 use crate::resource::{Resources,RenderCommand};
 use crate::Component;
+use crate::resource::RenderLayer;
 use component_macro_derive::Component;
 
 
@@ -38,7 +39,12 @@ impl System for RenderSys {
             let transform = world.get_component::<Transform>(entity).unwrap();
             // println!("Doing the rendering sys call for {:?}  at  {:?}",sprite,transform);
             // resources.render_queue.commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y});
-            resources.get_mut::<RenderQueue>().unwrap().commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y})
+            resources.get_mut::<RenderQueue>().unwrap().commands.push(RenderCommand{
+                texture:sprite.texture,
+                layer: RenderLayer::Background,
+                x:transform.x,
+                y:transform.y,
+                texture_map_handle:None})
         }
     }
 }
@@ -48,6 +54,7 @@ pub struct TMapHandle
 {
     pub id:String,
 }
+
 #[derive(PartialEq,Eq,Hash,Clone,Debug)]
 pub struct GridHandle
 {
@@ -148,8 +155,10 @@ impl System for GridRenderSys {
 
                 render_queue.commands.push(RenderCommand {
                     texture: TextureHandle(texture_handle[0] as i32),
+                    layer: RenderLayer::Background,
                     x: x as f32 * TILE_SIZE,
                     y: y as f32 * TILE_SIZE,
+                    texture_map_handle:None,
                 });
             }
         }

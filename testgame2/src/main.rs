@@ -2,9 +2,9 @@ use copper::engine::system::*;
 use copper::engine::world::*;
 use copper::engine::*;
 use copper::grid::*;
-use copper::resource::{Resources,RenderLayer};
+use copper::resource::{Resources,RenderLayer,TM_Handle,TextureMap};
 use copper::renderer::render_sys::{RenderSys,TileMapStorage,GridStorage,TileMap,GridRenderSys,TMapHandle,GridHandle,GridRenderMeta};
-use copper::resource::{convert_texture,extract_tileset,extract_layer_data};
+use copper::resource::{convert_texture,extract_tileset,extract_layer_data2,json_to_rendermap};
 use copper::resource::camera::*;
 // use copper::input::Input;
 use std::collections::HashMap;
@@ -57,6 +57,13 @@ impl System for Observe {
 // }
 
 fn main() {
+
+    
+    // ###############################
+    // ###############################
+    // ###############################  New testing
+    // ###############################
+    // ###############################
 	// let texture = convert_texture("./src/sprite_assets/tiles.png").unwrap();
     // let tile_set =extract_tileset(32,32,&texture); 
     // println!("{}",tile_set.len());
@@ -79,7 +86,7 @@ fn main() {
 
     // // grid -> has entities that has texture assets 
     // // change renderer
-    // let json_read = extract_layer_data("./src/sprite_assets/test2.tmj").unwrap();
+    // let json_read = extract_layer_data("./src/sprite_assets/layer_test.tmj").unwrap();
     
     // // 1. attach to grid
     // // 2. change rendersys to be able to draw this
@@ -131,6 +138,16 @@ fn main() {
     // engine.test_run();
     
     
+
+
+    // ###############################
+    // ###############################
+    // ###############################  New testing
+    // ###############################
+    // ###############################
+
+
+
     // /*
     // // layer_test.tmj now exists if we look in the sprite_asset directory 
     // To do:
@@ -146,7 +163,100 @@ fn main() {
     
 
 
-    let r_layer: RenderLayer = RenderLayer::Background;
+    // RenderCommands rehash 
+    // RenderQueue new fix
+    // Render-draw logic changed 
+
+
+    // loads the tileset.png
+    let texture = convert_texture("./src/sprite_assets/tiles.png").unwrap();
+    // extract the pixel data
+    let tile_set =extract_tileset(32,32,&texture); 
+    println!("{}",tile_set.len());
+    let mut tile_set_hash = TextureAsset{textures:HashMap::new()};
+
+    // insert it as a textureAsset
+    for tile_index in 0..tile_set.len(){
+        tile_set_hash.textures.insert(TextureHandle(tile_index as i32),tile_set[tile_index].clone());
+    }
+
+    // // new function to be made --> json.layers to RenderGrid
+
+
+    let json_read = extract_layer_data2("./src/sprite_assets/layer_test.tmj").unwrap();
+    let mut grid: Grid = Grid::new(20,30,32.0);
+    let mut count = 0;
+    let layer = &json_read.layers[0];
+
+    print!("The amount of layers are: {:?}",json_read.layers.len());
+    println!("Dimensions are: ({:?},{:?})",json_read.height,json_read.width);
+    
+    // RenderMap 
+    
+    // What do we need to pass to rendersys?
+    // In this new iteration Renderqueue should not have to differentiate between the commands, they will say what layer, what pos and what texturehandle.
+    
+    // RenderDraw till know:
+    // pos 
+    // text_handle, but not the key of how to access these. 
+    // Could say that RenderGrid has a grid_handle stored, a key on how to access they texture pixel data
+    
+    // textureAssets are stored
+    // What do we need to pass to render_draw()? PReviously it was needed grid handles etc.
+    
+    
+    
+    // we now have a simple RenderMap struct that we can work with -- this should be the goal for the rendersys to accomodate aswell as draw 
+    
+    // step 2: make a sprite with a what not.
+    let sprite_texture = convert_texture("./src/sprite_assets/32_sprite.png").unwrap();
+    let mut sprite_set_hash = TextureAsset{textures:HashMap::new()};
+    sprite_set_hash.textures.insert(TextureHandle(1),sprite_texture);
+    
+    // All texture assets are stored here 
+    // in this type
+    
+    // now all pixel data is stored in this
+    let mut t_map_storage = TextureMap::new();
+    t_map_storage.textures.insert(TM_Handle{id:"xo".to_string()},sprite_set_hash);
+    t_map_storage.textures.insert(TM_Handle{id:"dko".to_string()},tile_set_hash);
+    
+    let render_map = json_to_rendermap("./src/sprite_assets/layer_test.tmj",32.0,TM_Handle{id:"dko".to_string()});
+    
+    println!("Rendermap has a total of {:?} rendergrids",render_map.unwrap().grids.len());
+    // rendermap has the information of WHAT to draw and WHERE 
+    // where do i place the render_map?
+
+    // new step --> make render_data, add mocksprite and render_maps
+    // render_data becomes -> render_commands, this is what render_sys does.
+
+    // let render_data = RenderData{}
+    // rendermap now know what to ask t_map_storage for.
+    // 
+
+
+    
+    // the tool function should be: 
+        // given a specified json -> make a RenderMap 
+    // create a rendermap based on the yadyada of grid 
+    // println!("{:?}",layer[0]);
+    
+    // for y in 0..20 {
+    //     for x in 0..20{
+    //         grid.insert_grid((layer[count]-1) as usize,GridPosition{x:x,y:y});
+    //         count+=1;
+    //     }
+    // }
+
+    // At the moment it is attached to a certain layer -- 
+    // layer 0 is one grid, reasonable.
+    // layer 1 will be yet another grid.
+
+
+    //
+    // let r_layer: RenderLayer = RenderLayer::Background;
+    
+    
     // (0) Presentationsdel av mina områden
     // (1) todo: add layer to rendercommand to be able to change rendering and the commands.
     // (2) change the render.draw() so it takes into account this. 

@@ -84,7 +84,7 @@ impl Renderer {
                     // texture has {height,width and data (pixel data --> rgba)}
                     // let texture = resources.texture_hash.textures.get(&render_command.texture).unwrap();
                     
-                    let texture = if resources.get::<RenderQueue>().unwrap().is_grid != None {
+            let texture = if resources.get::<RenderQueue>().unwrap().is_grid != None {
             println!("This render queue is a grid thingy.");
 
             let tile_map_storage =
@@ -123,6 +123,7 @@ impl Renderer {
                 .unwrap()
                 .clone()
         };
+        
             let tex_width = texture.width as usize;
             let tex_height = texture.height as usize;
 
