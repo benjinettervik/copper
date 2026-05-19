@@ -19,7 +19,6 @@ impl Scheduler {
         }
     }
 
-    /// LOL
     pub fn add_system<T1, T2>(&mut self, system_routine: T1, system: T2)
     where
         T1: SystemRoutine + 'static,
@@ -34,6 +33,27 @@ impl Scheduler {
         }
 
         panic!("Custom system routines not yet implemented!");
+    }
+
+    pub fn order_system(&mut self)
+    {
+
+        // debg
+        println!("In order_system");
+        // step 1: print the system 
+        for system in &mut self.startup{
+            println!("Reads: {:?}", system.components_read());
+            println!("Writes: {:?}", system.components_write());
+        }
+        for system in &mut self.update{
+            println!("Reads: {:?}", system.components_read());
+            println!("Writes: {:?}", system.components_write());
+        }
+        // the result helps us see that we can see what they want to read or write per system
+        
+        // step 2: create a DAG order instead of FIFO
+
+        // step 3: try threading usage.
     }
 
     pub fn add_startup_system<T: System + 'static>(&mut self, system: T) {

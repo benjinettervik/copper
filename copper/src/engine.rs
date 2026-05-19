@@ -15,6 +15,9 @@ use crate::renderer::Renderer;
 use crate::resource::Resources;
 use crate::input::Input;
 
+use std::thread;
+use std::time::Duration;
+
 
 /// The 'Engine' struct represents the engine itself. It contains the necessary functions used to manipulate the game engine. 
 /// 
@@ -90,7 +93,7 @@ impl Engine {
     // ###
     //
 
-    pub fn test_run(&mut self) {
+    pub fn test_run(&mut self, time:u64) {
         println!("In test run!");
 
         // run startup sys
@@ -105,7 +108,7 @@ impl Engine {
                 match event {
                     Event::Resumed => {
                         let window = elwt.create_window(Window::default_attributes()).unwrap();
-
+                        
                         // renderer owns window
                         self.renderer = Some(Renderer::new(window));
                     }
@@ -113,6 +116,7 @@ impl Engine {
                     // Update sys
                     Event::AboutToWait => {
                         // Update ECS
+                        self.scheduler.order_system();
                         self.scheduler
                             .run_update(&mut self.world, &mut self.resources);
 
@@ -148,6 +152,7 @@ impl Engine {
                             if let Some(renderer) = &mut self.renderer {
                                 // render draw
                                 renderer.draw(&mut self.resources);
+                                thread::sleep(Duration::from_millis(time));
                             }
                         }
 

@@ -80,14 +80,11 @@ impl Renderer {
         // postpone rendering depending on layers
 
 
-        // from the commands that we stored through RenderSys, we go through them
         let mut commands = {
-    let render_queue = resources.get_mut::<RenderQueue>().unwrap();
-
-    render_queue.commands.sort_by_key(|cmd| cmd.layer.clone());
-
-    render_queue.commands.clone()
-}; // mutable borrow ends here
+            let render_queue = resources.get_mut::<RenderQueue>().unwrap();
+            render_queue.commands.sort_by_key(|cmd| cmd.layer.clone());
+            render_queue.commands.clone()
+        }; 
 
 let t_map_storage = resources.get::<TextureMap>().unwrap();
 
@@ -103,12 +100,12 @@ let t_map_storage = resources.get::<TextureMap>().unwrap();
             // this part has to be changed since it no longer depends on the same structs.
             
             // Okay, now we have the storage of the pixeldata.
-            println!("{:?}",render_command);
+            // println!("{:?}",render_command);
             let map_handle = render_command.texture_map_handle.clone().unwrap();
             let texture_handle = render_command.texture;
             let texture_asset = t_map_storage.textures.get(&map_handle);
             let texture = texture_asset.unwrap().textures.get(&texture_handle).unwrap();
-            println!("\nGets pass the breakpoint!\n");
+            // println!("\nGets pass the breakpoint!\n");
 
 
             // Now what is remaining is the simple layering
@@ -175,7 +172,7 @@ let t_map_storage = resources.get::<TextureMap>().unwrap();
                     // importantly -> screen-index 
                     // copy_from_slice() copies 4byte (RGBA)
                     // it is stored in 1d memory 
-                    
+
                     // if alpha is 0, skip drawing the pixel, since the renderqueue is sorted it will not overwrite the background layer pixel                    
                     let alpha = texture.pixel_data[texture_index + 3];
                     if alpha == 0 {

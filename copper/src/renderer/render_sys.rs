@@ -122,10 +122,10 @@ impl System for NewRenderSys {
     let grids = {
         let render_map = resources.get::<RenderMap>().unwrap();
 
-        println!(
-            "Length of rendermaps is {:?}",
-            render_map.grids.len()
-        );
+        // println!(
+        //     "Length of rendermaps is {:?}",
+        //     render_map.grids.len()
+        // );
 
         render_map.grids.clone()
     };
@@ -165,7 +165,7 @@ impl System for NewRenderSys {
     }
 
      for entity in entities {
-        println!("Found an entity");
+        // println!("Found an entity");
             
         let sprite = world.get_component::<MockSprite>(entity).unwrap();
         let transform = world.get_component::<Transform>(entity).unwrap();
@@ -182,7 +182,7 @@ impl System for NewRenderSys {
 }
 }
 
-
+#[derive(Debug)]
 pub struct GridRenderSys;
 impl System for GridRenderSys {
     components_write!();
@@ -198,7 +198,7 @@ impl System for GridRenderSys {
             &self.components_without(),
         );
 
-        println!("This is the entity with gridrendermeta {:?}",entities);
+        // println!("This is the entity with gridrendermeta {:?}",entities);
 
         for entity in entities {
         let render_meta = world.get_component::<GridRenderMeta>(entity).unwrap();
@@ -218,7 +218,7 @@ impl System for GridRenderSys {
         };
 
         let TILE_SIZE: f32 = render_meta.tile_size;
-        println!("Tile size is: {}", TILE_SIZE);
+        // println!("Tile size is: {}", TILE_SIZE);
         // render_queue.commands.push(RenderCommand {
         //     texture: TextureHandle(texture_handle[0] as i32),
         //     x: x as f32 * TILE_SIZE,
@@ -247,53 +247,3 @@ impl System for GridRenderSys {
     // println!("{:?}",resources.get::<RenderQueue>().unwrap());
     }
 }
-
-
-
-
-    //     for entity in entities {
-    //     let render_meta = world.get_component::<GridRenderMeta>(entity).unwrap();
-
-    //     let (width, height, cells) = {
-    //         let grid_storage = resources.get::<GridStorage>().unwrap();
-    //         let grid = grid_storage
-    //             .storage
-    //             .get(&render_meta.grid)
-    //             .unwrap();
-
-    //         (
-    //             grid.width,
-    //             grid.height,
-    //             grid.clone(),
-    //         )
-    //     };
-
-    //     let TILE_SIZE: f32 = render_meta.tile_size;
-    //     println!("Tile size is: {}", TILE_SIZE);
-    //     // render_queue.commands.push(RenderCommand {
-    //     //     texture: TextureHandle(texture_handle[0] as i32),
-    //     //     x: x as f32 * TILE_SIZE,
-    //     //     y: y as f32 * TILE_SIZE,
-    //     // });
-    //     let render_queue = resources.get_mut::<RenderQueue>().unwrap();
-    //     render_queue.is_grid = Some(render_meta.grid.clone());
-    //     render_queue.t_map = Some(render_meta.handle.clone());
-    //     for y in 0..height {
-    //         for x in 0..width {
-    //             // println!("{},{}", x, y);
-
-    //             let texture_handle =
-    //                 cells.query_grid(GridPosition { x, y });
-
-    //             render_queue.commands.push(RenderCommand {
-    //                 texture: TextureHandle(texture_handle[0] as i32),
-    //                 layer: RenderLayer::Background,
-    //                 x: x as f32 * TILE_SIZE,
-    //                 y: y as f32 * TILE_SIZE,
-    //                 texture_map_handle:None,
-    //             });
-    //         }
-    //     }
-    // }
-    // // println!("{:?}",resources.get::<RenderQueue>().unwrap());
-    // }

@@ -3,7 +3,7 @@
 use crate::{ComponentId};
 use crate::engine::world::*;
 use crate::resource::Resources;
-
+// use std::fmt::Debug;
 // This can probably be done without boilerplate : )
 
 /// Defines which components a given system will read. This is used by the system scheduler.
@@ -63,6 +63,7 @@ macro_rules! components_without {
 }
 
 /// Defines the structure of a system.
+
 pub trait System {
     // with this implementation we will have to trust the user doesn't fetch other components
     // than what's specified
