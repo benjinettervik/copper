@@ -13,7 +13,7 @@ use crate::resource::{Resources,RenderCommand};
 use crate::Component;
 use crate::resource::RenderLayer;
 use component_macro_derive::Component;
-
+use crate::resource::RenderMap;
 
 
 
@@ -102,6 +102,87 @@ pub struct GridRenderMeta{
     pub tile_size: f32,
 }
 
+pub struct NewRenderSys;
+impl System for NewRenderSys {
+    components_write!();
+    components_read!(MockSprite,Transform);
+    components_with!();
+    components_without!();
+
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+    let entities = world.query(
+        &self.components_read(),
+        &self.components_write(),
+        &self.components_with(),
+        &self.components_without(),
+    );
+
+    println!("\n\nIn NewRenderSys\n\n");
+
+    let grids = {
+        let render_map = resources.get::<RenderMap>().unwrap();
+
+        println!(
+            "Length of rendermaps is {:?}",
+            render_map.grids.len()
+        );
+
+        render_map.grids.clone()
+    };
+
+    let render_queue = resources.get_mut::<RenderQueue>().unwrap();
+
+    for layers in &grids {
+        let grid = layers.grid.clone();
+
+        let width = grid.width;
+        let height = grid.height;
+
+        // println!("{:?}", grid);
+
+        let tile_size: f32 = layers.tile_size;
+        // println!("Tile size is: {:?}", tile_size);
+
+        for y in 0..height {
+            for x in 0..width {
+                
+                let texture_handle =
+                grid.query_grid(GridPosition { x, y });
+
+                if texture_handle.is_empty() {
+                    continue;
+                }
+
+                render_queue.commands.push(RenderCommand {
+                    texture: TextureHandle(texture_handle[0] as i32),
+                    layer: layers.layer.clone(),
+                    x: x as f32 * tile_size,
+                    y: y as f32 * tile_size,
+                    texture_map_handle: Some(layers.handle.clone()),
+                });
+            }
+        }
+    }
+
+     for entity in entities {
+        println!("Found an entity");
+            
+        let sprite = world.get_component::<MockSprite>(entity).unwrap();
+        let transform = world.get_component::<Transform>(entity).unwrap();
+        // println!("Doing the rendering sys call for {:?}  at  {:?}",sprite,transform);
+        // resources.render_queue.commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y});
+        resources.get_mut::<RenderQueue>().unwrap().commands.push(RenderCommand{
+            texture:sprite.texture,
+            layer: RenderLayer::Sprite,
+            x:transform.x,
+            y:transform.y,
+            texture_map_handle:Some(sprite.map_handle.clone())})
+ 
+    }
+}
+}
+
+
 pub struct GridRenderSys;
 impl System for GridRenderSys {
     components_write!();
@@ -167,3 +248,52 @@ impl System for GridRenderSys {
     }
 }
 
+
+
+
+    //     for entity in entities {
+    //     let render_meta = world.get_component::<GridRenderMeta>(entity).unwrap();
+
+    //     let (width, height, cells) = {
+    //         let grid_storage = resources.get::<GridStorage>().unwrap();
+    //         let grid = grid_storage
+    //             .storage
+    //             .get(&render_meta.grid)
+    //             .unwrap();
+
+    //         (
+    //             grid.width,
+    //             grid.height,
+    //             grid.clone(),
+    //         )
+    //     };
+
+    //     let TILE_SIZE: f32 = render_meta.tile_size;
+    //     println!("Tile size is: {}", TILE_SIZE);
+    //     // render_queue.commands.push(RenderCommand {
+    //     //     texture: TextureHandle(texture_handle[0] as i32),
+    //     //     x: x as f32 * TILE_SIZE,
+    //     //     y: y as f32 * TILE_SIZE,
+    //     // });
+    //     let render_queue = resources.get_mut::<RenderQueue>().unwrap();
+    //     render_queue.is_grid = Some(render_meta.grid.clone());
+    //     render_queue.t_map = Some(render_meta.handle.clone());
+    //     for y in 0..height {
+    //         for x in 0..width {
+    //             // println!("{},{}", x, y);
+
+    //             let texture_handle =
+    //                 cells.query_grid(GridPosition { x, y });
+
+    //             render_queue.commands.push(RenderCommand {
+    //                 texture: TextureHandle(texture_handle[0] as i32),
+    //                 layer: RenderLayer::Background,
+    //                 x: x as f32 * TILE_SIZE,
+    //                 y: y as f32 * TILE_SIZE,
+    //                 texture_map_handle:None,
+    //             });
+    //         }
+    //     }
+    // }
+    // // println!("{:?}",resources.get::<RenderQueue>().unwrap());
+    // }

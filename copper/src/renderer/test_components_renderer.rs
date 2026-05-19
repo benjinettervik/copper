@@ -1,6 +1,7 @@
 // pub mod test_components_renderer;
 use std::collections::HashMap;
 use crate::Component;
+use crate::resource::TM_Handle;
 
 // just a macro to quickly provide rgba pixel data 
 #[macro_export]
@@ -31,10 +32,11 @@ pub struct TextureAsset {
     pub textures: HashMap<TextureHandle, Texture>,
 }
 
-#[derive(Copy, Clone,Debug)]
+#[derive(Clone,Debug)]
     
 pub struct MockSprite{
     pub texture: TextureHandle,
+    pub map_handle: TM_Handle
 }
     
 #[derive(Copy, Clone,Debug)]

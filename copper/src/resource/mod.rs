@@ -4,6 +4,7 @@ use crate::renderer::test_components_renderer::*;
 use crate::grid::GridPosition;
 use crate::resource::camera::*;
 use crate::renderer::render_sys::*;
+use crate::renderer::render_sys::NewRenderSys;
 use crate::input::Input;
 use std::collections::HashMap;
 use std::any::Any;
@@ -80,7 +81,7 @@ impl Resources{
 
 
 
-#[derive(Debug)]
+#[derive(Debug,Clone,Ord,Eq,PartialEq,PartialOrd)]
 pub enum RenderLayer {
     Background,
     Terrain,
@@ -89,7 +90,7 @@ pub enum RenderLayer {
     Effects
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct RenderCommand {
     pub texture: TextureHandle,
     pub layer: RenderLayer,
@@ -116,10 +117,12 @@ impl TextureMap{
     }
 }
 
+#[derive(Clone)]
 pub struct RenderGrid{
     pub layer: RenderLayer,
     pub grid: Grid,
-    pub handle: TM_Handle
+    pub handle: TM_Handle,
+    pub tile_size: f32
 }
 
 pub struct RenderMap{
@@ -133,7 +136,7 @@ impl RenderMap{
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct RenderQueue {
     pub commands: Vec<RenderCommand>,
     pub is_grid: Option<GridHandle>,
@@ -343,7 +346,8 @@ pub fn json_to_rendermap(path:&str,pix_dim:f32, handle: TM_Handle) -> Result<Ren
                     render_grids.push(RenderGrid{
                         layer: RenderLayer::Background, 
                         grid: grid,
-                        handle:handle.clone()})
+                        handle:handle.clone(),
+                        tile_size: pix_dim})
                 }
 
                 1 => {
@@ -368,7 +372,8 @@ pub fn json_to_rendermap(path:&str,pix_dim:f32, handle: TM_Handle) -> Result<Ren
                     render_grids.push(RenderGrid{
                         layer: RenderLayer::Terrain, 
                         grid: grid,
-                        handle: handle.clone()})
+                        handle: handle.clone(),
+                        tile_size: pix_dim})
                 }
 
                 2 => {
@@ -393,7 +398,8 @@ pub fn json_to_rendermap(path:&str,pix_dim:f32, handle: TM_Handle) -> Result<Ren
                     render_grids.push(RenderGrid{
                         layer: RenderLayer::Objects, 
                         grid: grid,
-                        handle: handle.clone()})
+                        handle: handle.clone(),
+                        tile_size: pix_dim})
                 }
 
                 _ => {}

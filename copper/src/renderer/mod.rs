@@ -3,7 +3,7 @@ pub mod render_sys;
 use std::sync::Arc;
 use winit::window::Window;
 use pixels::{Pixels, SurfaceTexture};
-use crate::resource::{Resources,RenderCommand};
+use crate::resource::{TextureMap,Resources,RenderCommand};
 use crate::resource::RenderQueue;
 use crate::resource::camera::Camera2D;
 use crate::renderer::test_components_renderer::TextureAsset;
@@ -60,10 +60,10 @@ impl Renderer {
    pub fn draw(&mut self, resources: &mut Resources) {
    
         // width and size of the pixelbuffer 
+        print!("\n\nIn render draw!\n\n");
         let size = self.pixels.context().texture_extent;
         let width = size.width as usize;
         let height = size.height as usize;
-
 
         // mutable slice of the pixels - so we can modify the pixels
         // frame [u8]
@@ -76,54 +76,62 @@ impl Renderer {
         }
 
 
+        // make a queue ish
+        // postpone rendering depending on layers
+
 
         // from the commands that we stored through RenderSys, we go through them
-        for render_command in &resources.get::<RenderQueue>().unwrap().commands{
-        // for render_command in &resources.render_queue.commands {
+        let mut commands = {
+    let render_queue = resources.get_mut::<RenderQueue>().unwrap();
 
-                    // texture has {height,width and data (pixel data --> rgba)}
-                    // let texture = resources.texture_hash.textures.get(&render_command.texture).unwrap();
-                    
-            let texture = if resources.get::<RenderQueue>().unwrap().is_grid != None {
-            println!("This render queue is a grid thingy.");
+    render_queue.commands.sort_by_key(|cmd| cmd.layer.clone());
 
-            let tile_map_storage =
-                resources.get::<TileMapStorage>().unwrap();
+    render_queue.commands.clone()
+}; // mutable borrow ends here
 
-            let t_map_key = resources
-                .get::<RenderQueue>()
-                .unwrap()
-                .t_map
-                .clone()
-                .unwrap();
+let t_map_storage = resources.get::<TextureMap>().unwrap();
 
-            let tile_map = tile_map_storage
-                .storage
-                .get(&t_map_key)
-                .unwrap();
-
-            let text_assets = &tile_map.texture_asset;
-
-            println!("before texture!");
-
-            let texture = text_assets
-                .textures
-                .get(&render_command.texture)
-                .unwrap();
-
-            println!("WE HAVE texture after texture was gotten from hashmap!");
-
-            texture.clone()
-        } else {
-            resources
-                .get::<TextureAsset>()
-                .unwrap()
-                .textures
-                .get(&render_command.texture)
-                .unwrap()
-                .clone()
-        };
+    for render_command in commands.drain(..) {
         
+        // let t_map_storage = resources.get::<TextureMap>().unwrap();
+        // let render_queue = resources.get_mut::<RenderQueue>().unwrap();
+        // render_queue.commands.sort_by_key(|cmd| cmd.layer.clone());
+        
+        // for render_command in render_queue.commands.clone(){
+            
+            // at the current moment, it draws either sprites or rendermaps -- which kind of is terrain like.
+            // this part has to be changed since it no longer depends on the same structs.
+            
+            // Okay, now we have the storage of the pixeldata.
+            println!("{:?}",render_command);
+            let map_handle = render_command.texture_map_handle.clone().unwrap();
+            let texture_handle = render_command.texture;
+            let texture_asset = t_map_storage.textures.get(&map_handle);
+            let texture = texture_asset.unwrap().textures.get(&texture_handle).unwrap();
+            println!("\nGets pass the breakpoint!\n");
+
+
+            // Now what is remaining is the simple layering
+            // draw background first
+            // draw rest after?
+            // draw first layer
+            // draw second layer
+            
+
+            // i simply have to sort the render queue in what layer it draws
+            // Render queue has .commands which is a list, 
+            // render commands has a .layer
+            
+
+            // ska göras i denna ordning
+            // pub enum RenderLayer {
+            //     Background,
+            //     Terrain,
+            //     Objects,
+            //     Sprite,
+            //     Effects
+            // }
+
             let tex_width = texture.width as usize;
             let tex_height = texture.height as usize;
 
@@ -167,7 +175,17 @@ impl Renderer {
                     // importantly -> screen-index 
                     // copy_from_slice() copies 4byte (RGBA)
                     // it is stored in 1d memory 
-                    frame[screen_index..screen_index + 4].copy_from_slice(&texture.pixel_data[texture_index..texture_index + 4]);
+                    
+                    // if alpha is 0, skip drawing the pixel, since the renderqueue is sorted it will not overwrite the background layer pixel                    
+                    let alpha = texture.pixel_data[texture_index + 3];
+                    if alpha == 0 {
+                        continue;
+                    }
+
+                    frame[screen_index..screen_index + 4]
+                        .copy_from_slice(
+                            &texture.pixel_data[texture_index..texture_index + 4]
+                        );
                 }
             }
         }
