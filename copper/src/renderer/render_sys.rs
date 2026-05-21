@@ -8,7 +8,8 @@ use crate::renderer::test_components_renderer::TextureHandle;
 use std::collections::HashMap;
 use crate::engine::system::System;
 // use crate::engine::system::{components_read,components_with,components_without,components_write};
-use crate::{components_read, components_with, components_without, components_write};
+// use crate::{components_read, components_with, components_without, components_write};
+use crate::{components_read, components_with, components_without, components_write,resources_read,resources_write};
 use crate::resource::{Resources,RenderCommand};
 use crate::Component;
 use crate::resource::RenderLayer;
@@ -23,6 +24,8 @@ pub struct RenderSys;
 impl System for RenderSys {
     components_write!();
     components_read!(MockSprite, Transform);
+    resources_write!();
+    resources_read!();
     components_with!();
     components_without!();
 
@@ -106,6 +109,8 @@ pub struct NewRenderSys;
 impl System for NewRenderSys {
     components_write!();
     components_read!(MockSprite,Transform);
+    resources_write!();
+    resources_read!();
     components_with!();
     components_without!();
 
@@ -187,6 +192,8 @@ pub struct GridRenderSys;
 impl System for GridRenderSys {
     components_write!();
     components_read!(GridRenderMeta);
+    resources_write!();
+    resources_read!();
     components_with!();
     components_without!();
 

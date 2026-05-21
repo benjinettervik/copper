@@ -4,11 +4,42 @@ use super::World;
 use std::any::Any;
 use std::any::TypeId;
 use crate::engine::{Startup, Update, SystemRoutine};
+// use crate::engine::{Startup, Update, SystemRoutine};
 use crate::resource::Resources;
+use component_macro_derive::*;
+use crate::Component;
+use std::collections::HashMap;
+
+pub struct AccessMappings{
+    pub read_world: HashMap<TypeId, Vec<TypeId>>,
+    pub write_world: HashMap<TypeId, Vec<TypeId>>,
+    pub read_resources: HashMap<TypeId, Vec<TypeId>>,
+    pub write_resources: HashMap<TypeId, Vec<TypeId>>,
+    // 
+    pub sys_reg: Vec<TypeId>, //registers what systems are active
+    pub comp_reg: Vec<TypeId>, //registers what components are active
+    pub res_reg: Vec<TypeId>, //what resources are required 
+
+}
+impl AccessMappings{
+    pub fn new () ->Self{
+        Self{
+            read_world:HashMap::new(),
+            write_world:HashMap::new(),
+            read_resources:HashMap::new(),
+            write_resources:HashMap::new(),
+            sys_reg:Vec::new(),
+            comp_reg:Vec::new(),
+            res_reg:Vec::new(),
+        }
+    }
+}
 
 pub struct Scheduler {
     startup: Vec<Box<dyn System>>,
     update: Vec<Box<dyn System>>,
+    access_map: AccessMappings,
+
 }
 
 impl Scheduler {
@@ -16,6 +47,7 @@ impl Scheduler {
         Self {
             startup: Vec::new(),
             update: Vec::new(),
+            access_map: AccessMappings::new(),
             // sorted ?
             // run_update runs sorted? 
         }
@@ -30,6 +62,62 @@ impl Scheduler {
             self.add_startup_system(system);
             return;
         } else if system_routine.type_id() == TypeId::of::<Update>() {
+            
+
+
+            // from this we have access to the system type and its metadata
+            println!("{:?}",system.type_id());            
+            let c_read = system.components_read();
+            let c_write = system.components_write();
+            let r_read = system.resources_read();
+            let r_write = system.resources_write();
+
+            // register mappings:
+            if !self.access_map.sys_reg.contains(&system.type_id()) {
+                self.access_map.sys_reg.push(system.type_id());
+            }
+            // read write shit
+            if !c_read.is_empty() {
+                for component in c_read{
+                    self.access_map.comp_reg.push(component.type_id());
+                    self.access_map
+                        .read_world
+                        .entry(component)
+                        .or_insert(Vec::new())
+                        .push(system.type_id());
+                }
+            }
+            
+            if !c_write.is_empty() {
+                for component in c_write{
+                    self.access_map.comp_reg.push(component.type_id());
+                    self.access_map
+                        .write_world
+                        .entry(component)
+                        .or_insert(Vec::new())
+                        .push(system.type_id());
+                }
+            }
+            if !r_read.is_empty() {
+                for resource in r_read{
+                    self.access_map.res_reg.push(resource.type_id());
+                    self.access_map
+                        .read_resources
+                        .entry(resource)
+                        .or_insert(Vec::new())
+                        .push(system.type_id());
+                }
+            }
+            if !r_write.is_empty() {
+                for resource in r_write{
+                    self.access_map.res_reg.push(resource.type_id());
+                    self.access_map
+                        .write_resources
+                        .entry(resource)
+                        .or_insert(Vec::new())
+                        .push(system.type_id());
+                }
+            }
             self.add_update_system(system);
             return;
         }
@@ -41,21 +129,7 @@ impl Scheduler {
     {
 
         // debg
-        println!("In order_system");
-        // step 1: print the system 
-        for system in &mut self.startup{
-            println!("Reads: {:?}", system.components_read());
-            println!("Writes: {:?}", system.components_write());
-        }
-        for system in &mut self.update{
-            println!("Reads: {:?}", system.components_read());
-            println!("Writes: {:?}", system.components_write());
-        }
-        // the result helps us see that we can see what they want to read or write per system
-        
-        // step 2: create a DAG order instead of FIFO
-        // step 3: try threading usage.
-        
+        println!("The amount of systems in scheduler are: {:?}",self.access_map.sys_reg.len());
 
         
     }

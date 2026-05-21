@@ -3,6 +3,7 @@
 use crate::{ComponentId};
 use crate::engine::world::*;
 use crate::resource::Resources;
+use std::any::TypeId;
 // use std::fmt::Debug;
 // This can probably be done without boilerplate : )
 
@@ -62,6 +63,31 @@ macro_rules! components_without {
     };
 }
 
+#[macro_export]
+macro_rules! resources_read {
+    ($( $t:ty ), *) => {
+        fn resources_read(&self) -> Vec<TypeId> {
+            vec![
+                $(
+                    TypeId::of::<$t>(),
+                )*
+            ]
+        }
+    };
+}
+#[macro_export]
+macro_rules! resources_write {
+    ($( $t:ty ), *) => {
+        fn resources_write(&self) -> Vec<TypeId> {
+            vec![
+                $(
+                    TypeId::of::<$t>(),
+                )*
+            ]
+        }
+    };
+}
+
 /// Defines the structure of a system.
 
 pub trait System {
@@ -73,6 +99,9 @@ pub trait System {
     
     /// Defines which components a given system will manipulate. This is used by the system scheduler.  
     fn components_write(&self) -> Vec<ComponentId>;
+
+    fn resources_read(&self) -> Vec<TypeId>;
+    fn resources_write(&self) -> Vec<TypeId>;
     
     /// Defines which components an entity will need have for a system to query for it. This is used by the system scheduler.  
     fn components_with(&self) -> Vec<ComponentId>;

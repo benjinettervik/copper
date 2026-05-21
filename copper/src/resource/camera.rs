@@ -1,7 +1,7 @@
 use crate::engine::system::System;
 use crate::engine::world::World;
 use std::any::TypeId;
-use crate::{components_read, components_with, components_without, components_write};
+use crate::{components_read, components_with, components_without, components_write,resources_read,resources_write};
 use crate::resource::*;
 use crate::Component;
 
@@ -51,10 +51,11 @@ impl Component for CameraTarget {
 
 pub struct CameraTarget;
 pub struct CameraFollowSystem;
-
 impl System for CameraFollowSystem {
     components_write!();
     components_read!(CameraTarget,Transform);
+    resources_write!();
+    resources_read!();
     components_with!();
     components_without!();
 
@@ -67,6 +68,7 @@ impl System for CameraFollowSystem {
             &self.components_with(),
             &self.components_without(),
         );
+
 
         for entity in entities
         {   

@@ -26,6 +26,8 @@ struct MoveCamera;
 impl System for MoveCamera {
     components_read!();
     components_write!();
+    resources_write!();
+    resources_read!();
     components_with!();
     components_without!();
 
