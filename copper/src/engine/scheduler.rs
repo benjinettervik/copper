@@ -79,7 +79,7 @@ impl Scheduler {
             // read write shit
             if !c_read.is_empty() {
                 for component in c_read{
-                    self.access_map.comp_reg.push(component.type_id());
+                    self.access_map.comp_reg.push(component);
                     self.access_map
                         .read_world
                         .entry(component)
@@ -90,7 +90,7 @@ impl Scheduler {
             
             if !c_write.is_empty() {
                 for component in c_write{
-                    self.access_map.comp_reg.push(component.type_id());
+                    self.access_map.comp_reg.push(component);
                     self.access_map
                         .write_world
                         .entry(component)
@@ -100,7 +100,7 @@ impl Scheduler {
             }
             if !r_read.is_empty() {
                 for resource in r_read{
-                    self.access_map.res_reg.push(resource.type_id());
+                    self.access_map.res_reg.push(resource);
                     self.access_map
                         .read_resources
                         .entry(resource)
@@ -110,7 +110,7 @@ impl Scheduler {
             }
             if !r_write.is_empty() {
                 for resource in r_write{
-                    self.access_map.res_reg.push(resource.type_id());
+                    self.access_map.res_reg.push(resource);
                     self.access_map
                         .write_resources
                         .entry(resource)
@@ -131,8 +131,42 @@ impl Scheduler {
         // debg
         println!("The amount of systems in scheduler are: {:?}",self.access_map.sys_reg.len());
 
-        
+        // so for order system i would simply say
+        for component in self.access_map.comp_reg.clone(){
+            println!("In order_system loop");
+            if let Some(reader) = self.access_map.read_world.get(&component)
+            {
+                if !reader.is_empty(){
+                    println!("Readers exist");
+                }
+            }
+
+            if let Some(writer) = self.access_map.write_world.get(&component)
+            {
+                if !writer.is_empty(){
+                    println!("writer exist");
+                }
+            }
+
+            // okay this finds the associated systems for the read and write of a certain component - now we can say that READ SYS of this depends on WRITE SYS of this and WRITE sys of this depend on other WRITE sys of this.
+
+            // make the graph of this
+
+        }
     }
+
+            
+            // (!self.access_map.read_world.get(&component).is_empty())
+            // {
+            //     println!("Component is found in read_world");
+            //     // there are systems that read the component
+            //     if (!self.access_map.write_world.get(&component).is_empty())
+            //     {
+            //         // we now know that there are systems that write to a component, and the systems that read this rely on the write_systems.
+            //         println!("Found even more!");
+            //     }
+
+    //  
 
     pub fn add_startup_system<T: System + 'static>(&mut self, system: T) {
         self.startup.push(Box::new(system));
