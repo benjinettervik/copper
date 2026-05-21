@@ -22,8 +22,8 @@ use winit::keyboard::*;
 use winit::keyboard::KeyCode::*;
 
 
-struct Observe;
-impl System for Observe {
+struct MoveCamera;
+impl System for MoveCamera {
     components_read!();
     components_write!();
     components_with!();
@@ -85,7 +85,7 @@ fn main() {
     // // new function to be made --> json.layers to RenderGrid
 
 
-    let json_read = extract_layer_data2("./src/sprite_assets/layer_test.tmj").unwrap();
+    let json_read = extract_layer_data2("./src/sprite_assets/big_layer.tmj").unwrap();
     let mut grid: Grid = Grid::new(20,30,32.0);
     let mut count = 0;
     let layer = &json_read.layers[0];
@@ -100,7 +100,7 @@ fn main() {
     t_map_storage.textures.insert(TM_Handle{id:"xo".to_string()},sprite_set_hash);
     t_map_storage.textures.insert(TM_Handle{id:"dko".to_string()},tile_set_hash);
     
-    let render_map = json_to_rendermap("./src/sprite_assets/layer_test.tmj",32.0,TM_Handle{id:"dko".to_string()}).unwrap();
+    let render_map = json_to_rendermap("./src/sprite_assets/big_layer.tmj",32.0,TM_Handle{id:"dko".to_string()}).unwrap();
     
 
     let mut engine = Engine::new();
@@ -115,7 +115,7 @@ fn main() {
     engine.resources.insert(t_map_storage);
     // where is the rendermap stored?
     engine.resources.insert(render_map);
-    engine.add_system(Update,Observe);
+    engine.add_system(Update,MoveCamera);
     engine.add_system(Update,NewRenderSys);
     
     // run the engine
