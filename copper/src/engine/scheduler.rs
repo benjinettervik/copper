@@ -16,6 +16,8 @@ impl Scheduler {
         Self {
             startup: Vec::new(),
             update: Vec::new(),
+            // sorted ?
+            // run_update runs sorted? 
         }
     }
 
@@ -52,8 +54,10 @@ impl Scheduler {
         // the result helps us see that we can see what they want to read or write per system
         
         // step 2: create a DAG order instead of FIFO
-
         // step 3: try threading usage.
+        
+
+        
     }
 
     pub fn add_startup_system<T: System + 'static>(&mut self, system: T) {
