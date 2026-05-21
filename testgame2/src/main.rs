@@ -70,8 +70,6 @@ fn main() {
 
 
 
-
-
     // loads the tileset.png
     let texture = convert_texture("./src/sprite_assets/tiles.png").unwrap();
     // extract the pixel data
@@ -121,5 +119,9 @@ fn main() {
     engine.add_system(Update,NewRenderSys);
     
     // run the engine
+    // 
+    // To do: Scheduler and game
+    // 
+
     engine.test_run(16);
 }
