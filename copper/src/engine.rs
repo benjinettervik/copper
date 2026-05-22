@@ -11,6 +11,7 @@ use world::*;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::window::Window;
+use winit::dpi::LogicalSize;
 use crate::renderer::Renderer;
 use crate::resource::Resources;
 use crate::input::Input;
@@ -107,7 +108,11 @@ impl Engine {
             .run(move |event, elwt| {
                 match event {
                     Event::Resumed => {
-                        let window = elwt.create_window(Window::default_attributes()).unwrap();
+                        let window = elwt.create_window(
+                            Window::default_attributes()
+                                .with_title("Copper")
+                                .with_inner_size(LogicalSize::new(1280.0, 720.0))
+                        ).unwrap();
                         
                         // renderer owns window
                         self.renderer = Some(Renderer::new(window));

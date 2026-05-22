@@ -61,7 +61,7 @@ impl System for CameraFollowSystem {
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
         
-        let mut target_position: Option<Transform> = None;
+        // let mut target_position: Option<Transform> = None;
         let entities = world.query(
             &self.components_read(),
             &self.components_write(),
@@ -71,11 +71,13 @@ impl System for CameraFollowSystem {
 
 
         for entity in entities
-        {   
+        {
+            println!("Finds a camera target");   
                 let transform = world.get_component::<Transform>(entity).unwrap();
-                
-                resources.get_mut::<Camera2D>().unwrap().set_position(transform.x,transform.y);
-                // resources.Camera2D.set_position(transform.x,transform.y);
+                let camera = resources.get_mut::<Camera2D>().unwrap();
+                // camera.set_position(transform.x, transform.y);
+                camera.x = transform.x;
+                camera.y = transform.y;
         }
     }
 }

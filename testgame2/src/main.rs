@@ -22,12 +22,61 @@ use winit::keyboard::*;
 use winit::keyboard::KeyCode::*;
 
 
-struct MoveCamera;
-impl System for MoveCamera {
-    components_read!();
-    components_write!();
+struct NPCSPRITEMove;
+impl System for NPCSPRITEMove {
+    components_read!(MockSprite, NPCSPRITE);
+    components_write!(Transform);
     resources_write!();
     resources_read!();
+    components_with!();
+    components_without!();
+
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+
+        let entities = world.query(
+            &self.components_read(),
+            &self.components_write(),
+            &self.components_with(),
+            &self.components_without(),
+        );
+
+        for entity in entities{
+            println!("Finds an entity");
+            let dir = {
+                let mut steps = world
+                    .get_component_mut::<NPCSPRITE>(entity)
+                    .unwrap();
+
+                if steps.step_count >= 3 {
+                    steps.dir = !steps.dir;
+                    steps.step_count = 0;
+                }
+
+                steps.step_count += 1;
+
+                steps.dir
+            };
+
+            let mut transform = world.get_component_mut::<Transform>(entity).unwrap();
+            
+            
+            if dir
+            {
+                transform.x+=32.0;
+            }
+            else{
+                transform.x-=32.0;
+            }
+        }
+
+}
+}
+struct MovePlayer;
+impl System for MovePlayer {
+    components_read!(CameraTarget);
+    components_write!(Transform);
+    resources_write!();
+    resources_read!(Input);
     components_with!();
     components_without!();
 
@@ -40,23 +89,47 @@ impl System for MoveCamera {
         let a = input.state.is_key_pressed(KeyA);
         let d = input.state.is_key_pressed(KeyD);
 
-        let mut camera = resources.get_mut::<Camera2D>().unwrap();
 
-        if w {
-            camera.y -= 20.0;
+
+        let entities = world.query(
+            &self.components_read(),
+            &self.components_write(),
+            &self.components_with(),
+            &self.components_without(),
+        );
+
+
+        for entity in entities
+        {
+            let mut transform = world.get_component_mut::<Transform>(entity).unwrap();
+            if w {
+                transform.y -= 32.0;
+            }
+            if s {
+                transform.y += 32.0;
+                // camera.y += 20.0;
+            }
+            if a {
+                transform.x -= 32.0;
+                // camera.x -= 20.0;
+            }
+            if d {
+                transform.x += 32.0;
+                // camera.x += 20.0;
+            }
         }
-        if s {
-            camera.y += 20.0;
-        }
-        if a {
-            camera.x -= 20.0;
-        }
-        if d {
-            camera.x += 20.0;
-        }
+
+
+
     }
 }
 // }
+#[derive(Component)]
+    pub struct NPCSPRITE {
+        test: bool,
+        step_count: u32, 
+        dir: bool,
+    }
 
 fn main() {
 
@@ -94,8 +167,14 @@ fn main() {
 
 
     let sprite_texture = convert_texture("./src/sprite_assets/32_sprite.png").unwrap();
+    let knight_texture1 = convert_texture("./src/sprite_assets/knight1.png").unwrap();
+    let knight_texture2 = convert_texture("./src/sprite_assets/knight2.png").unwrap();
+    let player = convert_texture("./src/sprite_assets/farm_guy.png").unwrap();
     let mut sprite_set_hash = TextureAsset{textures:HashMap::new()};
     sprite_set_hash.textures.insert(TextureHandle(1),sprite_texture);
+    sprite_set_hash.textures.insert(TextureHandle(2),knight_texture1);
+    sprite_set_hash.textures.insert(TextureHandle(3),knight_texture2);
+    sprite_set_hash.textures.insert(TextureHandle(4),player);
     
 
     let mut t_map_storage = TextureMap::new();
@@ -107,18 +186,47 @@ fn main() {
 
     let mut engine = Engine::new();
     let sprite = MockSprite{texture:TextureHandle(1),map_handle:TM_Handle{id:"xo".to_string()}};
+    let NPCSPRITE_sprite1 = MockSprite{texture:TextureHandle(2),map_handle:TM_Handle{id:"xo".to_string()}};
+    let NPCSPRITE_sprite2 = MockSprite{texture:TextureHandle(3),map_handle:TM_Handle{id:"xo".to_string()}};
+    let player_sprite = MockSprite{texture:TextureHandle(4),map_handle:TM_Handle{id:"xo".to_string()}};
     let transform = Transform{x:1.0,y:2.0};
+    let transform2 = Transform{x:32.0*62.0,y:32.0*148.0};
+    let transform3 = Transform{x:32.0*67.0,y:32.0*148.0};
+    let transform4 = Transform{x:32.0*67.0,y:32.0*150.0};
 
-
+    //
     let entity = engine.world.spawn();
+    let entity2 = engine.world.spawn();
+    let entity3 = engine.world.spawn();
+    let entity4 = engine.world.spawn();
     engine.world.add_component(entity,sprite);
     engine.world.add_component(entity,transform);
+    // 
+    engine.world.add_component(entity2,NPCSPRITE_sprite1);
+    engine.world.add_component(entity2,transform2);
+    engine.world.add_component(entity2, NPCSPRITE{test:true,step_count:0,dir:true});
+    
+    // 
+    engine.world.add_component(entity3,NPCSPRITE_sprite2);
+    engine.world.add_component(entity3,transform3);
+    engine.world.add_component(entity3, NPCSPRITE{test:true,step_count:0,dir:true});
     // insert the texture data stored in t_map_storage.
+    // 
+    engine.world.add_component(entity4,player_sprite);
+    engine.world.add_component(entity4,transform4);
+    engine.world.add_component(entity4,CameraTarget);
+
     engine.resources.insert(t_map_storage);
-    // where is the rendermap stored?
     engine.resources.insert(render_map);
-    engine.add_system(Update,MoveCamera);
+
+    engine.add_system(Update,MovePlayer);
+    engine.add_system(Update,NPCSPRITEMove);
+    engine.add_system(Update,CameraFollowSystem);
     engine.add_system(Update,NewRenderSys);
+
+
+    //
+    
     
     // run the engine
     // 

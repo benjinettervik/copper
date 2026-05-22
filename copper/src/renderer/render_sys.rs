@@ -109,8 +109,8 @@ pub struct NewRenderSys;
 impl System for NewRenderSys {
     components_write!();
     components_read!(MockSprite,Transform);
-    resources_write!();
-    resources_read!();
+    resources_write!(RenderQueue);
+    resources_read!(RenderMap);
     components_with!();
     components_without!();
 
