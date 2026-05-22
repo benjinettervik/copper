@@ -134,24 +134,74 @@ impl Scheduler {
         // so for order system i would simply say
         for component in self.access_map.comp_reg.clone(){
             println!("In order_system loop");
-            if let Some(reader) = self.access_map.read_world.get(&component)
-            {
-                if !reader.is_empty(){
-                    println!("Readers exist");
+            // conflicts to detect
+            let mut read_write_conflict = false;
+            let mut write_write_conflict= false;
+            // readers and writers
+            // returned as options
+            let readers = self.access_map.read_world.get(&component);
+            let writers = self.access_map.write_world.get(&component);
+            
+
+            if let Some(wr) = writers{
+                if wr.len()>=2 
+                {
+                    write_write_conflict =true;
+                }
+                if readers.is_some() && !wr.is_empty()
+                {
+                    read_write_conflict=true;
                 }
             }
 
-            if let Some(writer) = self.access_map.write_world.get(&component)
-            {
-                if !writer.is_empty(){
-                    println!("writer exist");
-                }
-            }
+            println!("Read/Write conflict is: {}\nWrite/write conflict is: {}",read_write_conflict,write_write_conflict);
+            // if !writers.is_empty()
+            // {
+            //     if !writers.
+            // }
+            
+            // if let Some(readers) = self.access_map.read_world.get(&component)
+            // {
+            //     if !readers.is_empty(){
+            //         println!("Readers exist");
+                    
+            //     }
+            
+            // if let Some(writers) = self.access_map.write_world.get(&component)
+            // {
+            //     if !writers.is_empty(){
+                    
+            //         if writers != none&& writers.len()>=2
+            //             {
+            //                 write_write_conflict = true;
+            //                 if readers != None 
+            //                 {
+            //                     read_write_conflict = true;
+            //                 }
+            //             }
+            //     }
+            // }
+            
+            // }
 
-            // okay this finds the associated systems for the read and write of a certain component - now we can say that READ SYS of this depends on WRITE SYS of this and WRITE sys of this depend on other WRITE sys of this.
+            
 
-            // make the graph of this
+              
 
+            // // now we know that this component has a read/write conflict and can't be ran in parallel
+            // println!("The following systems depend upon write: ");
+            // for reader in readers {
+            //     println!("{:?}",reader);
+
+            // }
+            // println!("Writers are:");
+            // for writer in writers {
+            //     println!("{:?}",writer);
+            // }
+
+            // // sorting
+            // // dependency graph
+            // // later it is
         }
     }
 

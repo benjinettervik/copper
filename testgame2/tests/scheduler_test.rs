@@ -90,7 +90,7 @@ mod scheduler_test{
     pub struct S4; 
     impl System for S4{
         components_read!(C1);
-        components_write!();
+        components_write!(C1);
         resources_write!(Input);
         resources_read!();
         components_with!();
