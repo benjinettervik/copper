@@ -155,68 +155,14 @@ impl Scheduler {
             }
 
             println!("Read/Write conflict is: {}\nWrite/write conflict is: {}",read_write_conflict,write_write_conflict);
-            // if !writers.is_empty()
-            // {
-            //     if !writers.
-            // }
             
-            // if let Some(readers) = self.access_map.read_world.get(&component)
-            // {
-            //     if !readers.is_empty(){
-            //         println!("Readers exist");
-                    
-            //     }
-            
-            // if let Some(writers) = self.access_map.write_world.get(&component)
-            // {
-            //     if !writers.is_empty(){
-                    
-            //         if writers != none&& writers.len()>=2
-            //             {
-            //                 write_write_conflict = true;
-            //                 if readers != None 
-            //                 {
-            //                     read_write_conflict = true;
-            //                 }
-            //             }
-            //     }
-            // }
-            
-            // }
-
-            
-
-              
-
-            // // now we know that this component has a read/write conflict and can't be ran in parallel
-            // println!("The following systems depend upon write: ");
-            // for reader in readers {
-            //     println!("{:?}",reader);
-
-            // }
-            // println!("Writers are:");
-            // for writer in writers {
-            //     println!("{:?}",writer);
-            // }
-
             // // sorting
             // // dependency graph
             // // later it is
         }
     }
 
-            
-            // (!self.access_map.read_world.get(&component).is_empty())
-            // {
-            //     println!("Component is found in read_world");
-            //     // there are systems that read the component
-            //     if (!self.access_map.write_world.get(&component).is_empty())
-            //     {
-            //         // we now know that there are systems that write to a component, and the systems that read this rely on the write_systems.
-            //         println!("Found even more!");
-            //     }
-
-    //  
+    
 
     pub fn add_startup_system<T: System + 'static>(&mut self, system: T) {
         self.startup.push(Box::new(system));
