@@ -35,6 +35,18 @@ impl AccessMappings{
     }
 }
 
+pub struct SystemDepGraph
+{
+	dep: Vec<SystemDepNode>,
+	len: u32,
+}
+
+pub struct SystemDepNode
+{
+	id: TypeId,
+	dependencies: Vec<TypeId>,
+}
+
 pub struct Scheduler {
     startup: Vec<Box<dyn System>>,
     update: Vec<Box<dyn System>>,
@@ -160,12 +172,12 @@ impl Scheduler {
             // // dependency graph
             // // later it is
 
+            let mut dep_graph = SystemDepGraph{dep:Vec::new(),len:0};
+            // so we are storing in a Vec, the System and it's corresponding dependencies -- when going throug the components, we are
+            // simply adding to the dependency list 
+            // after that we sort.
+
             // pseudocode and notes to do lates:
-            //             1__
-            // pub struct dep_graph{
-            // 	pub nodes = array[nodes],
-            // 	pub len,
-            // }
 
             // pub struct dep_node{
             // 	pub sys_id: TypeId,

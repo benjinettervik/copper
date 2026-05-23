@@ -57,7 +57,7 @@ impl Renderer {
     }
 
 
-   pub fn draw(&mut self, resources: &mut Resources) {
+    pub fn draw(&mut self, resources: &mut Resources) {
    
         // width and size of the pixelbuffer 
         print!("\n\nIn render draw!\n\n");
@@ -73,23 +73,21 @@ impl Renderer {
         // iterate over pixel 4 bytes at a time- a chunk represent one pixel
         for pixel in frame.chunks_exact_mut(4) {
             pixel.copy_from_slice(&[0, 0, 0, 255]);
-        }
+            }
 
 
         // make a queue ish
-        // postpone rendering depending on layers
-
 
         let mut commands = {
             let render_queue = resources.get_mut::<RenderQueue>().unwrap();
-            render_queue.commands.sort_by_key(|cmd| cmd.layer.clone());
-            render_queue.commands.clone()
+                render_queue.commands.sort_by_key(|cmd| cmd.layer.clone());
+                render_queue.commands.clone()
         }; 
 
-let t_map_storage = resources.get::<TextureMap>().unwrap();
+        let t_map_storage = resources.get::<TextureMap>().unwrap();
 
-    for render_command in commands.drain(..) {
-        
+        for render_command in commands.drain(..) {
+            
         // let t_map_storage = resources.get::<TextureMap>().unwrap();
         // let render_queue = resources.get_mut::<RenderQueue>().unwrap();
         // render_queue.commands.sort_by_key(|cmd| cmd.layer.clone());

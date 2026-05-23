@@ -27,6 +27,8 @@ pub struct HealthSystem;
 impl System for SpawnEntitiesSystem {
     components_write!(HealthComponent);
     components_read!();
+    resources_write!();
+    resources_read!();
     components_with!();
     components_without!();
 
@@ -59,6 +61,8 @@ impl System for HealthSystem {
     components_write!(HealthComponent);
     components_read!(SomeRandomComponent);
     components_with!();
+    resources_write!();
+    resources_read!();
     components_without!(DeathComponent);
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
