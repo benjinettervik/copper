@@ -159,6 +159,37 @@ impl Scheduler {
             // // sorting
             // // dependency graph
             // // later it is
+
+            // pseudocode and notes to do lates:
+            //             1__
+            // pub struct dep_graph{
+            // 	pub nodes = array[nodes],
+            // 	pub len,
+            // }
+
+            // pub struct dep_node{
+            // 	pub sys_id: TypeId,
+            // 	pub depends_on: Vec<TypeId>
+            // }
+            // 2__ 
+            // make dep_graph:
+
+
+            // 3__
+            // if rw_conflict:
+            // 	for read_sys in reader:
+            // 		make dep_node: for read_sys
+            // 			depends_on: fill vec with each system in "writer",
+            // 			insert to dep_graph;
+                    
+            // 4__
+            // if ww_conflict:
+            // ...
+
+            // 5__
+            // 6__
+
+
         }
     }
 
