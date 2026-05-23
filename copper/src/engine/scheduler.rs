@@ -144,6 +144,7 @@ impl Scheduler {
         println!("The amount of systems in scheduler are: {:?}",self.access_map.sys_reg.len());
 
         // so for order system i would simply say
+        let mut dep_graph = SystemDepGraph{dep:Vec::new(),len:0};
         for component in self.access_map.comp_reg.clone(){
             println!("In order_system loop");
             // conflicts to detect
@@ -167,16 +168,82 @@ impl Scheduler {
             }
 
             println!("Read/Write conflict is: {}\nWrite/write conflict is: {}",read_write_conflict,write_write_conflict);
-            
-            // // sorting
+                        
+            if read_write_conflict
+            {
+                println!("There is a read write conflict and we are adding to depgraph");
+                for reader in readers{
+                    if exist in dep_graph{
+                        insert to dep_node dependencies the writers
+                    }
+                    else{
+                        create dep node with writers as dependencies 
+                        insert 
+                    }
+                }
+            }
+
+            if write_write_conflict
+            {
+                for writer in writers
+                {
+                    if exist in dep_graph
+                    {
+                        insert to de_node dependencies all other writers
+                    }
+                    else 
+                    {
+                        create dep node with all other writers as dependencies 
+                        insert 
+                    }
+                }
+            }
+
             // // dependency graph
+            // // sorting
             // // later it is
 
-            let mut dep_graph = SystemDepGraph{dep:Vec::new(),len:0};
             // so we are storing in a Vec, the System and it's corresponding dependencies -- when going throug the components, we are
             // simply adding to the dependency list 
             // after that we sort.
 
+            // for r in &readers {
+            // let mut write_dependencies = Vec::new();
+
+            // for w in &writers {
+            //     write_dependencies.push(*w);
+            // }
+
+            // let dependency_exists =
+            //     dep_graph.dep.iter().any(|node| node.id == *r);
+
+            // if !dependency_exists {
+            //     let dep_node = SystemDepNode {
+            //         id: *r,
+            //         dependencies: write_dependencies,
+            //     };
+
+            //     dep_graph.dep.push(dep_node);
+            // } else {
+            //     if let Some(existing_node) =
+            //         dep_graph.dep.iter_mut().find(|node| node.id == *r)
+            //     {
+            //         existing_node
+            //             .dependencies
+            //             .extend(write_dependencies);
+            //     }
+            // }
+            
+                    // if !dep_node.dep.has(r)
+                    // {
+                    //     let dep_node = SystemDepNode{id:r, dependencies:write_dependencies};
+                    //     dep_graph.dep.push(dep_node);
+                    // }
+                    // else{
+                    //     push to dep_node.dep.[r]
+                    // }
+                }
+            }
             // pseudocode and notes to do lates:
 
             // pub struct dep_node{
@@ -202,8 +269,8 @@ impl Scheduler {
             // 6__
 
 
-        }
-    }
+        
+    
 
     
 
