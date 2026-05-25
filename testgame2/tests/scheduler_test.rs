@@ -17,6 +17,8 @@ mod scheduler_test{
     use copper::*;
     use std::any::TypeId;
     use component_macro_derive::*;
+    use std::sync::RwLock;
+    use std::any::Any;
 
     // 
     // ###############
@@ -31,23 +33,6 @@ mod scheduler_test{
     pub struct C2 {
         test: bool,
     }
-    // #[derive(Component)]
-    // pub struct SomeRandomComponent {
-    //     test: bool,
-    // }
-    // #[derive(Component)]
-    // pub struct SomeRandomComponent {
-    //     test: bool,
-    // }
-    // #[derive(Component)]
-    // pub struct SomeRandomComponent {
-    //     test: bool,
-    // }
-    // 
-    // ###############
-    // ############### Systems for testing
-    // ###############
-    //
     pub struct S1; 
     impl System for S1{
         components_read!();
@@ -104,31 +89,6 @@ mod scheduler_test{
 
         }
     }
-    // impl System for TestSystem{
-    //     components_read!();
-    //     components_write!();
-    //     resources_write!();
-    //     resources_read!();
-    //     components_with!();
-    //     components_without!();
-
-    //     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-
-    //     }
-    // }
-    // impl System for TestSystem{
-    //     components_read!();
-    //     components_write!();
-    //     resources_write!();
-    //     resources_read!();
-    //     components_with!();
-    //     components_without!();
-
-    //     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-
-    //     }
-    // }
-
     #[test]
     pub fn scheduler_test_basic(){
     // there is technically now a data access struct that saves all the read_world, write_world data
@@ -154,4 +114,33 @@ mod scheduler_test{
         // we are simply going to register some shit for it now
 
     }
+    pub struct WorldRefact {
+        next_entity_id: usize,
+        component_storages: HashMap<ComponentId, RwLock<HashMap<EntityId, Box<dyn Any+ Send+ Sync>>>>,
+    }
+
+    
+
+
+    impl WorldRefact
+    {
+        pub fn new() -> Self {
+            WorldRefact {
+                next_entity_id: 0,
+                component_storages: HashMap::new(),
+            }
+    }
+        pub fn spawn(&mut self) -> EntityId {
+            let return_id = self.next_entity_id;
+            self.next_entity_id += 1;
+            return_id
+        }
+    }
+ 
+    #[test]
+    pub fn world_refactor_tests()
+    {
+        let mut world_refact = WorldRefact::new();
+    }
+
 }
