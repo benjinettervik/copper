@@ -35,12 +35,14 @@ impl AccessMappings{
     }
 }
 
+#[derive(Debug)]
 pub struct SystemDepGraph
 {
 	dep: Vec<SystemDepNode>,
 	len: u32,
 }
 
+#[derive(PartialEq,Debug)]
 pub struct SystemDepNode
 {
 	id: TypeId,
@@ -137,14 +139,15 @@ impl Scheduler {
         panic!("Custom system routines not yet implemented!");
     }
 
-    pub fn order_system(&mut self)
+    pub fn make_dep_graph(&mut self) -> SystemDepGraph
     {
 
         // debg
         println!("The amount of systems in scheduler are: {:?}",self.access_map.sys_reg.len());
 
         // so for order system i would simply say
-        let mut dep_graph = SystemDepGraph{dep:Vec::new(),len:0};
+        // let mut dep_graph = SystemDepGraph{dep:Vec::new(),len:0};
+        let mut depgraph = SystemDepGraph {dep:Vec::new(),len:0};
         for component in self.access_map.comp_reg.clone(){
             println!("In order_system loop");
             // conflicts to detect
@@ -156,118 +159,101 @@ impl Scheduler {
             let writers = self.access_map.write_world.get(&component);
             
 
+
             if let Some(wr) = writers{
                 if wr.len()>=2 
                 {
                     write_write_conflict =true;
+                    let writer_vec = writers.unwrap();
+
+                    for dep_writer in writer_vec{
+                        if let Some(depnode) = depgraph.dep.iter_mut().find(|node| node.id == *dep_writer) {
+                            for each in writer_vec{
+                                if each == dep_writer{
+                                    continue;
+                                }
+                                else{
+                                    if depnode.dependencies.contains(each)
+                                    {
+                                        continue;
+                                    }
+                                    depnode.dependencies.push(*each);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            println!("Depnode does not exist!");
+                            let mut write_depend = Vec::new();
+                            for each in writer_vec{
+                                if each == dep_writer{
+                                    continue;
+                                }
+                                write_depend.push(*each);
+                            }
+                            depgraph.dep.push(SystemDepNode{id:*dep_writer,dependencies:write_depend}); 
+                            depgraph.len+=1;
+                        }
+                    }
                 }
                 if readers.is_some() && !wr.is_empty()
                 {
                     read_write_conflict=true;
-                }
-            }
-
-            println!("Read/Write conflict is: {}\nWrite/write conflict is: {}",read_write_conflict,write_write_conflict);
+                    let reader_vec = readers.unwrap();
+                    let writer_vec = writers.unwrap();
+                    for dep_reader in reader_vec{
                         
-            if read_write_conflict
-            {
-                println!("There is a read write conflict and we are adding to depgraph");
-                for reader in readers{
-                    if exist in dep_graph{
-                        insert to dep_node dependencies the writers
-                    }
-                    else{
-                        create dep node with writers as dependencies 
-                        insert 
-                    }
-                }
-            }
-
-            if write_write_conflict
-            {
-                for writer in writers
-                {
-                    if exist in dep_graph
-                    {
-                        insert to de_node dependencies all other writers
-                    }
-                    else 
-                    {
-                        create dep node with all other writers as dependencies 
-                        insert 
+                        // let depnode_exists = depgraph.dep.iter().any(|node| node.id == *dep_reader);         
+                        
+                        if let Some(depnode) = depgraph.dep.iter_mut().find(|node| node.id == *dep_reader) {
+                            
+                            for each in writer_vec{
+                                if depnode.dependencies.contains(each)
+                                {
+                                    continue;
+                                }
+                                depnode.dependencies.push(*each);
+                            }
+                        }
+                        else
+                        {
+                            println!("Depnode does not exist!");
+                            let mut read_depend = Vec::new();
+                            for each in writer_vec{
+                                read_depend.push(*each);
+                            }
+                            depgraph.dep.push(SystemDepNode{id:*dep_reader,dependencies:read_depend}); 
+                            depgraph.len+=1;
+                        }
                     }
                 }
             }
 
-            // // dependency graph
-            // // sorting
-            // // later it is
-
-            // so we are storing in a Vec, the System and it's corresponding dependencies -- when going throug the components, we are
-            // simply adding to the dependency list 
-            // after that we sort.
-
-            // for r in &readers {
-            // let mut write_dependencies = Vec::new();
-
-            // for w in &writers {
-            //     write_dependencies.push(*w);
-            // }
-
-            // let dependency_exists =
-            //     dep_graph.dep.iter().any(|node| node.id == *r);
-
-            // if !dependency_exists {
-            //     let dep_node = SystemDepNode {
-            //         id: *r,
-            //         dependencies: write_dependencies,
-            //     };
-
-            //     dep_graph.dep.push(dep_node);
-            // } else {
-            //     if let Some(existing_node) =
-            //         dep_graph.dep.iter_mut().find(|node| node.id == *r)
-            //     {
-            //         existing_node
-            //             .dependencies
-            //             .extend(write_dependencies);
-            //     }
-            // }
+            // println!("Read/Write conflict is: {}\nWrite/write conflict is: {}",read_write_conflict,write_write_conflict);
             
-                    // if !dep_node.dep.has(r)
-                    // {
-                    //     let dep_node = SystemDepNode{id:r, dependencies:write_dependencies};
-                    //     dep_graph.dep.push(dep_node);
-                    // }
-                    // else{
-                    //     push to dep_node.dep.[r]
-                    // }
-                }
+        }
+        let system_vec = self.access_map.sys_reg.clone();
+
+        for sys in system_vec 
+        {
+            if !depgraph.dep.iter().any(|node| node.id == sys)
+            {
+                depgraph.dep.push(SystemDepNode{id:sys, dependencies:Vec::new()});
+                depgraph.len+=1;
             }
-            // pseudocode and notes to do lates:
+        }
+        return depgraph;            
+    }
 
-            // pub struct dep_node{
-            // 	pub sys_id: TypeId,
-            // 	pub depends_on: Vec<TypeId>
-            // }
-            // 2__ 
-            // make dep_graph:
-
-
-            // 3__
-            // if rw_conflict:
-            // 	for read_sys in reader:
-            // 		make dep_node: for read_sys
-            // 			depends_on: fill vec with each system in "writer",
-            // 			insert to dep_graph;
-                    
-            // 4__
-            // if ww_conflict:
-            // ...
-
-            // 5__
-            // 6__
-
+    pub fn sort_systems(&mut self, dep_graph:SystemDepGraph)
+    {
+        // top sort of the depgrahp provided?
+        println!("We are now going to sort the dependency graph");
+        // so still a top sort , kahns algo basically.
+        // collect all w/o dependencies, since they can be run in parallell
+        // remove dependencies, do the same for the next stage, until no systems remain in the queue
+        // this does not entirely help cyclic behaviour i think.
+    }
 
         
     

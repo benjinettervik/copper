@@ -121,7 +121,8 @@ impl Engine {
                     // Update sys
                     Event::AboutToWait => {
                         // Update ECS
-                        self.scheduler.order_system();
+                        let d_graph = self.scheduler.make_dep_graph();
+                        self.scheduler.sort_systems(d_graph);
                         self.scheduler
                             .run_update(&mut self.world, &mut self.resources);
 

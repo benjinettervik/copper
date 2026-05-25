@@ -76,8 +76,8 @@ mod scheduler_test{
     }
     pub struct S3; 
     impl System for S3{
-        components_read!();
-        components_write!(C2);
+        components_read!(C2);
+        components_write!(C1);
         resources_write!();
         resources_read!();
         components_with!();
@@ -90,7 +90,7 @@ mod scheduler_test{
     pub struct S4; 
     impl System for S4{
         components_read!(C1);
-        components_write!(C1);
+        components_write!();
         resources_write!(Input);
         resources_read!();
         components_with!();
@@ -138,7 +138,9 @@ mod scheduler_test{
         scheduler.add_system(Update,S3);
         scheduler.add_system(Update,S4);
         scheduler.run_update(&mut world, &mut resources);
-        scheduler.order_system();
+        let dep_graph = scheduler.make_dep_graph();
+        println!("{:?}",dep_graph);
+        scheduler.sort_systems(dep_graph);
         // there are some basic bitch systems now 
         // we are simply going to register some shit for it now
 
