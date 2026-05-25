@@ -9,7 +9,7 @@ use crate::resource::Resources;
 use component_macro_derive::*;
 use crate::Component;
 use std::collections::HashMap;
-
+use std::sync::{Arc, Mutex};
 pub struct AccessMappings{
     pub read_world: HashMap<TypeId, Vec<TypeId>>,
     pub write_world: HashMap<TypeId, Vec<TypeId>>,
@@ -35,14 +35,14 @@ impl AccessMappings{
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct SystemDepGraph
 {
 	dep: Vec<SystemDepNode>,
 	len: u32,
 }
 
-#[derive(PartialEq,Debug)]
+#[derive(PartialEq,Debug,Clone)]
 pub struct SystemDepNode
 {
 	id: TypeId,
@@ -158,44 +158,7 @@ impl Scheduler {
             let readers = self.access_map.read_world.get(&component);
             let writers = self.access_map.write_world.get(&component);
             
-
-
             if let Some(wr) = writers{
-                if wr.len()>=2 
-                {
-                    write_write_conflict =true;
-                    let writer_vec = writers.unwrap();
-
-                    for dep_writer in writer_vec{
-                        if let Some(depnode) = depgraph.dep.iter_mut().find(|node| node.id == *dep_writer) {
-                            for each in writer_vec{
-                                if each == dep_writer{
-                                    continue;
-                                }
-                                else{
-                                    if depnode.dependencies.contains(each)
-                                    {
-                                        continue;
-                                    }
-                                    depnode.dependencies.push(*each);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            println!("Depnode does not exist!");
-                            let mut write_depend = Vec::new();
-                            for each in writer_vec{
-                                if each == dep_writer{
-                                    continue;
-                                }
-                                write_depend.push(*each);
-                            }
-                            depgraph.dep.push(SystemDepNode{id:*dep_writer,dependencies:write_depend}); 
-                            depgraph.len+=1;
-                        }
-                    }
-                }
                 if readers.is_some() && !wr.is_empty()
                 {
                     read_write_conflict=true;
@@ -232,8 +195,8 @@ impl Scheduler {
             // println!("Read/Write conflict is: {}\nWrite/write conflict is: {}",read_write_conflict,write_write_conflict);
             
         }
+        
         let system_vec = self.access_map.sys_reg.clone();
-
         for sys in system_vec 
         {
             if !depgraph.dep.iter().any(|node| node.id == sys)
@@ -245,17 +208,74 @@ impl Scheduler {
         return depgraph;            
     }
 
-    pub fn sort_systems(&mut self, dep_graph:SystemDepGraph)
+    pub fn sort_systems(&mut self, dep_graph:SystemDepGraph) -> Vec<Vec<TypeId>>
     {
-        // top sort of the depgrahp provided?
-        println!("We are now going to sort the dependency graph");
-        // so still a top sort , kahns algo basically.
-        // collect all w/o dependencies, since they can be run in parallell
-        // remove dependencies, do the same for the next stage, until no systems remain in the queue
-        // this does not entirely help cyclic behaviour i think.
+        println!("Depgraph we are working with: {:?}\n",dep_graph);
+        let mut result = Vec::new();
+        let mut dgraph = dep_graph.clone();
+        // let mut node_vec = dep_graph.dep.clone();
+        while !dgraph.dep.is_empty()
+        {
+            let mut stage = Vec::new();
+            // no dependencies --> lets push and remove
+            
+            for dep in dgraph.dep.iter() {
+                if dep.dependencies.is_empty() {
+                    
+                    let mut compatible = true;
+                    for existing in &stage {
+
+                        if self.conflicting_systems(dep.id, *existing) {
+                            compatible = false;
+                            break;
+                        }
+                    }
+                    if compatible {
+                        stage.push(dep.id);
+                    }
+                }
+            }
+            if stage.is_empty() {
+                panic!("Cyclic dependency detected");
+            }
+            dgraph.dep.retain(|node| !stage.contains(&node.id));
+            
+            println!("sorting systems loop");
+            for node in dgraph.dep.iter_mut() {
+                // now remove it from dependencies
+                node.dependencies.retain(|dep| !stage.contains(dep));
+            }
+            result.push(stage);
+        }
+        println!("Systems was sorted: \n{:?}\n",result);
+        result
+    }
+    pub fn conflicting_systems(&self, a: TypeId, b: TypeId) -> bool
+    {
+        for key in self.access_map.comp_reg.iter() {
+            let readers = self.access_map.read_world.get(key);
+            let writers = self.access_map.write_world.get(key);
+
+            let a_reads = readers.is_some_and(|v| v.contains(&a));
+            let a_writes = writers.is_some_and(|v| v.contains(&a));
+
+            let b_reads = readers.is_some_and(|v| v.contains(&b));
+            let b_writes = writers.is_some_and(|v| v.contains(&b));
+
+            if (a_writes && b_reads)
+                || (a_reads && b_writes)
+                || (a_writes && b_writes)
+            {
+                return true;
+            }
+        }
+
+        false
     }
 
-        
+    pub fn set_order(&mut self, stages:Vec<Vec<TypeId>>){
+        println!("setting the order given now");
+    }    
     
 
     
@@ -277,6 +297,29 @@ impl Scheduler {
     pub fn run_update(&mut self, world: &mut World,resources: &mut Resources) {
         for system in &mut self.update {
             system.run(world,resources);
+        }
+    }
+
+    pub fn run_prio_update(&mut self,world:&mut World, resources: &mut Resources,order:&Vec<Vec<TypeId>>)
+    {
+        let mut fixed_update: Vec<Box<dyn System>>= Vec::new();
+        let mut order_batch = order.clone();
+        // println!("The order batch \n {:?}",order_batch);
+        for stage in order_batch{
+            for system in stage{
+                if let Some(system) = self.update
+                    .iter_mut()
+                    .find(|sys| sys.sys_id() == system)
+                {
+                    // have to wrap in Arc for threading
+                    
+                    
+                    system.run(world, resources);
+                    
+                    println!("Running ID: {:?}\n",system.sys_id());
+                    // now its time to fix the concurrency part 
+                }
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 use crate::engine::system::System;
 use crate::engine::world::World;
 use std::any::TypeId;
-use crate::{components_read, components_with, components_without, components_write,resources_read,resources_write};
+use crate::{components_read, components_with, components_without, components_write,resources_read,system_id,resources_write};
 use crate::resource::*;
 use crate::Component;
 
@@ -56,6 +56,7 @@ impl System for CameraFollowSystem {
     components_read!(CameraTarget,Transform);
     resources_write!();
     resources_read!();
+    system_id!();
     components_with!();
     components_without!();
 

@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use crate::engine::system::System;
 // use crate::engine::system::{components_read,components_with,components_without,components_write};
 // use crate::{components_read, components_with, components_without, components_write};
-use crate::{components_read, components_with, components_without, components_write,resources_read,resources_write};
+use crate::{components_read, components_with, components_without, components_write,system_id,resources_read,resources_write};
 use crate::resource::{Resources,RenderCommand};
 use crate::Component;
 use crate::resource::RenderLayer;
@@ -27,6 +27,7 @@ impl System for RenderSys {
     resources_write!();
     resources_read!();
     components_with!();
+    system_id!();
     components_without!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
@@ -112,6 +113,7 @@ impl System for NewRenderSys {
     resources_write!(RenderQueue);
     resources_read!(RenderMap);
     components_with!();
+    system_id!();
     components_without!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
@@ -193,6 +195,7 @@ impl System for GridRenderSys {
     components_write!();
     components_read!(GridRenderMeta);
     resources_write!();
+    system_id!();
     resources_read!();
     components_with!();
     components_without!();

@@ -100,6 +100,9 @@ impl Engine {
         // run startup sys
         self.scheduler
             .run_startup(&mut self.world, &mut self.resources);
+        
+        let dep = self.scheduler.make_dep_graph();
+        let sorted = self.scheduler.sort_systems(dep);
 
         // winit eventloop time
         let event_loop: EventLoop<()> = EventLoop::new().unwrap();
@@ -123,9 +126,10 @@ impl Engine {
                         // Update ECS
                         let d_graph = self.scheduler.make_dep_graph();
                         self.scheduler.sort_systems(d_graph);
-                        self.scheduler
-                            .run_update(&mut self.world, &mut self.resources);
-
+                        // self.scheduler
+                        //     .run_update(&mut self.world, &mut self.resources);
+                        
+                        self.scheduler.run_prio_update(&mut self.world, &mut self.resources, &sorted);
                         //Då detta är en test run så borde detta flyttas till tick systemet senare
                         // self.resources.input.input_polling();
                         self.resources.get_mut::<Input>().unwrap().input_polling();

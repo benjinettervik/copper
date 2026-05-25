@@ -28,6 +28,7 @@ impl System for NPCSPRITEMove {
     components_write!(Transform);
     resources_write!();
     resources_read!();
+    system_id!();
     components_with!();
     components_without!();
 
@@ -77,6 +78,7 @@ impl System for MovePlayer {
     components_write!(Transform);
     resources_write!();
     resources_read!(Input);
+    system_id!();
     components_with!();
     components_without!();
 

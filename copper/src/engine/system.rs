@@ -87,6 +87,14 @@ macro_rules! resources_write {
         }
     };
 }
+#[macro_export]
+macro_rules! system_id {
+    () => {
+        fn sys_id(&self) -> TypeId {
+            TypeId::of::<Self>()
+        }
+    };
+}
 
 /// Defines the structure of a system.
 
@@ -102,7 +110,7 @@ pub trait System {
 
     fn resources_read(&self) -> Vec<TypeId>;
     fn resources_write(&self) -> Vec<TypeId>;
-    
+    fn sys_id(&self) -> TypeId;
     /// Defines which components an entity will need have for a system to query for it. This is used by the system scheduler.  
     fn components_with(&self) -> Vec<ComponentId>;
 

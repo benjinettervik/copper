@@ -55,6 +55,7 @@ mod scheduler_test{
         resources_write!();
         resources_read!(Input);
         components_with!();
+        system_id!();
         components_without!();
 
         fn run(&mut self, world: &mut World, resources: &mut Resources) {
@@ -67,6 +68,7 @@ mod scheduler_test{
         components_write!();
         resources_write!();
         resources_read!();
+        system_id!();
         components_with!();
         components_without!();
 
@@ -79,6 +81,7 @@ mod scheduler_test{
         components_read!(C2);
         components_write!(C1);
         resources_write!();
+        system_id!();
         resources_read!();
         components_with!();
         components_without!();
@@ -93,6 +96,7 @@ mod scheduler_test{
         components_write!();
         resources_write!(Input);
         resources_read!();
+        system_id!();
         components_with!();
         components_without!();
 
@@ -140,7 +144,12 @@ mod scheduler_test{
         scheduler.run_update(&mut world, &mut resources);
         let dep_graph = scheduler.make_dep_graph();
         println!("{:?}",dep_graph);
-        scheduler.sort_systems(dep_graph);
+        let sorted_sys = scheduler.sort_systems(dep_graph);
+        println!("{:?}",sorted_sys);
+        // scheduler.set_order(sorted_sys);
+        let mut world = World::new();
+        let mut resources = Resources::new();
+        scheduler.run_prio_update(&mut world,&mut resources,&sorted_sys);
         // there are some basic bitch systems now 
         // we are simply going to register some shit for it now
 
