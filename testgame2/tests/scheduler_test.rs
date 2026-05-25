@@ -119,9 +119,6 @@ mod scheduler_test{
         component_storages: HashMap<ComponentId, RwLock<HashMap<EntityId, Box<dyn Any+ Send+ Sync>>>>,
     }
 
-    
-
-
     impl WorldRefact
     {
         pub fn new() -> Self {
@@ -135,6 +132,15 @@ mod scheduler_test{
             self.next_entity_id += 1;
             return_id
         }
+
+        pub fn add_component(){}
+        pub fn get_component(){}
+        pub fn get_component_mut(){}
+        pub fn query(){}
+        // 1. add component
+        // 2. get component
+        // 3. get component mut
+        // 4. implement new query
     }
  
     #[test]
