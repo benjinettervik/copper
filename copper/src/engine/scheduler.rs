@@ -1,12 +1,13 @@
 use super::System;
 use super::World;
+use rayon;
 // use crate::engine::{Startup, SystemRoutine, Update};
 use crate::engine::{Startup, SystemRoutine, Update};
 use std::any::Any;
 use std::any::TypeId;
 // use crate::engine::{Startup, Update, SystemRoutine};
-use crate::resource::Resources;
 use crate::Component;
+use crate::resource::Resources;
 use component_macro_derive::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -328,17 +329,15 @@ impl Scheduler {
             for system_id in stage {
                 if let Some(system) = self.update.iter_mut().find(|sys| sys.sys_id() == system_id) {
                     let sys_ptr = system as *mut Box<dyn System> as usize; // convert system to
-                                                                           // hard pointer
+                    // hard pointer
                     stage_systems.push(sys_ptr);
                 }
             }
 
-            // 2. Spawn a thread scope for the stage. Scope ensures all threads
-            // finish before moving to the next stage.
-            thread::scope(|s| {
+            rayon::scope(|s| {
                 for sys_ptr in stage_systems {
                     // Spawn the actual thread
-                    s.spawn(move || {
+                    s.spawn(move |_| {
                         // 3. UNSAFE BLOCK: Reconstruct the mutable references
                         unsafe {
                             // Cast the numbers back to raw pointers, then deference them into &mut

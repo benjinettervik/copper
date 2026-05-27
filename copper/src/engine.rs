@@ -136,19 +136,23 @@ impl Engine {
 
                     // Update sys
                     Event::AboutToWait => {
-                        println!("In AboutToWait");
+                        //println!("In AboutToWait");
                         // Update ECS
                         // self.scheduler.sort_systems(d_graph);
                         // self.scheduler
                         //     .run_update(&mut self.world, &mut self.resources);
 
-                        let time = SystemTime::now();
+                        //let time = SystemTime::now();
                         self.scheduler.run_prio_update(
                             &mut self.world,
                             &mut self.resources,
                             &sorted,
                         );
-                        println!("Update systems time: ")
+                        /*println!(
+                            "Run prio update time: {}",
+                            time.elapsed().unwrap().as_millis()
+                        );*/
+
                         //Då detta är en test run så borde detta flyttas till tick systemet senare
                         // self.resources.input.input_polling();
                         self.resources.get_mut::<Input>().unwrap().input_polling();
@@ -188,7 +192,7 @@ impl Engine {
                             if let Some(renderer) = &mut self.renderer {
                                 // render draw
                                 renderer.draw(&mut self.resources);
-                                thread::sleep(Duration::from_millis(time));
+                                //thread::sleep(Duration::from_millis(time));
                             }
                         }
 
