@@ -49,7 +49,7 @@ pub struct Transform{
 pub struct Texture{
     pub width: u32,
     pub height: u32,
-    pub pixel_data: Vec<u8>, //rgba 0-255 
+    pub pixel_data: Vec<u32>, //rgba 0-255 
 }
 
 impl Component for Texture {
