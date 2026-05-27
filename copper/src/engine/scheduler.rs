@@ -5,8 +5,8 @@ use crate::engine::{Startup, SystemRoutine, Update};
 use std::any::Any;
 use std::any::TypeId;
 // use crate::engine::{Startup, Update, SystemRoutine};
-use crate::Component;
 use crate::resource::Resources;
+use crate::Component;
 use component_macro_derive::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -317,7 +317,7 @@ impl Scheduler {
         order: &Vec<Vec<TypeId>>,
     ) {
         let order_batch = order.clone();
-        println!("\n In Benjamin threading update\n");
+        //println!("\n In Benjamin threading update\n");
 
         let world_ptr = world as *mut World as usize; // convert world to hard pointer
         let res_ptr = resources as *mut Resources as usize; // convert resource to hard pointer
@@ -328,7 +328,7 @@ impl Scheduler {
             for system_id in stage {
                 if let Some(system) = self.update.iter_mut().find(|sys| sys.sys_id() == system_id) {
                     let sys_ptr = system as *mut Box<dyn System> as usize; // convert system to
-                    // hard pointer
+                                                                           // hard pointer
                     stage_systems.push(sys_ptr);
                 }
             }

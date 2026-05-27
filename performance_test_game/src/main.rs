@@ -77,7 +77,7 @@ impl System for SpawnEntitiesSystem {
     system_id!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        for _ in 0..1000000 {
+        for _ in 0..100000 {
             let entitiy = world.spawn();
             world.add_component(entitiy, Component1 { value: 0 });
             world.add_component(entitiy, Component2 { value: 0 });
@@ -268,7 +268,7 @@ fn main() {
             .add_system(Update, IncreaseComp8System);
 
         let start_time_concurrent = SystemTime::now();
-        engine.run_cycles_concurrent(10);
+        engine.test_run(20);
 
         println!(
             "Amount of time elapsed for concurrent run: {}",
@@ -293,7 +293,7 @@ fn main() {
             .add_system(Update, NewRenderSys);
 
         let start_time_non_concurrent = SystemTime::now();
-        engine.test_run(10);
+        //engine.test_run(10);
 
         println!(
             "Amount of time elapsed for non-concurrent run: {}",

@@ -17,7 +17,7 @@ use winit::event_loop::EventLoop;
 use winit::window::Window;
 
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 
 /// The 'Engine' struct represents the engine itself. It contains the necessary functions used to manipulate the game engine.
 ///
@@ -136,16 +136,19 @@ impl Engine {
 
                     // Update sys
                     Event::AboutToWait => {
+                        println!("In AboutToWait");
                         // Update ECS
                         // self.scheduler.sort_systems(d_graph);
                         // self.scheduler
                         //     .run_update(&mut self.world, &mut self.resources);
 
+                        let time = SystemTime::now();
                         self.scheduler.run_prio_update(
                             &mut self.world,
                             &mut self.resources,
                             &sorted,
                         );
+                        println!("Update systems time: ")
                         //Då detta är en test run så borde detta flyttas till tick systemet senare
                         // self.resources.input.input_polling();
                         self.resources.get_mut::<Input>().unwrap().input_polling();
