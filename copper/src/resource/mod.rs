@@ -71,6 +71,8 @@ impl Resources{
         self.insert(TextureAsset{textures: HashMap::new(),});
         self.insert(Camera2D::new());
         self.insert(Input::new());
+        self.insert(RenderMap::new());
+        self.insert(TextureMap::new());
         // self.resources.insert(Grid::new(32,32,16.0));
     }
 }
