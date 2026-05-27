@@ -60,7 +60,7 @@ impl Renderer {
     pub fn draw(&mut self, resources: &mut Resources) {
    
         // width and size of the pixelbuffer 
-        print!("\n\nIn render draw!\n\n");
+        // print!("\n\nIn render draw!\n\n");
         let size = self.pixels.context().texture_extent;
         let width = size.width as usize;
         let height = size.height as usize;

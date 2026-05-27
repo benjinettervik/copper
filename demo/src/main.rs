@@ -3,7 +3,7 @@ use copper::engine::world::*;
 use copper::engine::*;
 use copper::grid::*;
 use copper::resource::{Resources,RenderLayer,TM_Handle,TextureMap};
-use copper::renderer::render_sys::{NewRenderSys,TileMapStorage,GridStorage,TileMap,TMapHandle,GridHandle,GridRenderMeta};
+use copper::renderer::render_sys::{NewRenderSys,RenderSys,TileMapStorage,GridStorage,TileMap,GridRenderSys,TMapHandle,GridHandle,GridRenderMeta};
 use copper::resource::{convert_texture,extract_tileset,extract_layer_data2,json_to_rendermap};
 use copper::resource::camera::*;
 // use copper::input::Input;
@@ -20,7 +20,7 @@ use copper::input::Input;
 use copper::input::input::*;
 use winit::keyboard::*;
 use winit::keyboard::KeyCode::*;
-use std::sync::Arc;
+
 
 struct NPCSPRITEMove;
 impl System for NPCSPRITEMove {
@@ -32,7 +32,7 @@ impl System for NPCSPRITEMove {
     components_with!();
     components_without!();
 
-    fn run(&self, world: &World, resources: &Resources) {
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
 
         let entities = world.query(
             &self.components_read(),
@@ -42,7 +42,7 @@ impl System for NPCSPRITEMove {
         );
 
         for entity in entities{
-            println!("Finds an entity");
+            // println!("Finds an entity");
             let dir = {
                 let mut steps = world
                     .get_component_mut::<NPCSPRITE>(entity)
@@ -82,7 +82,7 @@ impl System for MovePlayer {
     components_with!();
     components_without!();
 
-    fn run(&self, world: &World, resources: &Resources) {
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
 
         let input = resources.get::<Input>().unwrap();
 
@@ -132,11 +132,6 @@ impl System for MovePlayer {
         step_count: u32, 
         dir: bool,
     }
-
-
-
-
-
 
 fn main() {
 
@@ -202,97 +197,29 @@ fn main() {
     let transform4 = Transform{x:32.0*67.0,y:32.0*150.0};
 
     //
-    let entity = Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .spawn();
+    let entity = engine.world.spawn();
+    let entity2 = engine.world.spawn();
+    let entity3 = engine.world.spawn();
+    let entity4 = engine.world.spawn();
+    engine.world.add_component(entity,sprite);
+    engine.world.add_component(entity,transform);
+    // 
+    engine.world.add_component(entity2,NPCSPRITE_sprite1);
+    engine.world.add_component(entity2,transform2);
+    engine.world.add_component(entity2, NPCSPRITE{test:true,step_count:0,dir:true});
+    
+    // 
+    engine.world.add_component(entity3,NPCSPRITE_sprite2);
+    engine.world.add_component(entity3,transform3);
+    engine.world.add_component(entity3, NPCSPRITE{test:true,step_count:0,dir:true});
+    // insert the texture data stored in t_map_storage.
+    // 
+    engine.world.add_component(entity4,player_sprite);
+    engine.world.add_component(entity4,transform4);
+    engine.world.add_component(entity4,CameraTarget);
 
-    let entity2 = Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .spawn();
-
-    let entity3 = Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .spawn();
-
-    let entity4 = Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .spawn();
-
-    // ent1
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity, sprite);
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity, transform);
-
-    // ent2
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity2, NPCSPRITE_sprite1);
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity2, transform2);
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(
-            entity2,
-            NPCSPRITE {
-                test: true,
-                step_count: 0,
-                dir: true,
-            },
-        );
-
-    // ent3
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity3, NPCSPRITE_sprite2);
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity3, transform3);
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(
-            entity3,
-            NPCSPRITE {
-                test: true,
-                step_count: 0,
-                dir: true,
-            },
-        );
-
-    // ent4
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity4, player_sprite);
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity4, transform4);
-
-    Arc::get_mut(&mut engine.world)
-        .unwrap()
-        .add_component(entity4, CameraTarget);
-
-    //res
-
-    Arc::get_mut(&mut engine.resources)
-        .unwrap()
-        .insert(t_map_storage);
-
-    Arc::get_mut(&mut engine.resources)
-        .unwrap()
-        .insert(render_map);
+    engine.resources.insert(t_map_storage);
+    engine.resources.insert(render_map);
 
     engine.add_system(Update,MovePlayer);
     engine.add_system(Update,NPCSPRITEMove);

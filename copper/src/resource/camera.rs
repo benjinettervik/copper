@@ -73,7 +73,7 @@ impl System for CameraFollowSystem {
 
         for entity in entities
         {
-            println!("Finds a camera target");   
+            // println!("Finds a camera target");   
                 let transform = world.get_component::<Transform>(entity).unwrap();
                 let camera = resources.get_mut::<Camera2D>().unwrap();
                 // camera.set_position(transform.x, transform.y);

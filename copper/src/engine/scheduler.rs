@@ -136,10 +136,10 @@ impl Scheduler {
 
     pub fn make_dep_graph(&mut self) -> SystemDepGraph {
         // debg
-        println!(
-            "The amount of systems in scheduler are: {:?}",
-            self.access_map.sys_reg.len()
-        );
+        // println!(
+        //     "The amount of systems in scheduler are: {:?}",
+        //     self.access_map.sys_reg.len()
+        // );
 
         // so for order system i would simply say
         // let mut dep_graph = SystemDepGraph{dep:Vec::new(),len:0};
@@ -148,7 +148,7 @@ impl Scheduler {
             len: 0,
         };
         for component in self.access_map.comp_reg.clone() {
-            println!("In order_system loop");
+            // println!("In order_system loop");
             // conflicts to detect
             let mut read_write_conflict = false;
             let mut write_write_conflict = false;
@@ -175,7 +175,7 @@ impl Scheduler {
                                 depnode.dependencies.push(*each);
                             }
                         } else {
-                            println!("Depnode does not exist!");
+                            // println!("Depnode does not exist!");
                             let mut read_depend = Vec::new();
                             for each in writer_vec {
                                 read_depend.push(*each);
@@ -207,7 +207,7 @@ impl Scheduler {
     }
 
     pub fn sort_systems(&mut self, dep_graph: SystemDepGraph) -> Vec<Vec<TypeId>> {
-        println!("Depgraph we are working with: {:?}\n", dep_graph);
+        // println!("Depgraph we are working with: {:?}\n", dep_graph);
         let mut result = Vec::new();
         let mut dgraph = dep_graph.clone();
         // let mut node_vec = dep_graph.dep.clone();
@@ -234,14 +234,14 @@ impl Scheduler {
             }
             dgraph.dep.retain(|node| !stage.contains(&node.id));
 
-            println!("sorting systems loop");
+            // println!("sorting systems loop");
             for node in dgraph.dep.iter_mut() {
                 // now remove it from dependencies
                 node.dependencies.retain(|dep| !stage.contains(dep));
             }
             result.push(stage);
         }
-        println!("Systems was sorted: \n{:?}\n", result);
+        // println!("Systems was sorted: \n{:?}\n", result);
         result
     }
     pub fn conflicting_systems(&self, a: TypeId, b: TypeId) -> bool {
@@ -264,7 +264,7 @@ impl Scheduler {
     }
 
     pub fn set_order(&mut self, stages: Vec<Vec<TypeId>>) {
-        println!("setting the order given now");
+        // println!("setting the order given now");
     }
 
     pub fn add_startup_system<T: System + 'static>(&mut self, system: T) {
@@ -317,6 +317,7 @@ impl Scheduler {
         order: &Vec<Vec<TypeId>>,
     ) {
         let order_batch = order.clone();
+        println!("\n In Benjamin threading update\n");
 
         let world_ptr = world as *mut World as usize; // convert world to hard pointer
         let res_ptr = resources as *mut Resources as usize; // convert resource to hard pointer

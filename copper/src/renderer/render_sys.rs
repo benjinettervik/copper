@@ -124,7 +124,7 @@ impl System for NewRenderSys {
         &self.components_without(),
     );
 
-    println!("\n\nIn NewRenderSys\n\n");
+    // println!("\n\nIn NewRenderSys\n\n");
 
     let grids = {
         let render_map = resources.get::<RenderMap>().unwrap();

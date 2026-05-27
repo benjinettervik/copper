@@ -113,6 +113,7 @@ impl Engine {
 
         let dep = self.scheduler.make_dep_graph();
         let sorted = self.scheduler.sort_systems(dep);
+        let d_graph = self.scheduler.make_dep_graph();
 
         // winit eventloop time
         let event_loop: EventLoop<()> = EventLoop::new().unwrap();
@@ -136,8 +137,7 @@ impl Engine {
                     // Update sys
                     Event::AboutToWait => {
                         // Update ECS
-                        let d_graph = self.scheduler.make_dep_graph();
-                        self.scheduler.sort_systems(d_graph);
+                        // self.scheduler.sort_systems(d_graph);
                         // self.scheduler
                         //     .run_update(&mut self.world, &mut self.resources);
 
