@@ -77,7 +77,7 @@ impl System for SpawnEntitiesSystem {
     system_id!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        for _ in 0..100000 {
+        for _ in 0..120000 {
             let entitiy = world.spawn();
             world.add_component(entitiy, Component1 { value: 0 });
             world.add_component(entitiy, Component2 { value: 0 });
