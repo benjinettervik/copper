@@ -40,11 +40,12 @@ impl Renderer {
         );
 
         // surface texture is tied to pixels
-        let pixels = Pixels::new(
+        let mut pixels = Pixels::new(
             size.width,
             size.height,
             surface_texture,
         ).expect("Failed to create Pixels");
+        pixels.enable_vsync(false);
 
         Self {
             window, 
@@ -78,7 +79,6 @@ impl Renderer {
 
 
         let mut commands = {
-
             let render_queue =
                 resources.get_mut::<RenderQueue>().unwrap();
             render_queue
