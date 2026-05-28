@@ -2,11 +2,11 @@
 
 ## Demospel 
 
+Även demospelet kör concurrently, däremot med en viss spärr för read-read conflicter då vi inte hann göra en refactor för detta.
+
 För att köra demospelet kör:  
 
 ```make demo```
-
-
 
 ## Prestandatest och concurrencymätningar 
 
