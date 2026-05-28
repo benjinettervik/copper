@@ -188,7 +188,7 @@ impl Scheduler {
         return depgraph;
     }
 
-    pub fn sort_systems(&mut self, dep_graph: SchedulerDepGraph) -> Vec<Vec<TypeId>> {
+    pub fn sort_systems(&mut self, dep_graph: SchedulerDepGraph, config:bool) -> Vec<Vec<TypeId>> {
         let mut result = Vec::new();
         let mut dgraph = dep_graph.clone();
         while !dgraph.dep.is_empty() {
@@ -199,7 +199,7 @@ impl Scheduler {
                 if dep.dependencies.is_empty() {
                     let mut compatible = true;
                     for existing in &stage {
-                        if self.conflicting_systems(dep.id, *existing) {
+                        if self.conflicting_systems(dep.id, *existing,config) {
                             compatible = false;
                             break;
                         }
@@ -223,7 +223,7 @@ impl Scheduler {
         // println!("Systems was sorted: \n{:?}\n", result);
         result
     }
-    pub fn conflicting_systems(&self, a: TypeId, b: TypeId) -> bool {
+    pub fn conflicting_systems(&self, a: TypeId, b: TypeId, guard_rails:bool) -> bool {
         for key in self.access_map.comp_reg.iter() {
             let readers = self.access_map.read_world.get(key);
             let writers = self.access_map.write_world.get(key);
@@ -234,8 +234,18 @@ impl Scheduler {
             let b_reads = readers.is_some_and(|v| v.contains(&b));
             let b_writes = writers.is_some_and(|v| v.contains(&b));
 
-            if (a_writes && b_reads) || (a_reads && b_writes) || (a_writes && b_writes) {
-                return true;
+            if guard_rails
+            {
+                println!("Guard rails are on");
+                if (a_writes && b_reads) || (a_reads && b_writes) || (a_writes && b_writes) || (a_reads && b_reads) {
+                    return true;
+                }
+            }
+            else{
+                if (a_writes && b_reads) || (a_reads && b_writes) || (a_writes && b_writes)
+                {
+                    return true;
+                }
             }
         }
 
@@ -267,7 +277,6 @@ impl Scheduler {
         order: &Vec<Vec<TypeId>>,
     ) {
         let order_batch = order.clone();
-
         let world_ptr = world as *mut World as usize; // convert world to hard pointer
         let res_ptr = resources as *mut Resources as usize; // convert resource to hard pointer
 

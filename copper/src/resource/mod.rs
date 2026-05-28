@@ -1,10 +1,14 @@
 // use crate::renderer::test_components_renderer::*;
+pub mod time;
+pub mod config;
 use crate::assets::texture_asset::TextureAsset;
 use crate::assets::texture_map::TextureMap;
 use crate::input::Input;
 use crate::renderer::camera::Camera2D;
 use crate::renderer::render_map::RenderMap;
 use crate::renderer::render_queue::RenderQueue;
+use crate::resource::time::Time;
+use crate::resource::config::CopperConfig;
 use std::any::Any;
 use std::collections::HashMap;
 // use crate::assets::texture_map::TextureMap;
@@ -57,6 +61,8 @@ impl Resources {
         self.insert(Input::new());
         self.insert(RenderMap::new());
         self.insert(TextureMap::new());
+        self.insert(Time::new());
+        self.insert(CopperConfig::new());
         // self.resources.insert(Grid::new(32,32,16.0));
     }
 }
