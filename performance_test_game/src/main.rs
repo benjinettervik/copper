@@ -1,30 +1,38 @@
-use copper::engine::system::*;
-use copper::engine::world::*;
-use copper::engine::*;
+use copper::ecs::system::*;
+use copper::ecs::world::*;
+use copper::ecs::*;
 use copper::grid::*;
-use copper::renderer::render_sys::{
-    GridHandle, GridRenderMeta, GridRenderSys, GridStorage, NewRenderSys, RenderSys, TMapHandle,
-    TileMap, TileMapStorage,
-};
-use copper::resource::camera::*;
-use copper::resource::{RenderLayer, Resources, TM_Handle, TextureMap};
-use copper::resource::{convert_texture, extract_layer_data2, extract_tileset, json_to_rendermap};
+// use copper::resource::{Resources,RenderLayer,TM_Handle,TextureMap};
+// use copper::renderer::{render_layer, ren}
+use copper::resource::*;
+use copper::renderer::render_layer::*;
+use copper::assets::texture_map::*;
+use copper::renderer::render_sys::{NewRenderSys,TileMapStorage,GridStorage,TileMap,TMapHandle,GridHandle,GridRenderMeta};
+// use copper::resource::{convert_texture,extract_tileset,extract_layer_data2,json_to_rendermap};
+use copper::assets::convert_texture::*;
+use copper::assets::texture_asset::*;
+use copper::assets::texture_map::*;
+use copper::core::engine::*;
+use copper::renderer::components::Transform;
+use copper::assets::tiled_converter::*;
+use copper::renderer::camera::*;
+use copper::renderer::texture::TextureHandle;
+use copper::renderer::components::MockSprite;
 // use copper::input::Input;
-use component_macro_derive::*;
-use copper::renderer::test_components_renderer::*;
-use copper::*;
-use core::time;
-use std::any::TypeId;
 use std::collections::HashMap;
-use std::sync::mpsc::RecvTimeoutError::Timeout;
-use std::time::SystemTime;
+// use copper::renderer::test_components_renderer::*;
+use copper::*;
+use std::any::TypeId;
+use component_macro_derive::*;
+
 
 use winit::keyboard::KeyCode;
 // use copper::input::Action;
 use copper::input::Input;
 use copper::input::input::*;
-use winit::keyboard::KeyCode::*;
+use std::time::SystemTime;
 use winit::keyboard::*;
+use winit::keyboard::KeyCode::*;
 
 #[derive(Component)]
 struct Component1 {

@@ -1,13 +1,22 @@
-pub mod test_components_renderer;
+// pub mod test_components_renderer;
+pub mod texture;
+pub mod components;
 pub mod render_sys;
-use std::sync::Arc;
+pub mod render_command;
+pub mod render_grid;
+pub mod render_map;
+pub mod render_queue;
+pub mod render_layer;
+pub mod camera;
 use winit::window::Window;
 use pixels::{Pixels, SurfaceTexture};
-use crate::resource::{TextureMap,Resources,RenderCommand};
-use crate::resource::RenderQueue;
-use crate::resource::camera::Camera2D;
-use crate::renderer::test_components_renderer::TextureAsset;
-use crate::renderer::render_sys::TileMapStorage;
+// use crate::resource::{TextureMap,Resources,RenderCommand};
+use crate::resource::Resources;
+use crate::assets::texture_map::TextureMap;
+use crate::renderer::render_queue::RenderQueue;
+use crate::renderer::camera::Camera2D;
+// use crate::renderer::test_components_renderer::TextureAsset;
+// use crate::renderer::render_sys::TileMapStorage;
 
 
 // window made issues with lifetime complexities, but found a solution

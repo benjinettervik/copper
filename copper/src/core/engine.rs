@@ -1,12 +1,7 @@
 //! This module is the main module to use when developing in Copper! ut contains all necessary functions to create a simple game.
-
-pub mod scheduler;
-pub mod system;
-pub mod world;
-
-use scheduler::*;
-use system::*;
-use world::*;
+use crate::ecs::scheduler::*;
+use crate::ecs::system::*;
+use crate::ecs::world::*;
 
 use crate::input::Input;
 use crate::renderer::Renderer;

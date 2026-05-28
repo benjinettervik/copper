@@ -1,57 +1,33 @@
-use crate::renderer::test_components_renderer::{Transform, MockSprite, TextureAsset};
-use crate::engine::world::World;
-use crate::resource::RenderQueue;
-use crate::engine::{Startup, Update};
+// use crate::renderer::test_components_renderer::{Transform, MockSprite, TextureAsset};
+use crate::ecs::world::World;
+// use crate::resource::RenderQueue;
+use crate::renderer::render_queue::RenderQueue;
+use crate::core::engine::{Startup, Update};
 use std::any::TypeId;
 use crate::grid::{Grid,GridPosition};
-use crate::renderer::test_components_renderer::TextureHandle;
+use crate::renderer::render_command::RenderCommand;
+use crate::renderer::components::Transform;
+use crate::renderer::components::MockSprite;
+use crate::renderer::texture::TextureHandle;
+use crate::resource::Resources;
+use crate::assets::texture_asset::TextureAsset;
+// use crate::renderer::test_components_renderer::TextureHandle;
 use std::collections::HashMap;
-use crate::engine::system::System;
-// use crate::engine::system::{components_read,components_with,components_without,components_write};
+// use std::any::TypeId;
+use crate::ecs::system::System;
+// use crate::ecs::system::{components_read,components_with,components_without,components_write};
 // use crate::{components_read, components_with, components_without, components_write};
 use crate::{components_read, components_with, components_without, components_write,system_id,resources_read,resources_write};
-use crate::resource::{Resources,RenderCommand};
+// use crate::resource::{Resources,RenderCommand};
 use crate::Component;
-use crate::resource::RenderLayer;
+// use crate::resource::RenderLayer;
 use component_macro_derive::Component;
-use crate::resource::RenderMap;
+use crate::renderer::render_map::RenderMap;
+use crate::renderer::render_layer::RenderLayer;
 
 
 
 
-// render sys like system trait demands
-pub struct RenderSys;
-impl System for RenderSys {
-    components_write!();
-    components_read!(MockSprite, Transform);
-    resources_write!();
-    resources_read!();
-    components_with!();
-    system_id!();
-    components_without!();
-
-    fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        let entities = world.query(
-            &self.components_read(),
-            &self.components_write(),
-            &self.components_with(),
-            &self.components_without(),
-        );
-
-        for entity in entities {
-            let sprite = world.get_component::<MockSprite>(entity).unwrap();
-            let transform = world.get_component::<Transform>(entity).unwrap();
-            // println!("Doing the rendering sys call for {:?}  at  {:?}",sprite,transform);
-            // resources.render_queue.commands.push(RenderCommand{texture:sprite.texture,x:transform.x,y:transform.y});
-            resources.get_mut::<RenderQueue>().unwrap().commands.push(RenderCommand{
-                texture:sprite.texture,
-                layer: RenderLayer::Background,
-                x:transform.x,
-                y:transform.y,
-                texture_map_handle:None})
-        }
-    }
-}
 
 #[derive(PartialEq,Eq,Hash,Clone,Debug)]
 pub struct TMapHandle
@@ -189,71 +165,3 @@ impl System for NewRenderSys {
 }
 }
 
-#[derive(Debug)]
-pub struct GridRenderSys;
-impl System for GridRenderSys {
-    components_write!();
-    components_read!(GridRenderMeta);
-    resources_write!();
-    system_id!();
-    resources_read!();
-    components_with!();
-    components_without!();
-
-    fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        let entities = world.query(
-            &self.components_read(),
-            &self.components_write(),
-            &self.components_with(),
-            &self.components_without(),
-        );
-
-        // println!("This is the entity with gridrendermeta {:?}",entities);
-
-        for entity in entities {
-        let render_meta = world.get_component::<GridRenderMeta>(entity).unwrap();
-
-        let (width, height, cells) = {
-            let grid_storage = resources.get::<GridStorage>().unwrap();
-            let grid = grid_storage
-                .storage
-                .get(&render_meta.grid)
-                .unwrap();
-
-            (
-                grid.width,
-                grid.height,
-                grid.clone(),
-            )
-        };
-
-        let TILE_SIZE: f32 = render_meta.tile_size;
-        // println!("Tile size is: {}", TILE_SIZE);
-        // render_queue.commands.push(RenderCommand {
-        //     texture: TextureHandle(texture_handle[0] as i32),
-        //     x: x as f32 * TILE_SIZE,
-        //     y: y as f32 * TILE_SIZE,
-        // });
-        let render_queue = resources.get_mut::<RenderQueue>().unwrap();
-        render_queue.is_grid = Some(render_meta.grid.clone());
-        render_queue.t_map = Some(render_meta.handle.clone());
-        for y in 0..height {
-            for x in 0..width {
-                // println!("{},{}", x, y);
-
-                let texture_handle =
-                    cells.query_grid(GridPosition { x, y });
-
-                render_queue.commands.push(RenderCommand {
-                    texture: TextureHandle(texture_handle[0] as i32),
-                    layer: RenderLayer::Background,
-                    x: x as f32 * TILE_SIZE,
-                    y: y as f32 * TILE_SIZE,
-                    texture_map_handle:None,
-                });
-            }
-        }
-    }
-    // println!("{:?}",resources.get::<RenderQueue>().unwrap());
-    }
-}

@@ -1,8 +1,8 @@
-use super::System;
-use super::World;
+use crate::ecs::system::System;
+use crate::ecs::world::World;
 use rayon;
 // use crate::engine::{Startup, SystemRoutine, Update};
-use crate::engine::{Startup, SystemRoutine, Update};
+use crate::core::engine::{Startup, SystemRoutine, Update};
 use std::any::Any;
 use std::any::TypeId;
 // use crate::engine::{Startup, Update, SystemRoutine};

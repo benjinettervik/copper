@@ -1,7 +1,7 @@
 //! Contains the definition of a system. 
 
 use crate::{ComponentId};
-use crate::engine::world::*;
+use crate::ecs::world::*;
 use crate::resource::Resources;
 use std::any::TypeId;
 // use std::fmt::Debug;
