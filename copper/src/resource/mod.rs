@@ -52,7 +52,7 @@ impl Resources{
     }
 
     pub fn init_basic_kit(&mut self){
-        self.insert(RenderQueue{commands: Vec::new(),is_grid:None,t_map:None});
+        self.insert(RenderQueue{commands: Vec::new()});
         self.insert(TextureAsset{textures: HashMap::new(),});
         self.insert(Camera2D::new());
         self.insert(Input::new());

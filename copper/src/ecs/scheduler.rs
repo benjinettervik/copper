@@ -6,12 +6,12 @@ use crate::core::engine::{Startup, SystemRoutine, Update};
 use std::any::Any;
 use std::any::TypeId;
 // use crate::engine::{Startup, Update, SystemRoutine};
-use crate::Component;
+// use crate::Component;
 use crate::resource::Resources;
-use component_macro_derive::*;
+// use component_macro_derive::*;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-use std::thread;
+// use std::sync::{Arc, Mutex};
+// use std::thread;
 
 pub struct AccessMappings {
     pub read_world: HashMap<TypeId, Vec<TypeId>>,
@@ -38,13 +38,13 @@ impl AccessMappings {
 }
 
 #[derive(Debug, Clone)]
-pub struct SystemDepGraph {
-    dep: Vec<SystemDepNode>,
+pub struct SchedulerDepGraph {
+    dep: Vec<SchedulerDepNode>,
     len: u32,
 }
 
 #[derive(PartialEq, Debug, Clone)]
-pub struct SystemDepNode {
+pub struct SchedulerDepNode {
     id: TypeId,
     dependencies: Vec<TypeId>,
 }
@@ -135,7 +135,7 @@ impl Scheduler {
         panic!("Custom system routines not yet implemented!");
     }
 
-    pub fn make_dep_graph(&mut self) -> SystemDepGraph {
+    pub fn make_dep_graph(&mut self) -> SchedulerDepGraph {
         // debg
         // println!(
         //     "The amount of systems in scheduler are: {:?}",
@@ -143,8 +143,8 @@ impl Scheduler {
         // );
 
         // so for order system i would simply say
-        // let mut dep_graph = SystemDepGraph{dep:Vec::new(),len:0};
-        let mut depgraph = SystemDepGraph {
+        // let mut dep_graph = SchedulerDepGraph{dep:Vec::new(),len:0};
+        let mut depgraph = SchedulerDepGraph {
             dep: Vec::new(),
             len: 0,
         };
@@ -181,7 +181,7 @@ impl Scheduler {
                             for each in writer_vec {
                                 read_depend.push(*each);
                             }
-                            depgraph.dep.push(SystemDepNode {
+                            depgraph.dep.push(SchedulerDepNode {
                                 id: *dep_reader,
                                 dependencies: read_depend,
                             });
@@ -197,7 +197,7 @@ impl Scheduler {
         let system_vec = self.access_map.sys_reg.clone();
         for sys in system_vec {
             if !depgraph.dep.iter().any(|node| node.id == sys) {
-                depgraph.dep.push(SystemDepNode {
+                depgraph.dep.push(SchedulerDepNode {
                     id: sys,
                     dependencies: Vec::new(),
                 });
@@ -207,7 +207,7 @@ impl Scheduler {
         return depgraph;
     }
 
-    pub fn sort_systems(&mut self, dep_graph: SystemDepGraph) -> Vec<Vec<TypeId>> {
+    pub fn sort_systems(&mut self, dep_graph: SchedulerDepGraph) -> Vec<Vec<TypeId>> {
         // println!("Depgraph we are working with: {:?}\n", dep_graph);
         let mut result = Vec::new();
         let mut dgraph = dep_graph.clone();

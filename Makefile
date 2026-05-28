@@ -1,7 +1,7 @@
 .PHONY: performance demo
 
-performance: 
-	cargo run --bin performance_test_game
+performance:
+	set RUSTFLAGS=-Awarnings&& cargo run --bin performance_test_game --quiet
 
 demo:
-	cargo run --bin demo
+	set RUSTFLAGS=-Awarnings&& cargo run --bin demo

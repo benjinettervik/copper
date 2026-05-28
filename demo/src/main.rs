@@ -1,36 +1,29 @@
 use copper::ecs::system::*;
 use copper::ecs::world::*;
-use copper::ecs::*;
+// use copper::ecs::*;
 use copper::grid::*;
-// use copper::resource::{Resources,RenderLayer,TM_Handle,TextureMap};
-// use copper::renderer::{render_layer, ren}
 use copper::resource::*;
-use copper::renderer::render_layer::*;
+// use copper::renderer::render_layer::*;
 use copper::assets::texture_map::*;
-use copper::renderer::render_sys::{NewRenderSys,TileMapStorage,GridStorage,TileMap,TMapHandle,GridHandle,GridRenderMeta};
-// use copper::resource::{convert_texture,extract_tileset,extract_layer_data2,json_to_rendermap};
+// use copper::renderer::render_sys::{NewRenderSys,TileMapStorage,GridStorage,TileMap,TMapHandle,GridHandle,GridRenderMeta};
+use copper::renderer::render_sys::NewRenderSys;
 use copper::assets::convert_texture::*;
 use copper::assets::texture_asset::*;
-use copper::assets::texture_map::*;
+// use copper::assets::texture_map::*;
 use copper::core::engine::*;
 use copper::renderer::components::Transform;
 use copper::assets::tiled_converter::*;
 use copper::renderer::camera::*;
 use copper::renderer::texture::TextureHandle;
 use copper::renderer::components::MockSprite;
-// use copper::input::Input;
 use std::collections::HashMap;
-// use copper::renderer::test_components_renderer::*;
 use copper::*;
 use std::any::TypeId;
 use component_macro_derive::*;
-
-
-use winit::keyboard::KeyCode;
-// use copper::input::Action;
+// use winit::keyboard::KeyCode;
 use copper::input::Input;
-use copper::input::input::*;
-use winit::keyboard::*;
+// use copper::input::input::*;
+// use winit::keyboard::*;
 use winit::keyboard::KeyCode::*;
 
 
@@ -44,7 +37,7 @@ impl System for NPCSPRITEMove {
     components_with!();
     components_without!();
 
-    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+    fn run(&mut self, world: &mut World, __resources: &mut Resources) {
 
         let entities = world.query(
             &self.components_read(),
@@ -174,10 +167,10 @@ fn main() {
     // // new function to be made --> json.layers to RenderGrid
 
 
-    let json_read = extract_layer_data2("./copper/assets/sprites/big_layer.tmj").unwrap();
-    let mut grid: Grid = Grid::new(20,30,32.0);
-    let mut count = 0;
-    let layer = &json_read.layers[0];
+    // let json_read = extract_layer_data2("./copper/assets/sprites/big_layer.tmj").unwrap();
+    let grid: Grid = Grid::new(20,30,32.0);
+    // let mut count = 0;
+    // let layer = &json_read.layers[0];
 
 
     let sprite_texture = convert_texture("./copper/assets/sprites/32_sprite.png").unwrap();
@@ -200,8 +193,8 @@ fn main() {
 
     let mut engine = Engine::new();
     let sprite = MockSprite{texture:TextureHandle(1),map_handle:TM_Handle{id:"xo".to_string()}};
-    let NPCSPRITE_sprite1 = MockSprite{texture:TextureHandle(2),map_handle:TM_Handle{id:"xo".to_string()}};
-    let NPCSPRITE_sprite2 = MockSprite{texture:TextureHandle(3),map_handle:TM_Handle{id:"xo".to_string()}};
+    let npcsprite_1 = MockSprite{texture:TextureHandle(2),map_handle:TM_Handle{id:"xo".to_string()}};
+    let npcsprite_2 = MockSprite{texture:TextureHandle(3),map_handle:TM_Handle{id:"xo".to_string()}};
     let player_sprite = MockSprite{texture:TextureHandle(4),map_handle:TM_Handle{id:"xo".to_string()}};
     let transform = Transform{x:1.0,y:2.0};
     let transform2 = Transform{x:32.0*62.0,y:32.0*148.0};
@@ -216,12 +209,12 @@ fn main() {
     engine.world.add_component(entity,sprite);
     engine.world.add_component(entity,transform);
     // 
-    engine.world.add_component(entity2,NPCSPRITE_sprite1);
+    engine.world.add_component(entity2,npcsprite_1);
     engine.world.add_component(entity2,transform2);
     engine.world.add_component(entity2, NPCSPRITE{test:true,step_count:0,dir:true});
     
     // 
-    engine.world.add_component(entity3,NPCSPRITE_sprite2);
+    engine.world.add_component(entity3,npcsprite_2);
     engine.world.add_component(entity3,transform3);
     engine.world.add_component(entity3, NPCSPRITE{test:true,step_count:0,dir:true});
     // insert the texture data stored in t_map_storage.

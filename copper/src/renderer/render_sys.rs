@@ -26,62 +26,6 @@ use crate::renderer::render_map::RenderMap;
 use crate::renderer::render_layer::RenderLayer;
 
 
-
-
-
-#[derive(PartialEq,Eq,Hash,Clone,Debug)]
-pub struct TMapHandle
-{
-    pub id:String,
-}
-
-#[derive(PartialEq,Eq,Hash,Clone,Debug)]
-pub struct GridHandle
-{
-    pub id:String,
-}
-pub struct TileMapStorage{
-    pub storage: HashMap<TMapHandle,TileMap>
-}
-
-impl TileMapStorage{
-    pub fn new () -> Self{
-        Self{storage:HashMap::new(),}
-    }
-}
-
-pub struct TileMap{
-    pub grid:Grid,
-    pub texture_asset:TextureAsset,    
-}
-
-impl TileMap{
-    pub fn new(grid:Grid,texture_assets:TextureAsset) ->Self {
-        Self{
-            grid:grid,
-            texture_asset:texture_assets
-        }
-
-    }
-}
-
-pub struct GridStorage {
-    pub storage: HashMap<GridHandle,Grid>,
-}
-
-impl GridStorage{
-    pub fn new  () -> Self{
-        Self{storage:HashMap::new(),}
-    }
-}
-
-#[derive(Component)]
-pub struct GridRenderMeta{
-    pub handle: TMapHandle,
-    pub grid: GridHandle,
-    pub tile_size: f32,
-}
-
 pub struct NewRenderSys;
 impl System for NewRenderSys {
     components_write!();

@@ -11,8 +11,8 @@ use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::window::Window;
 
-use std::thread;
-use std::time::{Duration, SystemTime};
+// use std::thread;
+// use std::time::{Duration, SystemTime};
 
 /// The 'Engine' struct represents the engine itself. It contains the necessary functions used to manipulate the game engine.
 ///
