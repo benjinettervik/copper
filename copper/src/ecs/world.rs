@@ -1,4 +1,4 @@
-//! Contains functions for manipulating the game world. 
+//! Contains functions for manipulating the game world.
 
 use crate::{ComponentId, EntityId};
 use std::any::Any;
@@ -25,23 +25,21 @@ use crate::Component;
 macro_rules! query {
     ($self:ident, $world:expr) => {
         $world.query(
-                &$self.components_read(),
-                &$self.components_write(),
-                &$self.components_with(),
-                &$self.components_without(),
-            )
+            &$self.components_read(),
+            &$self.components_write(),
+            &$self.components_with(),
+            &$self.components_without(),
+        )
     };
 }
 
-
-/// Represents a game world, containing entities and components. 
+/// Represents a game world, containing entities and components.
 pub struct World {
     next_entity_id: usize,
     component_storages: HashMap<ComponentId, RefCell<HashMap<EntityId, Box<dyn Any>>>>,
 }
 
 impl World {
-
     /// Initializes a new game world.
     pub fn new() -> Self {
         World {
@@ -50,7 +48,7 @@ impl World {
         }
     }
 
-    /// Spawns a new entity. Entities are are only represented by ID:s. 
+    /// Spawns a new entity. Entities are are only represented by ID:s.
     pub fn spawn(&mut self) -> EntityId {
         let return_id = self.next_entity_id;
         self.next_entity_id += 1;
@@ -133,7 +131,7 @@ impl World {
     }
 
     // This is wildly inefficient, should make a proper Query system if times allows later on
-    /// Returns a vector of entity ID:s that match the given search query. 
+    /// Returns a vector of entity ID:s that match the given search query.
     pub fn query(
         &self,
         components_read: &Vec<TypeId>,

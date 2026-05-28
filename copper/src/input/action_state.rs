@@ -2,11 +2,11 @@ use std::collections::HashSet;
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 //more actions can be added here, unclear future for this guy
 pub enum Action {
-Select,
-Up,
-Down,
-Left,
-Right,
+    Select,
+    Up,
+    Down,
+    Left,
+    Right,
 }
 pub struct ActionState {
     pub active: HashSet<Action>,

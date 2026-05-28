@@ -1,11 +1,13 @@
+use crate::Component;
 use crate::ecs::system::System;
 use crate::ecs::world::World;
 use crate::renderer::components::Transform;
-use std::any::TypeId;
-use crate::{components_read, components_with, components_without, components_write,resources_read,system_id,resources_write};
 use crate::resource::*;
-use crate::Component;
-
+use crate::{
+    components_read, components_with, components_without, components_write, resources_read,
+    resources_write, system_id,
+};
+use std::any::TypeId;
 
 #[derive(Debug)]
 pub struct Camera2D {
@@ -24,8 +26,8 @@ impl Camera2D {
     // }
     pub fn new() -> Self {
         Self {
-            x: 32.0*50.0,
-            y: 32.0*140.0,
+            x: 32.0 * 50.0,
+            y: 32.0 * 140.0,
             zoom: 3.0,
         }
     }
@@ -46,7 +48,7 @@ impl Camera2D {
 }
 impl Component for CameraTarget {
     fn name(&self) -> &str {
-            "CameraTarget"
+        "CameraTarget"
     }
 }
 
@@ -54,7 +56,7 @@ pub struct CameraTarget;
 pub struct CameraFollowSystem;
 impl System for CameraFollowSystem {
     components_write!();
-    components_read!(CameraTarget,Transform);
+    components_read!(CameraTarget, Transform);
     resources_write!();
     resources_read!();
     system_id!();
@@ -62,7 +64,6 @@ impl System for CameraFollowSystem {
     components_without!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        
         // let mut target_position: Option<Transform> = None;
         let entities = world.query(
             &self.components_read(),
@@ -71,15 +72,13 @@ impl System for CameraFollowSystem {
             &self.components_without(),
         );
 
-
-        for entity in entities
-        {
-            // println!("Finds a camera target");   
-                let transform = world.get_component::<Transform>(entity).unwrap();
-                let camera = resources.get_mut::<Camera2D>().unwrap();
-                // camera.set_position(transform.x, transform.y);
-                camera.x = transform.x;
-                camera.y = transform.y;
+        for entity in entities {
+            // println!("Finds a camera target");
+            let transform = world.get_component::<Transform>(entity).unwrap();
+            let camera = resources.get_mut::<Camera2D>().unwrap();
+            // camera.set_position(transform.x, transform.y);
+            camera.x = transform.x;
+            camera.y = transform.y;
         }
     }
 }

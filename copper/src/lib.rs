@@ -1,13 +1,11 @@
-
 use std::any::TypeId;
+pub mod assets;
 pub mod core;
 pub mod ecs;
+pub mod grid;
+pub mod input;
 pub mod renderer;
 pub mod resource;
-pub mod input;
-pub mod grid;
-pub mod assets;
-
 
 pub type ComponentId = TypeId;
 pub type EntityId = usize;

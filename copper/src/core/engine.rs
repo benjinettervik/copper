@@ -1,4 +1,8 @@
 //! This module is the main module to use when developing in Copper! ut contains all necessary functions to create a simple game.
+use std::cell::Cell;
+use std::rc::Rc;
+use std::time::SystemTime;
+
 use crate::ecs::scheduler::*;
 use crate::ecs::system::*;
 use crate::ecs::world::*;
@@ -53,45 +57,6 @@ impl Engine {
         self
     }
 
-    /// Runs all systems that have been added to an 'Engine'. Does not terminate naturally.
-    pub fn run(&mut self) -> &mut Self {
-        self.scheduler
-            .run_startup(&mut self.world, &mut self.resources);
-
-        loop {
-            self.scheduler
-                .run_update(&mut self.world, &mut self.resources);
-        }
-    }
-
-    /// Runs all systems that have been added to an 'Engine' a set number of times. Terminates after all cycles have run.
-    pub fn run_cycles_concurrent(&mut self, cycles: usize) -> &mut Self {
-        self.scheduler
-            .run_startup(&mut self.world, &mut self.resources);
-
-        let dep = self.scheduler.make_dep_graph();
-        let sorted = self.scheduler.sort_systems(dep);
-
-        for _ in 0..cycles {
-            self.scheduler
-                .run_prio_update(&mut self.world, &mut self.resources, &sorted);
-        }
-
-        self
-    }
-
-    pub fn run_cycles(&mut self, cycles: usize) -> &mut Self {
-        self.scheduler
-            .run_startup(&mut self.world, &mut self.resources);
-
-        for _ in 0..cycles {
-            self.scheduler
-                .run_update(&mut self.world, &mut self.resources);
-        }
-
-        self
-    }
-
     //
     // ###
     // ### Fixed a test run for being able to see the window -- now run update systems in scheduler
@@ -99,16 +64,20 @@ impl Engine {
     // ###
     //
 
-    pub fn test_run(&mut self, time: u64) {
-        println!("In test run!");
+    pub fn run_render(&mut self, concurrent: bool) {
+        let start_time = SystemTime::now();
 
+        // to count frames for performance stats, need reference counting and cell since winit
+        // moves
+        let total_frames = Rc::new(Cell::new(0usize));
+        let total_frames_closure = Rc::clone(&total_frames);
         // run startup sys
         self.scheduler
             .run_startup(&mut self.world, &mut self.resources);
 
+        // create dependencies for scheduler
         let dep = self.scheduler.make_dep_graph();
         let sorted = self.scheduler.sort_systems(dep);
-        let d_graph = self.scheduler.make_dep_graph();
 
         // winit eventloop time
         let event_loop: EventLoop<()> = EventLoop::new().unwrap();
@@ -131,28 +100,24 @@ impl Engine {
 
                     // Update sys
                     Event::AboutToWait => {
-                        //println!("In AboutToWait");
-                        // Update ECS
-                        // self.scheduler.sort_systems(d_graph);
-                        // self.scheduler
-                        //     .run_update(&mut self.world, &mut self.resources);
+                        total_frames_closure.set(total_frames_closure.get() + 1);
 
-                        //let time = SystemTime::now();
-                        self.scheduler.run_prio_update(
-                            &mut self.world,
-                            &mut self.resources,
-                            &sorted,
-                        );
-                        /*println!(
-                            "Run prio update time: {}",
-                            time.elapsed().unwrap().as_millis()
-                        );*/
-
-                        //Då detta är en test run så borde detta flyttas till tick systemet senare
-                        // self.resources.input.input_polling();
+                        if concurrent {
+                            self.scheduler.run_update(
+                                &mut self.world,
+                                &mut self.resources,
+                                &sorted,
+                            );
+                        } else {
+                            self.scheduler.run_update_non_concurrent(
+                                &mut self.world,
+                                &mut self.resources,
+                                &sorted,
+                            );
+                        }
                         self.resources.get_mut::<Input>().unwrap().input_polling();
 
-                        // Queue redraw event since renderer own window
+                        // queue redraw event since renderer own window
                         if let Some(renderer) = &self.renderer {
                             renderer.request_redraw();
                         }
@@ -186,7 +151,6 @@ impl Engine {
                             if let Some(renderer) = &mut self.renderer {
                                 // render draw
                                 renderer.draw(&mut self.resources);
-                                //thread::sleep(Duration::from_millis(time));
                             }
                         }
 
@@ -201,104 +165,81 @@ impl Engine {
                 }
             })
             .unwrap();
+
+        let time_ran = start_time.elapsed().unwrap().as_secs() as usize;
+
+        let to_print;
+        if concurrent {
+            to_print = "concurrently";
+        } else {
+            to_print = "non-concurrently"
+        }
+        println!(
+            "============================================================================================="
+        );
+        println!(
+            "Engine ran {} for {} seconds with an average FPS of {}!",
+            to_print,
+            time_ran,
+            (total_frames.get() / time_ran)
+        );
+        println!(
+            "============================================================================================="
+        );
     }
 
-    pub fn test_run_without_concurrency(&mut self, time: u64) {
-        println!("In test run!");
+    pub fn run_without_render(&mut self, concurrent: bool, seconds: u64) {
+        let start_time = SystemTime::now();
 
+        // to count frames for performance stats, need reference counting and cell since winit
+        // moves
+        let mut total_frames: usize = 0;
         // run startup sys
         self.scheduler
             .run_startup(&mut self.world, &mut self.resources);
 
-        // winit eventloop time
-        let event_loop: EventLoop<()> = EventLoop::new().unwrap();
+        // create dependencies for scheduler
+        let dep = self.scheduler.make_dep_graph();
+        let sorted = self.scheduler.sort_systems(dep);
 
-        event_loop
-            .run(move |event, elwt| {
-                match event {
-                    Event::Resumed => {
-                        let window = elwt
-                            .create_window(
-                                Window::default_attributes()
-                                    .with_title("Copper")
-                                    .with_inner_size(LogicalSize::new(1280.0, 720.0)),
-                            )
-                            .unwrap();
+        let start_time = SystemTime::now();
 
-                        // renderer owns window
-                        self.renderer = Some(Renderer::new(window));
-                    }
+        while start_time.elapsed().unwrap().as_secs() < seconds {
+            total_frames += 1;
+            if concurrent {
+                self.scheduler
+                    .run_update(&mut self.world, &mut self.resources, &sorted);
+            } else {
+                self.scheduler.run_update_non_concurrent(
+                    &mut self.world,
+                    &mut self.resources,
+                    &sorted,
+                );
+            }
+        }
 
-                    // Update sys
-                    Event::AboutToWait => {
-                        //println!("In AboutToWait");
-                        // Update ECS
-                        // self.scheduler.sort_systems(d_graph);
-                        // self.scheduler
-                        //     .run_update(&mut self.world, &mut self.resources);
+        let time_ran = start_time.elapsed().unwrap();
 
-                        //let time = SystemTime::now();
-                        self.scheduler
-                            .run_update(&mut self.world, &mut self.resources);
-                        /*println!(
-                            "Run prio update time: {}",
-                            time.elapsed().unwrap().as_millis()
-                        );*/
+        let to_print;
+        if concurrent {
+            to_print = "concurrently";
+        } else {
+            to_print = "non-concurrently"
+        }
 
-                        //Då detta är en test run så borde detta flyttas till tick systemet senare
-                        // self.resources.input.input_polling();
-                        self.resources.get_mut::<Input>().unwrap().input_polling();
-
-                        // Queue redraw event since renderer own window
-                        if let Some(renderer) = &self.renderer {
-                            renderer.request_redraw();
-                        }
-                    }
-
-                    // Window event -> renderer
-                    Event::WindowEvent { event, .. } => match event {
-                        //cursor, keys, mouse också flyttas till tick systemet senare
-                        WindowEvent::KeyboardInput { event, .. } => {
-                            // self.resources.input.handle_keys(event);
-                            self.resources
-                                .get_mut::<Input>()
-                                .unwrap()
-                                .handle_keys(event);
-                        }
-
-                        WindowEvent::MouseInput { state, button, .. } => {
-                            self.resources
-                                .get_mut::<Input>()
-                                .unwrap()
-                                .handle_mouse_button(button, state);
-                        }
-
-                        WindowEvent::CursorMoved { position, .. } => {
-                            self.resources
-                                .get_mut::<Input>()
-                                .unwrap()
-                                .handle_mouse_movement(position.x, position.y);
-                        }
-
-                        WindowEvent::RedrawRequested => {
-                            if let Some(renderer) = &mut self.renderer {
-                                // render draw
-                                renderer.draw(&mut self.resources);
-                                //thread::sleep(Duration::from_millis(time));
-                            }
-                        }
-
-                        WindowEvent::CloseRequested => {
-                            elwt.exit();
-                        }
-
-                        _ => {}
-                    },
-
-                    _ => {}
-                }
-            })
-            .unwrap();
+        println!(
+            "============================================================================================="
+        );
+        println!(
+            "Engine ran {} for around {} second(s) with an average FPS of {}!",
+            to_print,
+            start_time.elapsed().unwrap().as_secs(),
+            (total_frames as f64 / (start_time.elapsed().unwrap().as_millis() as f64 / 1000.0))
+                .round()
+        );
+        println!(
+            "============================================================================================="
+        );
     }
 }
 

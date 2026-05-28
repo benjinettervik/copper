@@ -1,6 +1,6 @@
-//! Contains the definition of a system. 
+//! Contains the definition of a system.
 
-use crate::{ComponentId};
+use crate::ComponentId;
 use crate::ecs::world::*;
 use crate::resource::Resources;
 use std::any::TypeId;
@@ -101,10 +101,10 @@ macro_rules! system_id {
 pub trait System {
     // with this implementation we will have to trust the user doesn't fetch other components
     // than what's specified
-    
+
     /// Defines which components a given system will read. This is used by the system scheduler.
     fn components_read(&self) -> Vec<ComponentId>;
-    
+
     /// Defines which components a given system will manipulate. This is used by the system scheduler.  
     fn components_write(&self) -> Vec<ComponentId>;
 
@@ -117,6 +117,6 @@ pub trait System {
     /// Defines which components an entity will need NOT have for a system to query for it. This is used by the system scheduler.
     fn components_without(&self) -> Vec<ComponentId>;
 
-    /// The function that will be run by the engine on start. 
+    /// The function that will be run by the engine on start.
     fn run(&mut self, world: &mut World, resources: &mut Resources);
 }
