@@ -148,7 +148,7 @@ fn main() {
 
 
     // loads the tileset.png
-    let texture = convert_texture("./src/sprite_assets/tiles.png").unwrap();
+    let texture = convert_texture("./demo/src/sprite_assets/tiles.png").unwrap();
     // extract the pixel data
     let tile_set =extract_tileset(32,32,&texture); 
     // println!("{}",tile_set.len());
@@ -162,16 +162,16 @@ fn main() {
     // // new function to be made --> json.layers to RenderGrid
 
 
-    let json_read = extract_layer_data2("./src/sprite_assets/big_layer.tmj").unwrap();
+    let json_read = extract_layer_data2("./demo/src/sprite_assets/big_layer.tmj").unwrap();
     let mut grid: Grid = Grid::new(20,30,32.0);
     let mut count = 0;
     let layer = &json_read.layers[0];
 
 
-    let sprite_texture = convert_texture("./src/sprite_assets/32_sprite.png").unwrap();
-    let knight_texture1 = convert_texture("./src/sprite_assets/knight1.png").unwrap();
-    let knight_texture2 = convert_texture("./src/sprite_assets/knight2.png").unwrap();
-    let player = convert_texture("./src/sprite_assets/farm_guy.png").unwrap();
+    let sprite_texture = convert_texture("./demo/src/sprite_assets/32_sprite.png").unwrap();
+    let knight_texture1 = convert_texture("./demo/src/sprite_assets/knight1.png").unwrap();
+    let knight_texture2 = convert_texture("./demo/src/sprite_assets/knight2.png").unwrap();
+    let player = convert_texture("./demo/src/sprite_assets/farm_guy.png").unwrap();
     let mut sprite_set_hash = TextureAsset{textures:HashMap::new()};
     sprite_set_hash.textures.insert(TextureHandle(1),sprite_texture);
     sprite_set_hash.textures.insert(TextureHandle(2),knight_texture1);
@@ -183,7 +183,7 @@ fn main() {
     t_map_storage.textures.insert(TM_Handle{id:"xo".to_string()},sprite_set_hash);
     t_map_storage.textures.insert(TM_Handle{id:"dko".to_string()},tile_set_hash);
     
-    let render_map = json_to_rendermap("./src/sprite_assets/big_layer.tmj",32.0,TM_Handle{id:"dko".to_string()}).unwrap();
+    let render_map = json_to_rendermap("./demo/src/sprite_assets/big_layer.tmj",32.0,TM_Handle{id:"dko".to_string()}).unwrap();
     
 
     let mut engine = Engine::new();
