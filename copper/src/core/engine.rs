@@ -8,12 +8,17 @@ use crate::ecs::system::*;
 use crate::ecs::world::*;
 
 use crate::input::Input;
+use crate::resource::config::CopperConfig;
 use crate::renderer::Renderer;
 use crate::resource::Resources;
 use winit::dpi::LogicalSize;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::window::Window;
+use crate::resource::time::Time;
+use std::time::Instant;
+use std::thread;
+use std::time::Duration;
 
 // use std::thread;
 // use std::time::{Duration, SystemTime};
@@ -66,6 +71,8 @@ impl Engine {
 
     pub fn run_render(&mut self, concurrent: bool) {
         let start_time = SystemTime::now();
+        let start_time_res = Instant::now();
+        let mut last_frame = Instant::now();
 
         // to count frames for performance stats, need reference counting and cell since winit
         // moves
@@ -77,7 +84,9 @@ impl Engine {
 
         // create dependencies for scheduler
         let dep = self.scheduler.make_dep_graph();
-        let sorted = self.scheduler.sort_systems(dep);
+        let guard_rails = self.resources.get::<CopperConfig>().unwrap().scheduler_guard_rails;
+        // println!("{:?}",guard_rails);
+        let sorted = self.scheduler.sort_systems(dep,guard_rails);
 
         // winit eventloop time
         let event_loop: EventLoop<()> = EventLoop::new().unwrap();
@@ -102,6 +111,24 @@ impl Engine {
                     Event::AboutToWait => {
                         total_frames_closure.set(total_frames_closure.get() + 1);
 
+                        // 
+                        // #####
+                        // ##### Added so that Time resource can be used.
+                        // #####
+                        //
+                        let now = Instant::now();
+                        let delta = now - last_frame;
+                        // println!("{:?}",delta);
+                        last_frame = now;
+                        let delta_seconds = delta.as_secs_f32();
+                        let time = self.resources.get_mut::<Time>().unwrap();
+                        time.register_delta(delta_seconds);
+
+                        // #####
+                        // #####
+                        // #####
+                        //
+                        
                         if concurrent {
                             self.scheduler.run_update(
                                 &mut self.world,
@@ -121,6 +148,14 @@ impl Engine {
                         if let Some(renderer) = &self.renderer {
                             renderer.request_redraw();
                         }
+
+                        // 
+                        // Sleep?
+                        // Uncomment if you want 20+ ms speed
+                        // thread::sleep(Duration::from_millis(20));
+                        // 
+                        // 
+                        // 
                     }
 
                     // Window event -> renderer
@@ -200,7 +235,7 @@ impl Engine {
 
         // create dependencies for scheduler
         let dep = self.scheduler.make_dep_graph();
-        let sorted = self.scheduler.sort_systems(dep);
+        let sorted = self.scheduler.sort_systems(dep,false);
 
         let start_time = SystemTime::now();
 
