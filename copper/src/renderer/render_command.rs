@@ -11,4 +11,3 @@ pub struct RenderCommand {
     pub texture_map_handle: Option<TM_Handle>,
     //what texture, what layer it is in, where to place it, where to get it
 }
-

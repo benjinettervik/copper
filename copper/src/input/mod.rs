@@ -63,4 +63,3 @@ impl Input {
         self.state.clear_inputs();
     }
 }
-

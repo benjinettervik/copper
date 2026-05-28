@@ -36,4 +36,3 @@ impl ActionState {
         self.just_released.contains(&action)
     }
 }
-

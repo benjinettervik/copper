@@ -6,4 +6,3 @@ use crate::renderer::render_command::RenderCommand;
 pub struct RenderQueue {
     pub commands: Vec<RenderCommand>,
 }
-

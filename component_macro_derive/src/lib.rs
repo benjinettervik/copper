@@ -23,4 +23,3 @@ fn impl_component_macro(ast: &syn::DeriveInput) -> TokenStream {
 
     generate.into()
 }
-

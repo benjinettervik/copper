@@ -101,4 +101,3 @@ impl InputState {
         self.mouse_buttons_pressed.contains(&button)
     }
 }
-

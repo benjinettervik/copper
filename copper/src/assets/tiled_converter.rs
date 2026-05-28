@@ -157,4 +157,3 @@ pub fn json_to_rendermap(path: &str, pix_dim: f32, handle: TM_Handle) -> Result<
         grids: render_grids,
     })
 }
-

@@ -26,4 +26,3 @@ impl Component for Transform {
         "Transform"
     }
 }
-

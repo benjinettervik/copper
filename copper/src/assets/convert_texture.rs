@@ -68,4 +68,3 @@ pub fn extract_tileset(tile_h: u32, tile_w: u32, texture: &Texture) -> Vec<Textu
 
     tiles
 }
-

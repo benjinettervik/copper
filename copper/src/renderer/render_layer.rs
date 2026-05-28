@@ -6,4 +6,3 @@ pub enum RenderLayer {
     Sprite,
     Effects,
 }
-

@@ -7,4 +7,3 @@ impl RenderMap {
         Self { grids: Vec::new() }
     }
 }
-

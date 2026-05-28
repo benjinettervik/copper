@@ -82,4 +82,3 @@ impl System for CameraFollowSystem {
         }
     }
 }
-

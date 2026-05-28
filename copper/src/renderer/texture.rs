@@ -17,4 +17,3 @@ impl Component for TextureHandle {
         "TextureHandle"
     }
 }
-

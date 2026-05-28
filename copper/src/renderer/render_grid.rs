@@ -8,4 +8,3 @@ pub struct RenderGrid {
     pub handle: TM_Handle,
     pub tile_size: f32,
 }
-
