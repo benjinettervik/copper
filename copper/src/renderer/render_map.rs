@@ -1,9 +1,10 @@
 use crate::renderer::render_grid::RenderGrid;
-pub struct RenderMap{
+pub struct RenderMap {
     pub grids: Vec<RenderGrid>,
 }
-impl RenderMap{
+impl RenderMap {
     pub fn new() -> Self {
-        Self { grids: Vec::new(), }
+        Self { grids: Vec::new() }
     }
 }
+

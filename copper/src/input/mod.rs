@@ -1,12 +1,12 @@
-pub mod input_state;
 pub mod action_state;
 pub mod input_bindings;
-use winit::event::MouseButton;
-use winit::event::ElementState;
-use winit::event::KeyEvent;
-use crate::input::input_state::InputState;
+pub mod input_state;
 use crate::input::action_state::ActionState;
 use crate::input::input_bindings::InputBindings;
+use crate::input::input_state::InputState;
+use winit::event::ElementState;
+use winit::event::KeyEvent;
+use winit::event::MouseButton;
 
 pub struct Input {
     pub state: InputState,
@@ -35,7 +35,6 @@ impl Input {
 
     //Called once per tick/frame to update actions, (will be changed for our new intended system plan)
     pub fn input_polling(&mut self) {
-        
         self.actions.active.clear();
         self.actions.just_pressed.clear();
         self.actions.just_released.clear();
@@ -64,3 +63,4 @@ impl Input {
         self.state.clear_inputs();
     }
 }
+

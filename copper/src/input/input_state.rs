@@ -1,19 +1,18 @@
+use std::collections::HashSet;
+use winit::event::ElementState;
+use winit::event::KeyEvent;
 use winit::event::MouseButton;
 use winit::keyboard::KeyCode;
-use winit::event::ElementState;
-use std::collections::HashSet;
 use winit::keyboard::PhysicalKey;
-use winit::event::KeyEvent;
 pub struct InputState {
     pub keys_down: HashSet<KeyCode>,
     pub keys_pressed: HashSet<KeyCode>,
     pub keys_released: HashSet<KeyCode>, //may remove
 
-    pub mouse_pos: (f64 , f64),
+    pub mouse_pos: (f64, f64),
     pub mouse_buttons_down: HashSet<MouseButton>,
     pub mouse_buttons_pressed: HashSet<MouseButton>,
     pub mouse_buttons_released: HashSet<MouseButton>, //may remove
-
 }
 
 impl InputState {
@@ -28,8 +27,8 @@ impl InputState {
             mouse_buttons_released: HashSet::new(), //may remove
         }
     }
-    
-    /// Handle input events, currently pressed keys will be added to keys_down and keys_pressed, when the key gets 
+
+    /// Handle input events, currently pressed keys will be added to keys_down and keys_pressed, when the key gets
     /// released it will be removed from keys_down and added to keys_released
     /// When a key gets removed from pressed it gets inserted into released but we dont have a proper plan for now
     /// self.resources.input.handle_keys(event);
@@ -102,3 +101,4 @@ impl InputState {
         self.mouse_buttons_pressed.contains(&button)
     }
 }
+

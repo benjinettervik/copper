@@ -1,6 +1,6 @@
 use crate::input::action_state::Action;
-use winit::event::MouseButton;
 use std::collections::HashMap;
+use winit::event::MouseButton;
 use winit::keyboard::KeyCode;
 pub struct InputBindings {
     pub key_map: HashMap<KeyCode, Action>,
@@ -27,3 +27,4 @@ impl InputBindings {
         self
     }
 }
+

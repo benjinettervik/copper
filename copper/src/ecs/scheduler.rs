@@ -1,17 +1,11 @@
+use crate::core::engine::{Startup, SystemRoutine, Update};
 use crate::ecs::system::System;
 use crate::ecs::world::World;
+use crate::resource::Resources;
 use rayon;
-// use crate::engine::{Startup, SystemRoutine, Update};
-use crate::core::engine::{Startup, SystemRoutine, Update};
 use std::any::Any;
 use std::any::TypeId;
-// use crate::engine::{Startup, Update, SystemRoutine};
-// use crate::Component;
-use crate::resource::Resources;
-// use component_macro_derive::*;
 use std::collections::HashMap;
-// use std::sync::{Arc, Mutex};
-// use std::thread;
 
 pub struct AccessMappings {
     pub read_world: HashMap<TypeId, Vec<TypeId>>,
@@ -23,6 +17,7 @@ pub struct AccessMappings {
     pub comp_reg: Vec<TypeId>, //registers what components are active
     pub res_reg: Vec<TypeId>,  //what resources are required
 }
+
 impl AccessMappings {
     pub fn new() -> Self {
         Self {
@@ -61,8 +56,6 @@ impl Scheduler {
             startup: Vec::new(),
             update: Vec::new(),
             access_map: AccessMappings::new(),
-            // sorted ?
-            // run_update runs sorted?
         }
     }
 
@@ -136,20 +129,11 @@ impl Scheduler {
     }
 
     pub fn make_dep_graph(&mut self) -> SchedulerDepGraph {
-        // debg
-        // println!(
-        //     "The amount of systems in scheduler are: {:?}",
-        //     self.access_map.sys_reg.len()
-        // );
-
-        // so for order system i would simply say
-        // let mut dep_graph = SchedulerDepGraph{dep:Vec::new(),len:0};
         let mut depgraph = SchedulerDepGraph {
             dep: Vec::new(),
             len: 0,
         };
         for component in self.access_map.comp_reg.clone() {
-            // println!("In order_system loop");
             // conflicts to detect
             let mut read_write_conflict = false;
             let mut write_write_conflict = false;
@@ -164,8 +148,6 @@ impl Scheduler {
                     let reader_vec = readers.unwrap();
                     let writer_vec = writers.unwrap();
                     for dep_reader in reader_vec {
-                        // let depnode_exists = depgraph.dep.iter().any(|node| node.id == *dep_reader);
-
                         if let Some(depnode) =
                             depgraph.dep.iter_mut().find(|node| node.id == *dep_reader)
                         {
@@ -176,7 +158,6 @@ impl Scheduler {
                                 depnode.dependencies.push(*each);
                             }
                         } else {
-                            // println!("Depnode does not exist!");
                             let mut read_depend = Vec::new();
                             for each in writer_vec {
                                 read_depend.push(*each);
@@ -208,10 +189,8 @@ impl Scheduler {
     }
 
     pub fn sort_systems(&mut self, dep_graph: SchedulerDepGraph) -> Vec<Vec<TypeId>> {
-        // println!("Depgraph we are working with: {:?}\n", dep_graph);
         let mut result = Vec::new();
         let mut dgraph = dep_graph.clone();
-        // let mut node_vec = dep_graph.dep.clone();
         while !dgraph.dep.is_empty() {
             let mut stage = Vec::new();
             // no dependencies --> lets push and remove
@@ -235,7 +214,6 @@ impl Scheduler {
             }
             dgraph.dep.retain(|node| !stage.contains(&node.id));
 
-            // println!("sorting systems loop");
             for node in dgraph.dep.iter_mut() {
                 // now remove it from dependencies
                 node.dependencies.retain(|dep| !stage.contains(dep));
@@ -282,43 +260,13 @@ impl Scheduler {
         }
     }
 
-    pub fn run_update(&mut self, world: &mut World, resources: &mut Resources) {
-        for system in &mut self.update {
-            system.run(world, resources);
-        }
-    }
-
-    /*pub fn run_prio_update(
-        &mut self,
-        world: &mut World,
-        resources: &mut Resources,
-        order: &Vec<Vec<TypeId>>,
-    ) {
-        let mut fixed_update: Vec<Box<dyn System>> = Vec::new();
-        let mut order_batch = order.clone();
-        // println!("The order batch \n {:?}",order_batch);
-        for stage in order_batch {
-            for system in stage {
-                if let Some(system) = self.update.iter_mut().find(|sys| sys.sys_id() == system) {
-                    // have to wrap in Arc for threading
-
-                    system.run(world, resources);
-
-                    println!("Running ID: {:?}\n", system.sys_id());
-                    // now its time to fix the concurrency part
-                }
-            }
-        }
-    }*/
-
-    pub fn run_prio_update(
+    pub fn run_update(
         &mut self,
         world: &mut World,
         resources: &mut Resources,
         order: &Vec<Vec<TypeId>>,
     ) {
         let order_batch = order.clone();
-        //println!("\n In Benjamin threading update\n");
 
         let world_ptr = world as *mut World as usize; // convert world to hard pointer
         let res_ptr = resources as *mut Resources as usize; // convert resource to hard pointer
@@ -336,23 +284,38 @@ impl Scheduler {
 
             rayon::scope(|s| {
                 for sys_ptr in stage_systems {
-                    // Spawn the actual thread
+                    // spawn thread
                     s.spawn(move |_| {
-                        // 3. UNSAFE BLOCK: Reconstruct the mutable references
                         unsafe {
-                            // Cast the numbers back to raw pointers, then deference them into &mut
+                            // cast raw pointers back to objects
                             let thread_world = &mut *(world_ptr as *mut World);
                             let thread_res = &mut *(res_ptr as *mut Resources);
                             let thread_sys = &mut *(sys_ptr as *mut Box<dyn System>);
 
-                            // Run the system concurrently!
+                            // run the system concurrently
                             thread_sys.run(thread_world, thread_res);
-
-                            //println!("Running ID: {:?}\n", thread_sys.sys_id());
                         }
                     });
                 }
             });
+        }
+    }
+
+    // for benchmarking purposes
+    pub fn run_update_non_concurrent(
+        &mut self,
+        world: &mut World,
+        resources: &mut Resources,
+        order: &Vec<Vec<TypeId>>,
+    ) {
+        let mut fixed_update: Vec<Box<dyn System>> = Vec::new();
+        let mut order_batch = order.clone();
+        for stage in order_batch {
+            for system in stage {
+                if let Some(system) = self.update.iter_mut().find(|sys| sys.sys_id() == system) {
+                    system.run(world, resources);
+                }
+            }
         }
     }
 }

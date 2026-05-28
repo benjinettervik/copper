@@ -1,39 +1,12 @@
+use component_macro_derive::*;
+use copper::core::engine::*;
 use copper::ecs::system::*;
 use copper::ecs::world::*;
-use copper::ecs::*;
-use copper::grid::*;
-// use copper::resource::{Resources,RenderLayer,TM_Handle,TextureMap};
-// use copper::renderer::{render_layer, ren}
 use copper::resource::*;
-use copper::renderer::render_layer::*;
-use copper::assets::texture_map::*;
-// use copper::renderer::render_sys::{NewRenderSys,TileMapStorage,GridStorage,TileMap,TMapHandle,GridHandle,GridRenderMeta};
-use copper::renderer::render_sys::*;
-// use copper::resource::{convert_texture,extract_tileset,extract_layer_data2,json_to_rendermap};
-use copper::assets::convert_texture::*;
-use copper::assets::texture_asset::*;
-use copper::assets::texture_map::*;
-use copper::core::engine::*;
-use copper::renderer::components::Transform;
-use copper::assets::tiled_converter::*;
-use copper::renderer::camera::*;
-use copper::renderer::texture::TextureHandle;
-use copper::renderer::components::MockSprite;
-// use copper::input::Input;
-use std::collections::HashMap;
-// use copper::renderer::test_components_renderer::*;
 use copper::*;
 use std::any::TypeId;
-use component_macro_derive::*;
-
-
-use winit::keyboard::KeyCode;
-// use copper::input::Action;
-use copper::input::Input;
-use copper::input::*;
-use std::time::SystemTime;
-use winit::keyboard::*;
-use winit::keyboard::KeyCode::*;
+use std::env;
+use winit::keyboard::KeyLocation::Standard;
 
 #[derive(Component)]
 struct Component1 {
@@ -75,8 +48,8 @@ struct Component8 {
     value: i32,
 }
 
-struct SpawnEntitiesSystem;
-impl System for SpawnEntitiesSystem {
+struct Spawn1000EntitiesSystem;
+impl System for Spawn1000EntitiesSystem {
     components_read!();
     components_write!();
     components_with!();
@@ -86,7 +59,57 @@ impl System for SpawnEntitiesSystem {
     system_id!();
 
     fn run(&mut self, world: &mut World, resources: &mut Resources) {
-        for _ in 0..120000 {
+        for _ in 0..1000 {
+            let entitiy = world.spawn();
+            world.add_component(entitiy, Component1 { value: 0 });
+            world.add_component(entitiy, Component2 { value: 0 });
+            world.add_component(entitiy, Component3 { value: 0 });
+            world.add_component(entitiy, Component4 { value: 0 });
+            world.add_component(entitiy, Component5 { value: 0 });
+            world.add_component(entitiy, Component6 { value: 0 });
+            world.add_component(entitiy, Component7 { value: 0 });
+            world.add_component(entitiy, Component8 { value: 0 });
+        }
+    }
+}
+
+struct Spawn10000EntitiesSystem;
+impl System for Spawn10000EntitiesSystem {
+    components_read!();
+    components_write!();
+    components_with!();
+    components_without!();
+    resources_read!();
+    resources_write!();
+    system_id!();
+
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+        for _ in 0..10000 {
+            let entitiy = world.spawn();
+            world.add_component(entitiy, Component1 { value: 0 });
+            world.add_component(entitiy, Component2 { value: 0 });
+            world.add_component(entitiy, Component3 { value: 0 });
+            world.add_component(entitiy, Component4 { value: 0 });
+            world.add_component(entitiy, Component5 { value: 0 });
+            world.add_component(entitiy, Component6 { value: 0 });
+            world.add_component(entitiy, Component7 { value: 0 });
+            world.add_component(entitiy, Component8 { value: 0 });
+        }
+    }
+}
+
+struct Spawn100000EntitiesSystem;
+impl System for Spawn100000EntitiesSystem {
+    components_read!();
+    components_write!();
+    components_with!();
+    components_without!();
+    resources_read!();
+    resources_write!();
+    system_id!();
+
+    fn run(&mut self, world: &mut World, resources: &mut Resources) {
+        for _ in 0..100000 {
             let entitiy = world.spawn();
             world.add_component(entitiy, Component1 { value: 0 });
             world.add_component(entitiy, Component2 { value: 0 });
@@ -261,52 +284,58 @@ impl System for IncreaseComp8System {
 }
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    let mut engine = Engine::new();
+    let concurrent_arg = &args[1];
+    let interactive_arg = &args[2];
+    let entities_arg = &args[3];
+
+    if (concurrent_arg != "true" && concurrent_arg != "false")
+        || (interactive_arg != "true" && interactive_arg != "false")
+        || (entities_arg != "1000" && entities_arg != "10000" && entities_arg != "100000")
     {
-        let mut engine = Engine::new();
-
-        // Startup
-        engine
-            .add_system(Startup, SpawnEntitiesSystem)
-            .add_system(Update, IncreaseComp1System)
-            .add_system(Update, IncreaseComp2System)
-            .add_system(Update, IncreaseComp3System)
-            .add_system(Update, IncreaseComp4System)
-            .add_system(Update, IncreaseComp5System)
-            .add_system(Update, IncreaseComp6System)
-            .add_system(Update, IncreaseComp7System)
-            .add_system(Update, IncreaseComp8System);
-
-        let start_time_concurrent = SystemTime::now();
-        engine.test_run(20);
-
-        println!(
-            "Amount of time elapsed for concurrent run: {}",
-            start_time_concurrent.elapsed().unwrap().as_millis()
-        );
+        panic!("You need to supply arguments (true/false) for concurrency and interactivity");
     }
 
-    {
-        let mut engine = Engine::new();
+    if entities_arg == "1000" {
+        engine.add_system(Startup, Spawn1000EntitiesSystem);
+    }
 
-        // Startup
-        engine
-            .add_system(Startup, SpawnEntitiesSystem)
-            .add_system(Update, IncreaseComp1System)
-            .add_system(Update, IncreaseComp2System)
-            .add_system(Update, IncreaseComp3System)
-            .add_system(Update, IncreaseComp4System)
-            .add_system(Update, IncreaseComp5System)
-            .add_system(Update, IncreaseComp6System)
-            .add_system(Update, IncreaseComp7System)
-            .add_system(Update, IncreaseComp8System)
-            .add_system(Update, NewRenderSys);
+    if entities_arg == "10000" {
+        engine.add_system(Startup, Spawn10000EntitiesSystem);
+    }
 
-        let start_time_non_concurrent = SystemTime::now();
-        //engine.test_run(10);
+    if entities_arg == "100000" {
+        engine.add_system(Startup, Spawn100000EntitiesSystem);
+    }
 
-        println!(
-            "Amount of time elapsed for non-concurrent run: {}",
-            start_time_non_concurrent.elapsed().unwrap().as_millis()
-        );
+    engine
+        .add_system(Update, IncreaseComp1System)
+        .add_system(Update, IncreaseComp2System)
+        .add_system(Update, IncreaseComp3System)
+        .add_system(Update, IncreaseComp4System)
+        .add_system(Update, IncreaseComp5System)
+        .add_system(Update, IncreaseComp6System)
+        .add_system(Update, IncreaseComp7System)
+        .add_system(Update, IncreaseComp8System);
+
+    println!(
+        "Will run with settings: \nConcurrent: {}\nInteractive: {}
+        ",
+        concurrent_arg, interactive_arg
+    );
+
+    if interactive_arg == "true" {
+        println!("Please close window manually when you want to see results!");
+        if concurrent_arg == "true" {
+            engine.run_render(true);
+        } else {
+            engine.run_render(false);
+        }
+    } else {
+        println!("Running concurrently for 10 seconds.");
+        engine.run_without_render(true, 10);
+        println!("Running non-concurrently for 10 seconds.");
+        engine.run_without_render(false, 10);
     }
 }
