@@ -285,7 +285,6 @@ impl System for IncreaseComp8System {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let mut engine = Engine::new();
     let concurrent_arg = &args[1];
     let interactive_arg = &args[2];
     let entities_arg = &args[3];
@@ -297,35 +296,37 @@ fn main() {
         panic!("You need to supply arguments (true/false) for concurrency and interactivity");
     }
 
-    if entities_arg == "1000" {
-        engine.add_system(Startup, Spawn1000EntitiesSystem);
-    }
-
-    if entities_arg == "10000" {
-        engine.add_system(Startup, Spawn10000EntitiesSystem);
-    }
-
-    if entities_arg == "100000" {
-        engine.add_system(Startup, Spawn100000EntitiesSystem);
-    }
-
-    engine
-        .add_system(Update, IncreaseComp1System)
-        .add_system(Update, IncreaseComp2System)
-        .add_system(Update, IncreaseComp3System)
-        .add_system(Update, IncreaseComp4System)
-        .add_system(Update, IncreaseComp5System)
-        .add_system(Update, IncreaseComp6System)
-        .add_system(Update, IncreaseComp7System)
-        .add_system(Update, IncreaseComp8System);
-
-    println!(
-        "Will run with settings: \nConcurrent: {}\nInteractive: {}
-        ",
-        concurrent_arg, interactive_arg
-    );
-
     if interactive_arg == "true" {
+        let mut engine = Engine::new();
+
+        if entities_arg == "1000" {
+            engine.add_system(Startup, Spawn1000EntitiesSystem);
+        }
+
+        if entities_arg == "10000" {
+            engine.add_system(Startup, Spawn10000EntitiesSystem);
+        }
+
+        if entities_arg == "100000" {
+            engine.add_system(Startup, Spawn100000EntitiesSystem);
+        }
+
+        engine
+            .add_system(Update, IncreaseComp1System)
+            .add_system(Update, IncreaseComp2System)
+            .add_system(Update, IncreaseComp3System)
+            .add_system(Update, IncreaseComp4System)
+            .add_system(Update, IncreaseComp5System)
+            .add_system(Update, IncreaseComp6System)
+            .add_system(Update, IncreaseComp7System)
+            .add_system(Update, IncreaseComp8System);
+
+        println!(
+            "Will run with settings: \nConcurrent: {}\nInteractive: {}
+        ",
+            concurrent_arg, interactive_arg
+        );
+
         println!("Please close window manually when you want to see results!");
         if concurrent_arg == "true" {
             engine.run_render(true);
@@ -333,9 +334,72 @@ fn main() {
             engine.run_render(false);
         }
     } else {
-        println!("Running concurrently for 10 seconds.");
-        engine.run_without_render(true, 10);
-        println!("Running non-concurrently for 10 seconds.");
-        engine.run_without_render(false, 10);
+        {
+            let mut engine = Engine::new();
+
+            if entities_arg == "1000" {
+                engine.add_system(Startup, Spawn1000EntitiesSystem);
+            }
+
+            if entities_arg == "10000" {
+                engine.add_system(Startup, Spawn10000EntitiesSystem);
+            }
+
+            if entities_arg == "100000" {
+                engine.add_system(Startup, Spawn100000EntitiesSystem);
+            }
+
+            engine
+                .add_system(Update, IncreaseComp1System)
+                .add_system(Update, IncreaseComp2System)
+                .add_system(Update, IncreaseComp3System)
+                .add_system(Update, IncreaseComp4System)
+                .add_system(Update, IncreaseComp5System)
+                .add_system(Update, IncreaseComp6System)
+                .add_system(Update, IncreaseComp7System)
+                .add_system(Update, IncreaseComp8System);
+
+            println!(
+                "Will run with settings: \nConcurrent: {}\nInteractive: {}
+        ",
+                concurrent_arg, interactive_arg
+            );
+
+            println!("Running non-concurrently for 10 seconds.");
+            engine.run_without_render(false, 10);
+        }
+        {
+            let mut engine = Engine::new();
+
+            if entities_arg == "1000" {
+                engine.add_system(Startup, Spawn1000EntitiesSystem);
+            }
+
+            if entities_arg == "10000" {
+                engine.add_system(Startup, Spawn10000EntitiesSystem);
+            }
+
+            if entities_arg == "100000" {
+                engine.add_system(Startup, Spawn100000EntitiesSystem);
+            }
+
+            engine
+                .add_system(Update, IncreaseComp1System)
+                .add_system(Update, IncreaseComp2System)
+                .add_system(Update, IncreaseComp3System)
+                .add_system(Update, IncreaseComp4System)
+                .add_system(Update, IncreaseComp5System)
+                .add_system(Update, IncreaseComp6System)
+                .add_system(Update, IncreaseComp7System)
+                .add_system(Update, IncreaseComp8System);
+
+            println!(
+                "Will run with settings: \nConcurrent: {}\nInteractive: {}",
+                concurrent_arg, interactive_arg
+            );
+
+            println!("Running concurrently for 10 seconds.");
+            engine.run_without_render(true, 10);
+        }
     }
 }
