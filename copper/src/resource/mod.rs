@@ -1,28 +1,20 @@
-// use copper::renderer::test_components_renderer::*;
-pub mod camera;
-use crate::renderer::test_components_renderer::*;
-use crate::resource::camera::*;
-use crate::renderer::render_sys::*;
+// use crate::renderer::test_components_renderer::*;
 use crate::input::Input;
 use std::collections::HashMap;
 use std::any::Any;
+use crate::assets::texture_map::TextureMap;
+use crate::renderer::render_map::RenderMap;
+use crate::renderer::camera::Camera2D;
+use crate::assets::texture_asset::TextureAsset;
+use crate::renderer::render_queue::RenderQueue;
+// use crate::assets::texture_map::TextureMap;
+
+
 use std::any::TypeId;
 
 
-// pub struct Resources {
-//     pub texture_hash: TextureAsset,
-//     pub render_queue: RenderQueue,
-//     pub Camera2D: Camera2D,
-//     pub input: Input,
-// }
-
 pub struct Resources{
-    // key becomes the type of the resource that has been saved , and the box contains on 
-    // heap the accessible data associated.
-    // Box<T> is a smart pointer -- stores variable on heap instead of directly on stack 
-    // dyn Any , unknown size at compile time 
     resources: HashMap<TypeId, Box<dyn Any>>,
-
 }
 
 impl Resources{
@@ -60,10 +52,12 @@ impl Resources{
     }
 
     pub fn init_basic_kit(&mut self){
-        self.insert(RenderQueue{commands: Vec::new(),});
+        self.insert(RenderQueue{commands: Vec::new()});
         self.insert(TextureAsset{textures: HashMap::new(),});
         self.insert(Camera2D::new());
         self.insert(Input::new());
+        self.insert(RenderMap::new());
+        self.insert(TextureMap::new());
         // self.resources.insert(Grid::new(32,32,16.0));
     }
 }
@@ -73,42 +67,4 @@ impl Resources{
 
 
 
-
-
-
-
-
-
-
-
-
-#[derive(Debug)]
-pub struct RenderCommand {
-    pub texture: TextureHandle,
-    pub x: f32,
-    pub y: f32,
-}
-
-pub struct RenderQueue {
-    pub commands: Vec<RenderCommand>,
-}
-
-
-
-pub fn convert_texture(path: &str) -> Result<Texture,String> {
-        
-
-        let img = image::open(path)
-            .map_err(|e| format!("Failed to load image: {}", e))?
-            .to_rgba8();
-        
-        let (width, height) = img.dimensions();
-        let pixel_data = img.into_raw();
-        Ok(Texture {
-            width,
-            height,
-            pixel_data,
-        })
-    }
-// camera sys
 

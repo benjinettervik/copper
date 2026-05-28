@@ -33,3 +33,12 @@ fn main(){
 }
 
 ```
+
+
+# Dependencies for Resources 
+
+# img
+The img dependency is simply used for decoding a .png file.
+
+# Serde JSON
+Serde JSON is used to be able to extract data

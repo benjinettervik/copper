@@ -1,9 +1,10 @@
 [package]
-name = "snake"
+name = "demo"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 copper = { path = "../copper" }
-rand = "0.10.1"
+component_macro_derive = { path = "../component_macro_derive/" }
 winit = "0.30.13"
+bytemuck = "1.25.0"

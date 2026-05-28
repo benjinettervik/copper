@@ -1,13 +1,22 @@
-pub mod test_components_renderer;
+// pub mod test_components_renderer;
+pub mod texture;
+pub mod components;
 pub mod render_sys;
-use std::sync::Arc;
+pub mod render_command;
+pub mod render_grid;
+pub mod render_map;
+pub mod render_queue;
+pub mod render_layer;
+pub mod camera;
 use winit::window::Window;
 use pixels::{Pixels, SurfaceTexture};
-use crate::resource::{Resources,RenderCommand};
-use crate::resource::RenderQueue;
-use crate::resource::camera::Camera2D;
-use crate::renderer::test_components_renderer::TextureAsset;
-
+// use crate::resource::{TextureMap,Resources,RenderCommand};
+use crate::resource::Resources;
+use crate::assets::texture_map::TextureMap;
+use crate::renderer::render_queue::RenderQueue;
+use crate::renderer::camera::Camera2D;
+// use crate::renderer::test_components_renderer::TextureAsset;
+// use crate::renderer::render_sys::TileMapStorage;
 
 
 // window made issues with lifetime complexities, but found a solution
@@ -40,11 +49,12 @@ impl Renderer {
         );
 
         // surface texture is tied to pixels
-        let pixels = Pixels::new(
+        let mut pixels = Pixels::new(
             size.width,
             size.height,
             surface_texture,
         ).expect("Failed to create Pixels");
+        pixels.enable_vsync(false);
 
         Self {
             window, 
@@ -57,80 +67,103 @@ impl Renderer {
     }
 
 
-   pub fn draw(&mut self, resources: &mut Resources) {
-   
-        // width and size of the pixelbuffer 
+    pub fn draw(&mut self, resources: &mut Resources) {
+
         let size = self.pixels.context().texture_extent;
         let width = size.width as usize;
         let height = size.height as usize;
 
+        let frame: &mut [u32] =
+            bytemuck::cast_slice_mut(self.pixels.frame_mut());
 
-        // mutable slice of the pixels - so we can modify the pixels
-        // frame [u8]
-        let frame = self.pixels.frame_mut();
+        frame.fill(0xFF000000);
 
-        // basically sets the background
-        // iterate over pixel 4 bytes at a time- a chunk represent one pixel
-        for pixel in frame.chunks_exact_mut(4) {
-            pixel.copy_from_slice(&[0, 0, 0, 255]);
-        }
+        let camera = resources.get::<Camera2D>().unwrap();
+
+        let camera_x = camera.x as isize;
+        let camera_y = camera.y as isize;
+
+        let screen_center_x = (width as isize) / 2;
+        let screen_center_y = (height as isize) / 2;
 
 
+        let mut commands = {
+            let render_queue =
+                resources.get_mut::<RenderQueue>().unwrap();
+            render_queue
+                .commands
+                .sort_by_key(|cmd| cmd.layer);
+            std::mem::take(&mut render_queue.commands)
+        };
+        let texture_storage =
+            resources.get::<TextureMap>().unwrap();
 
-        // from the commands that we stored through RenderSys, we go through them
-        for render_command in &resources.get::<RenderQueue>().unwrap().commands{
-        // for render_command in &resources.render_queue.commands {
+        for command in commands.drain(..) {
 
-            // texture has {height,width and data (pixel data --> rgba)}
-            // let texture = resources.texture_hash.textures.get(&render_command.texture).unwrap();
-            let texture = &resources.get::<TextureAsset>().unwrap().textures.get(&render_command.texture).unwrap();
-           
+            let map_handle =
+                command.texture_map_handle.clone().unwrap();
+
+            let texture = texture_storage
+                .textures
+                .get(&map_handle)
+                .unwrap()
+                .textures
+                .get(&command.texture)
+                .unwrap();
+
             let tex_width = texture.width as usize;
             let tex_height = texture.height as usize;
 
-            let camera = resources.get::<Camera2D>().unwrap();
+            let base_x =
+                command.x as isize - camera_x + screen_center_x;
 
-            // let camera_x = resources.Camera2D.x as isize;
-            // let camera_y = resources.Camera2D.y as isize;
-            let camera_x = camera.x as isize;
-            let camera_y = camera.y as isize;
+            let base_y =
+                command.y as isize - camera_y + screen_center_y;
 
-            let screen_center_x = (width as isize) / 2;
-            let screen_center_y = (height as isize) / 2;
-            
-            let base_x = render_command.x as isize - camera_x + screen_center_x;
-            let base_y = render_command.y as isize - camera_y + screen_center_y;
+            if (base_x + tex_width as isize) < 0 ||
+                    base_x >= width as isize ||
+                (base_y + tex_height as isize) < 0 ||
+                    base_y >= height as isize {
+                    continue;
+            }
 
             for y in 0..tex_height {
+
+                let screen_y = base_y + y as isize;
+
+                if screen_y < 0 ||
+                screen_y >= height as isize {
+                    continue;
+                }
+
+                let screen_y = screen_y as usize;
+
+                let tex_row = y * tex_width;
+                let screen_row = screen_y * width;
+
                 for x in 0..tex_width {
+
                     let screen_x = base_x + x as isize;
-                    let screen_y = base_y + y as isize;
-                    
-                    if screen_x < 0 || screen_y < 0 {
-                       continue;
-                    }
-                    let screen_x = screen_x as usize;
-                    let screen_y = screen_y as usize;
-                    // skip pixels outside screen
-                    if screen_x >= width || screen_y >= height {
+
+                    if screen_x < 0 ||
+                    screen_x >= width as isize {
                         continue;
                     }
-                    // e.g. (10.0 * 800 + 10) * 4
-                    // skips the first ten rows
-                    // screen index -> 32040 is -> frame[32040..32044] -> is (10, 10)
-                    let screen_index = (screen_y * width + screen_x) * 4;
-                    let texture_index = (y * tex_width + x) * 4;
 
-                    // importantly -> screen-index 
-                    // copy_from_slice() copies 4byte (RGBA)
-                    // it is stored in 1d memory 
-                    frame[screen_index..screen_index + 4].copy_from_slice(&texture.pixel_data[texture_index..texture_index + 4]);
+                    let screen_x = screen_x as usize;
+
+                    let src =
+                        texture.pixel_data[tex_row + x];
+
+                    // alpha test
+                    if (src >> 24) == 0 {
+                        continue;
+                    }
+                    frame[screen_row + screen_x] = src;
                 }
             }
         }
 
         self.pixels.render().unwrap();
-        // resources.render_queue.commands.clear();
-        &resources.get_mut::<RenderQueue>().unwrap().commands.clear();
     }
 }

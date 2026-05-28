@@ -1,9 +1,10 @@
 use crate::Component;
 
+#[derive(Debug,Clone)]
 pub struct Grid{
-    cells:Vec<Vec<Vec<usize>>>, // [Rows][Cols][obj]
-    width:usize,
-    height:usize,
+    pub cells:Vec<Vec<Vec<usize>>>, // [Rows][Cols][obj]
+    pub width:usize,
+    pub height:usize,
     cell_size:f32,
 }
 
@@ -138,23 +139,5 @@ impl Grid{
         }
     }
 
-    //TODO
-    //pathfinding{
-    //}
 
-    //TODO
-    //collision_detection{
-    //}
 }
-
-
-
-
-//eg use of query
-//if mouse_clicked{
-//    let hits = grid.query(mouse_x, mouse_y);
-//    for id in hits{
-//        //might need to compare entity pos with mouse_x, mouse_y; make sure its not only in the same grid but acctually was clicked if its size is smaller than the grid
-//        //handle clicks
-//    }
-//}
