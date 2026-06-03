@@ -17,3 +17,6 @@ För att köra prestandatesten och concurrencymätningarna använd placeholderar
 ```make performance_nonconcurrent_interactive_%```
 
 ```make performance_concurrent_interactive_%```
+
+## Dokumentation
+Dokumentation om hur motorn används genereras genom att köra följande i mappen "copper" under root: ```cargo doc --no-deps --lib -p copper --open```
